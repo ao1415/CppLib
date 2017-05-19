@@ -16,6 +16,9 @@
     <Filter Include="ヘッダー ファイル\TIme">
       <UniqueIdentifier>{178be16d-d473-4191-81e0-e90d890d3ddf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Container">
+      <UniqueIdentifier>{844f1055-3e10-41eb-b3d8-7f69989fb49c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,6 +31,12 @@
     </ClInclude>
     <ClInclude Include="Timer.hpp">
       <Filter>ヘッダー ファイル\TIme</Filter>
+    </ClInclude>
+    <ClInclude Include="Queue.hpp">
+      <Filter>ヘッダー ファイル\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="Basic.hpp">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
