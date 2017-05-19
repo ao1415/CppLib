@@ -1,53 +1,57 @@
 #pragma once
 
-template<typename Type, size_t Size>
-class Queue {
-public:
+namespace alib {
 
-	Queue() = default;
-	Queue(const Queue& other) {
+	template<typename Type, size_t Size>
+	class Queue {
+	public:
 
-	}
-	Queue(Queue&& other) {
+		Queue() = default;
+		Queue(const Queue& other) {
 
-	}
+		}
+		Queue(Queue&& other) {
 
-	const bool empty() const {
-		return start == end;
-	}
+		}
 
-	const int size() const {
-		return 0;
-	}
+		const bool empty() const {
+			return start == end;
+		}
 
-	const Type& front() const {
+		const int size() const {
+			return 0;
+		}
 
-	}
+		const Type& front() const {
 
-	void push(const Type& v) {
+		}
 
-	}
-	void push(Type&& v) {
+		void push(const Type& v) {
 
-	}
+		}
+		void push(Type&& v) {
 
-	void emplace(Type&& v) {
+		}
 
-	}
+		void emplace(Type&& v) {
 
-	void pop() {
+		}
 
-	}
+		void pop() {
 
-	void swap(Queue& other) {
+		}
 
-	}
+		void swap(Queue& other) {
 
-private:
+		}
 
-	Type m_data[Size];
+	private:
 
-	int start = 0;
-	int end = 0;
+		Type m_data[Size];
 
-};
+		int start = 0;
+		int end = 0;
+
+	};
+
+}
