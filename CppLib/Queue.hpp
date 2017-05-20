@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Basic.hpp"
+
 namespace alib {
 
 	template<typename Type, size_t Size>
@@ -18,8 +20,8 @@ namespace alib {
 			return start == end;
 		}
 
-		const int size() const {
-			return 0;
+		constexpr int size() const noexcept {
+			return containerAllocator(Size);
 		}
 
 		const Type& front() const {
@@ -47,7 +49,7 @@ namespace alib {
 
 	private:
 
-		Type m_data[Size];
+		Type m_data[containerAllocator(Size)];
 
 		int start = 0;
 		int end = 0;

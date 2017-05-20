@@ -1,31 +1,43 @@
 #include <iostream>
-#include "Stopwatch.hpp"
-#include "Timer.hpp"
+#include "Basic.hpp"
+#include "Queue.hpp"
+#include "Deque.hpp"
 
 using namespace std;
 
 int main() {
 
-	std::cout << "Hello World!" << std::endl;
+	alib::FixedDeque<int, 16> deque;
 
-	Stopwatch sw;
-	Timer timer(1000ms);
+	cout << "size:" << deque.size() << endl;
+	cout << "element:" << deque.element_num() << endl;
 
-	sw.start();
-	timer.start();
+	deque.push_back(1);
+	deque.push_back(2);
+	deque.push_back(3);
 
-	while (!timer) {
+	deque.push_front(-1);
+	deque.push_front(-2);
+	deque.push_front(-3);
+	
+	cout << "element:" << deque.element_num() << endl;
 
-	}
+	cout << deque.front() << endl;
+	deque.pop_front();
+	cout << deque.front() << endl;
+	deque.pop_front();
+	cout << deque.front() << endl;
+	deque.pop_front();
+	cout << deque.front() << endl;
+	deque.pop_front();
+	cout << deque.front() << endl;
+	deque.pop_front();
+	cout << deque.front() << endl;
+	deque.pop_front();
 
-	sw.stop();
+	cout << "element:" << deque.element_num() << endl;
 
-	std::cout << sw.hours() << "h" << std::endl;
-	std::cout << sw.minutes() << "m" << std::endl;
-	std::cout << sw.second() << "s" << std::endl;
-	std::cout << sw.millisecond() << "ms" << std::endl;
-	std::cout << sw.microseconds() << "us" << std::endl;
-	std::cout << sw.nanoseconds() << "ns" << std::endl;
+	deque.showArray();
 
 	return 0;
 }

@@ -38,5 +38,8 @@
     <ClInclude Include="Basic.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="FixedDeque.hpp">
+      <Filter>ヘッダー ファイル\Container</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
