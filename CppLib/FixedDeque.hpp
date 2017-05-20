@@ -47,7 +47,6 @@ namespace alib {
 		void push_front(const Type& val) {
 			element++;
 			begin = (begin - 1) & bit_mask();
-			cerr << "begin:" << begin << endl;
 
 			m_data[begin] = val;
 		}
@@ -56,13 +55,11 @@ namespace alib {
 
 			element++;
 			end = (end + 1) & bit_mask();
-			cerr << "end:" << end << endl;
 		}
 
 		void push_front(Type&& val) {
 			element++;
 			begin = (begin - 1) & bit_mask();
-			cerr << "begin:" << begin << endl;
 
 			m_data[begin] = std::move(val);
 		}
@@ -71,7 +68,6 @@ namespace alib {
 
 			element++;
 			end = (end + 1) & bit_mask();
-			cerr << "end:" << end << endl;
 		}
 
 		void pop_front() {
