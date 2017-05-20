@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Basic.hpp"
 #include "Queue.hpp"
-#include "Deque.hpp"
+#include "FixedDeque.hpp"
 
 using namespace std;
 
@@ -22,18 +22,18 @@ int main() {
 	
 	cout << "element:" << deque.element_num() << endl;
 
-	cout << deque.front() << endl;
-	deque.pop_front();
-	cout << deque.front() << endl;
-	deque.pop_front();
-	cout << deque.front() << endl;
-	deque.pop_front();
-	cout << deque.front() << endl;
-	deque.pop_front();
-	cout << deque.front() << endl;
-	deque.pop_front();
-	cout << deque.front() << endl;
-	deque.pop_front();
+	cout << deque.back() << endl;
+	deque.pop_back();
+	cout << deque.back() << endl;
+	deque.pop_back();
+	cout << deque.back() << endl;
+	deque.pop_back();
+	cout << deque.back() << endl;
+	deque.pop_back();
+	cout << deque.back() << endl;
+	deque.pop_back();
+	cout << deque.back() << endl;
+	deque.pop_back();
 
 	cout << "element:" << deque.element_num() << endl;
 

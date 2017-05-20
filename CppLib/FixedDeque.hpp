@@ -5,6 +5,9 @@
 
 namespace alib {
 
+	/// <summary>
+	/// 
+	/// </summary>
 	template<typename Type, size_t Size>
 	class FixedDeque {
 	private:
@@ -142,10 +145,10 @@ namespace alib {
 		}
 
 		const Type& back() const {
-			return m_data[end];
+			return m_data[(end - 1) & bit_mask()];
 		}
 		Type& back() {
-			return m_data[end];
+			return m_data[(end - 1) & bit_mask()];
 		}
 
 		void clear() noexcept {
