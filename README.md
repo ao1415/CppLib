@@ -16,10 +16,14 @@ C++バージョン：C++14
 - [x] Timer
 - [x] Stopwatch
 
+### コンテナ
+- [ ] Grid
+
 ### 固定長コンテナ
 - [x] FixedDeque
 - [ ] FixedStack
 - [ ] FixedQueue
+- [ ] FixedGrid
 
 ### 探査
 - [ ] BeamSearch
