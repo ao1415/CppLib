@@ -5,21 +5,21 @@
 namespace alib {
 
 	template<typename Type, size_t Size>
-	class FixedQueue {
+	class FixedStack {
 	private:
 
 		FixedDeque<Type, Size> que;
 
 	public:
 
-		FixedQueue() = default;
-		FixedQueue(const FixedQueue& other) = default;
-		FixedQueue(FixedQueue&& other) {
+		FixedStack() = default;
+		FixedStack(const FixedStack& other) = default;
+		FixedStack(FixedStack&& other) {
 			que = std::move(other);
 		}
 
-		FixedQueue& operator=(const FixedQueue& other) = default;
-		FixedQueue& operator=(FixedQueue&& other) = default;
+		FixedStack& operator=(const FixedStack& other) = default;
+		FixedStack& operator=(FixedStack&& other) = default;
 
 		void push(const Type& v) {
 			que.push_back(v);
@@ -29,7 +29,7 @@ namespace alib {
 		}
 
 		void pop() {
-			que.pop_front();
+			que.pop_back();
 		}
 
 		constexpr size_t size() const noexcept {
@@ -48,18 +48,18 @@ namespace alib {
 			return que.full();
 		}
 
-		const Type& front() const {
-			return que.front();
+		const Type& top() const {
+			return que.back();
 		}
-		Type& front() {
-			return que.front();
+		Type& top() {
+			return que.back();
 		}
 
 		void clear() noexcept {
 			que.clear();
 		}
 
-		void swap(FixedQueue& other) noexcept(_Is_nothrow_swappable<Type>::value) {
+		void swap(FixedStack& other) noexcept(_Is_nothrow_swappable<Type>::value) {
 			que.swap(other.que);
 		}
 

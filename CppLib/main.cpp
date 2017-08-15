@@ -1,43 +1,46 @@
 #include <iostream>
-#include "FixedQueue.hpp"
+#include "FixedStack.hpp"
 #include "Stopwatch.hpp"
 
 using namespace std;
 
 int main() {
 
-	alib::FixedQueue<int, 4> que1;
-	alib::FixedQueue<int, 4> que2;
+	alib::FixedStack<int, 16> stack1;
 
-	cout << "size1:" << que1.size() << endl;
-	cout << "size2:" << que2.size() << endl;
+	stack1.push(1);
+	stack1.push(2);
+	stack1.push(3);
+	stack1.push(4);
+	stack1.push(5);
 
-	que1.push(1);
-	que1.push(2);
-	que1.push(3);
-	que1.push(4);
-	que1.push(5);
+	alib::FixedStack<int, 16> stack2 = stack1;
 
-	que2.push(1);
-	que2.push(2);
-	que2.push(3);
+	cout << "size:" << stack1.element_num() << endl;
+	cout << "size:" << stack2.element_num() << endl;
 
-	cout << "size1:" << que1.element_num() << endl;
-	cout << "size2:" << que2.element_num() << endl;
-
-	cout << "que1" << endl;
-	while (!que1.empty())
+	while (!stack1.empty())
 	{
-		cout << que1.front() << endl;
-		que1.pop();
+		cout << stack1.top() << endl;
+		stack1.pop();
 	}
 
-	cout << "que2" << endl;
-	while (!que2.empty())
+	cout << "size:" << stack1.element_num() << endl;
+	cout << "size:" << stack2.element_num() << endl;
+
+	stack1.swap(stack2);
+
+	cout << "size:" << stack1.element_num() << endl;
+	cout << "size:" << stack2.element_num() << endl;
+
+	while (!stack1.empty())
 	{
-		cout << que2.front() << endl;
-		que2.pop();
+		cout << stack1.top() << endl;
+		stack1.pop();
 	}
+
+	cout << "size:" << stack1.element_num() << endl;
+	cout << "size:" << stack2.element_num() << endl;
 
 	return 0;
 }

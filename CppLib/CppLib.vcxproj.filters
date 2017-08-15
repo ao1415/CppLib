@@ -41,5 +41,8 @@
     <ClInclude Include="FixedQueue.hpp">
       <Filter>ヘッダー ファイル\Container</Filter>
     </ClInclude>
+    <ClInclude Include="FixedStack.hpp">
+      <Filter>ヘッダー ファイル\Container</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
