@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Basic.hpp"
+#include "FixedDeque.hpp"
 
 namespace alib {
 
@@ -49,10 +49,7 @@ namespace alib {
 
 	private:
 
-		Type m_data[containerAllocator(Size)];
-
-		int start = 0;
-		int end = 0;
+		FixedDeque<Type, Size> deque;
 
 	};
 

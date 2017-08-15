@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="Basic.hpp" />
     <ClInclude Include="FixedDeque.hpp" />
+    <ClInclude Include="FixedQueue.hpp" />
     <ClInclude Include="Queue.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />
