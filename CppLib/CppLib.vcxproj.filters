@@ -32,9 +32,6 @@
     <ClInclude Include="Timer.hpp">
       <Filter>ヘッダー ファイル\TIme</Filter>
     </ClInclude>
-    <ClInclude Include="Queue.hpp">
-      <Filter>ヘッダー ファイル\Container</Filter>
-    </ClInclude>
     <ClInclude Include="Basic.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
