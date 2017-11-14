@@ -6,17 +6,38 @@ using namespace std;
 
 int main() {
 
-	alib::FixedGrid<int, 3, 4> grid(3);
-	grid.clear();
+	constexpr int size = 100;
+	constexpr int c = 100000000;
 
-	for (int y = 0; y < grid.height(); y++)
+	using Grid = std::array<std::array<int, size>, size>;
+
+	Grid grid1;
+	alib::Stopwatch sw;
+	int count = 0;
+
+	alib::FixedGrid<int, size, size> grid2;
+	sw.start();
+	for (int i = 0; i < c; i++)
 	{
-		for (int x = 0; x < grid.width(); x++)
-		{
-			cout << grid[y][x]<<",";
-		}
-		cout << endl;
+		grid1[size - 1][size - 1] = i;
+		count += grid1[size - 1][size - 1];
+		count %= 8192;
 	}
+	sw.stop();
+	cout << count << endl;
+	cout << sw.toString_us() << endl;
+
+	sw.start();
+	for (int i = 0; i < c; i++)
+	{
+		grid2[size - 1][size - 1] = i;
+		count += grid2[size - 1][size - 1];
+		count %= 8192;
+	}
+	sw.stop();
+	cout << count << endl;
+	cout << sw.toString_us() << endl;
+
 
 	return 0;
 }

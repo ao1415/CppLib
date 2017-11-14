@@ -7,7 +7,7 @@ namespace alib {
 	class FixedGrid {
 	private:
 
-		using ContainerType = std::array<std::array<Type, Width>, Height>;
+		using ContainerType = std::array<Type, Width * Height>;
 		ContainerType m_data;
 
 	public:
@@ -22,14 +22,23 @@ namespace alib {
 		FixedGrid& operator=(const FixedGrid& other) = default;
 		FixedGrid& operator=(FixedGrid&& other) = default;
 
-		const std::array<Type, Width>& operator[](size_t y) const { return m_data[y]; }
-		std::array<Type, Width>& operator[](size_t y) { return m_data[y]; }
+		const Type* operator[](size_t y) const {
+			return &m_data[y * Width];
+		}
+		Type* operator[](size_t y) {
+			return &m_data[y * Width];
+		}
 
-		const std::array<Type, Width>& at(size_t y) const { return m_data.at(y); }
-		std::array<Type, Width>& at(size_t y) { return m_data.at(y); }
-
-		const Type& at(size_t x, size_t y) const { return m_data.at(y).at(x); }
-		Type& at(size_t x, size_t y) { return m_data.at(y).at(x); }
+		const Type& at(size_t x, size_t y) const {
+			if (outside(x, y))
+				throw std::out_of_range("FixedGrid::at");
+			return m_data[y * Width + x];
+		}
+		Type& at(size_t x, size_t y) {
+			if (outside(x, y))
+				throw std::out_of_range("FixedGrid::at");
+			return m_data[y * Width + x];
+		}
 
 		constexpr size_t width() const {
 			return Width;
@@ -38,9 +47,15 @@ namespace alib {
 			return Height;
 		}
 
+		bool inside(size_t x, size_t y) const {
+			return (0 <= x && x < Width && 0 <= y && y < Height);
+		}
+		bool outside(size_t x, size_t y) const {
+			return (0 > x || x >= Width || 0 > y || y >= Height);
+		}
+
 		void fill(const Type& v) noexcept {
-			for (auto& line : m_data)
-				line.fill(v);
+			m_data.fill(v);
 		}
 
 		void clear() {
