@@ -31,3 +31,6 @@ C++バージョン：C++14
 
 ### 揺らぎのあるコンテナ
 - [ ] SwingPriorityQueue
+
+### 乱数
+- [ ] Random
