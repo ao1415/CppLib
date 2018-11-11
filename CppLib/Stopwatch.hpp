@@ -19,14 +19,14 @@ namespace alib {
 		/// <summary>
 		/// 計測を開始する
 		/// </summary>
-		inline void start() {
+		inline void start() noexcept {
 			s = std::chrono::high_resolution_clock::now();
 			e = s;
 		}
 		/// <summary>
 		/// 計測を停止する
 		/// </summary>
-		inline void stop() {
+		inline void stop() noexcept {
 			e = std::chrono::high_resolution_clock::now();
 		}
 
@@ -34,32 +34,32 @@ namespace alib {
 		/// 計測時間を取得する(ナノ秒)
 		/// </summary>
 		/// <returns>計測時間(ナノ秒)</returns>
-		inline const long long nanoseconds() const { return std::chrono::duration_cast<std::chrono::nanoseconds>(e - s).count(); }
+		inline const long long nanoseconds() const noexcept { return std::chrono::duration_cast<std::chrono::nanoseconds>(e - s).count(); }
 		/// <summary>
 		/// 計測時間を取得する(マイクロ秒)
 		/// </summary>
 		/// <returns>計測時間(マイクロ秒)</returns>
-		inline const long long microseconds() const { return std::chrono::duration_cast<std::chrono::microseconds>(e - s).count(); }
+		inline const long long microseconds() const noexcept { return std::chrono::duration_cast<std::chrono::microseconds>(e - s).count(); }
 		/// <summary>
 		/// 計測時間を取得する(ミリ秒)
 		/// </summary>
 		/// <returns>計測時間(ミリ秒)</returns>
-		inline const long long millisecond() const { return std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count(); }
+		inline const long long millisecond() const noexcept { return std::chrono::duration_cast<std::chrono::milliseconds>(e - s).count(); }
 		/// <summary>
 		/// 計測時間を取得する(秒)
 		/// </summary>
 		/// <returns>計測時間(秒)</returns>
-		inline const long long second() const { return std::chrono::duration_cast<std::chrono::seconds>(e - s).count(); }
+		inline const long long second() const noexcept { return std::chrono::duration_cast<std::chrono::seconds>(e - s).count(); }
 		/// <summary>
 		/// 計測時間を取得する(分)
 		/// </summary>
 		/// <returns>計測時間(分)</returns>
-		inline const long long minutes() const { return std::chrono::duration_cast<std::chrono::minutes>(e - s).count(); }
+		inline const long long minutes() const noexcept { return std::chrono::duration_cast<std::chrono::minutes>(e - s).count(); }
 		/// <summary>
 		/// 計測時間を取得する(時)
 		/// </summary>
 		/// <returns>計測時間(時)</returns>
-		inline const long long hours() const { return std::chrono::duration_cast<std::chrono::hours>(e - s).count(); }
+		inline const long long hours() const noexcept { return std::chrono::duration_cast<std::chrono::hours>(e - s).count(); }
 
 		/// <summary>
 		/// 単位付きの計測時間の文字列を得る(ナノ秒)

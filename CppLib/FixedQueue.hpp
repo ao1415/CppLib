@@ -15,7 +15,7 @@ namespace alib {
 		FixedQueue() = default;
 		FixedQueue(const FixedQueue& other) = default;
 		FixedQueue(FixedQueue&& other) {
-			que = std::move(other);
+			que = std::move(other.que);
 		}
 
 		FixedQueue& operator=(const FixedQueue& other) = default;

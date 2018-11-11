@@ -16,7 +16,7 @@ namespace alib {
 		FixedGrid(const Type& v) { fill(v); }
 		FixedGrid(const FixedGrid& other) = default;
 		FixedGrid(FixedGrid&& other) {
-			m_data = std::move(other);
+			m_data = std::move(other.m_data);
 		}
 
 		FixedGrid& operator=(const FixedGrid& other) = default;

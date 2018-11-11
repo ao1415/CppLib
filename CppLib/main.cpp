@@ -1,43 +1,40 @@
 #include <iostream>
-#include "FixedGrid.hpp"
+#include "Timer.hpp"
 #include "Stopwatch.hpp"
+#include "FixedDeque.hpp"
+#include "FixedGrid.hpp"
+#include "FixedQueue.hpp"
+#include "FixedStack.hpp"
 
 using namespace std;
 
 int main() {
 
-	constexpr int size = 100;
-	constexpr int c = 100000000;
+	using namespace alib;
 
-	using Grid = std::array<std::array<int, size>, size>;
+	MilliSecTimer msTimer(chrono::milliseconds(3000));
+	Stopwatch sw;
 
-	Grid grid1;
-	alib::Stopwatch sw;
-	int count = 0;
-
-	alib::FixedGrid<int, size, size> grid2;
-	sw.start();
-	for (int i = 0; i < c; i++)
-	{
-		grid1[size - 1][size - 1] = i;
-		count += grid1[size - 1][size - 1];
-		count %= 8192;
-	}
-	sw.stop();
-	cout << count << endl;
-	cout << sw.toString_us() << endl;
+	msTimer.start();
 
 	sw.start();
-	for (int i = 0; i < c; i++)
-	{
-		grid2[size - 1][size - 1] = i;
-		count += grid2[size - 1][size - 1];
-		count %= 8192;
+	while (!msTimer) {
+		const auto interval = msTimer.interval();
+
+		if (interval == 1000)
+		{
+			sw.stop();
+			cout << sw.toString_ms() << endl;
+		}
+		else if (interval == 2000)
+		{
+			sw.stop();
+			cout << sw.toString_ms() << endl;
+		}
 	}
 	sw.stop();
-	cout << count << endl;
-	cout << sw.toString_us() << endl;
 
+	cout << sw.toString_ms() << endl;
 
 	return 0;
 }

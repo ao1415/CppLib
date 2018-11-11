@@ -15,7 +15,7 @@ namespace alib {
 		FixedStack() = default;
 		FixedStack(const FixedStack& other) = default;
 		FixedStack(FixedStack&& other) {
-			que = std::move(other);
+			que = std::move(other.que);
 		}
 
 		FixedStack& operator=(const FixedStack& other) = default;
