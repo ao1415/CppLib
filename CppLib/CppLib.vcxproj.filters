@@ -50,5 +50,8 @@
     <ClInclude Include="MemoryPool.hpp">
       <Filter>ヘッダー ファイル\Container</Filter>
     </ClInclude>
+    <ClInclude Include="FiexdPriorityQueue.hpp">
+      <Filter>ヘッダー ファイル\Container</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

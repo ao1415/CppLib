@@ -151,6 +151,7 @@
     <ClInclude Include="Basic.hpp" />
     <ClInclude Include="FixedDeque.hpp" />
     <ClInclude Include="FixedGrid.hpp" />
+    <ClInclude Include="FiexdPriorityQueue.hpp" />
     <ClInclude Include="FixedQueue.hpp" />
     <ClInclude Include="FixedStack.hpp" />
     <ClInclude Include="MemoryPool.hpp" />

@@ -6,6 +6,7 @@
 #include "FixedQueue.hpp"
 #include "FixedStack.hpp"
 #include "MemoryPool.hpp"
+#include "FiexdPriorityQueue.hpp"
 
 using namespace std;
 
