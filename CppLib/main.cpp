@@ -5,57 +5,74 @@
 #include "FixedGrid.hpp"
 #include "FixedQueue.hpp"
 #include "FixedStack.hpp"
+#include "MemoryPool.hpp"
 
 using namespace std;
+
+class A {
+public:
+
+	A() {
+		cout << "new:" << x << endl;
+	}
+
+	A(const int _x) {
+		x = _x;
+		cout << "new:" << x << endl;
+	}
+
+	~A() {
+		cout << "delete:" << x << endl;
+	}
+
+	void show() {
+		cout << "show:" << x << endl;
+	}
+
+private:
+
+	int x = 0;
+
+};
 
 int main() {
 
 	using namespace alib;
 
-	int arr1[1000] = { 0 };
-	array<int, 1000> arr2;
-	arr2.fill(0);
-
 	Stopwatch sw;
 
-	int count = 0;
-
-	count = 0;
 	sw.start();
-	for (int i = 0; i < 1000; i++)
-	{
-		for (int j = 0; j < 1000; j++)
-		{
-			for (int k = 0; k < 1000; k++)
-			{
-				arr1[k] += 1;
-			}
-			for (int k = 0; k < 1000; k++)
-			{
-				count += arr1[k];
-			}
-		}
-	}
-	sw.stop();
 
-	cout << sw.toString_ms() << endl;
+	MemoryPool<A, 5> pool;
 
-	count = 0;
-	sw.start();
-	for (int i = 0; i < 1000; i++)
-	{
-		for (int j = 0; j < 1000; j++)
-		{
-			for (int k = 0; k < 1000; k++)
-			{
-				arr2[k] += 1;
-			}
-			for (int k = 0; k < 1000; k++)
-			{
-				count += arr2[k];
-			}
-		}
-	}
+	cout << "-" << endl;
+
+	A* a0;
+	A* a1;
+	A* a2;
+	A* a3;
+	A* a4;
+
+	a0 = pool.push();
+	a1 = pool.push(2);
+
+	pool.pop();
+	pool.pop();
+
+	a0 = pool.push(0);
+	a1 = pool.push(1);
+	a2 = pool.push(2);
+	a3 = pool.push(3);
+	a4 = pool.push(4);
+
+	a0->show();
+	a1->show();
+	a2->show();
+	a3->show();
+	a4->show();
+
+	pool.clear();
+
 	sw.stop();
 
 	cout << sw.toString_ms() << endl;

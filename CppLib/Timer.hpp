@@ -132,7 +132,7 @@ namespace alib {
 		unsigned long long int startCycle = 0;
 		long long time = 0;
 
-		const double CyclePerMilliSec = 2794000.0;
+		constexpr static double CyclePerMilliSec = 2794000.0;
 
 #ifndef _MSC_VER
 		unsigned long long int getCycle() const {

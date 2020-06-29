@@ -153,6 +153,7 @@
     <ClInclude Include="FixedGrid.hpp" />
     <ClInclude Include="FixedQueue.hpp" />
     <ClInclude Include="FixedStack.hpp" />
+    <ClInclude Include="MemoryPool.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />
   </ItemGroup>
