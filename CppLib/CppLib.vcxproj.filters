@@ -19,6 +19,9 @@
     <Filter Include="ヘッダー ファイル\Container">
       <UniqueIdentifier>{844f1055-3e10-41eb-b3d8-7f69989fb49c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Random">
+      <UniqueIdentifier>{948141de-8c7b-4317-b9d6-f4d8413ebded}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="FiexdPriorityQueue.hpp">
       <Filter>ヘッダー ファイル\Container</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.hpp">
+      <Filter>ヘッダー ファイル\Random</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

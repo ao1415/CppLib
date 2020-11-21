@@ -1,40 +1,11 @@
 #include <iostream>
-#include "Timer.hpp"
+#include <numeric>
+
 #include "Stopwatch.hpp"
-#include "FixedDeque.hpp"
-#include "FixedGrid.hpp"
-#include "FixedQueue.hpp"
-#include "FixedStack.hpp"
-#include "MemoryPool.hpp"
-#include "FiexdPriorityQueue.hpp"
+
+#include "Random.hpp"
 
 using namespace std;
-
-class A {
-public:
-
-	A() {
-		cout << "new:" << x << endl;
-	}
-
-	A(const int _x) {
-		x = _x;
-		cout << "new:" << x << endl;
-	}
-
-	~A() {
-		cout << "delete:" << x << endl;
-	}
-
-	void show() {
-		cout << "show:" << x << endl;
-	}
-
-private:
-
-	int x = 0;
-
-};
 
 int main() {
 
@@ -42,39 +13,43 @@ int main() {
 
 	Stopwatch sw;
 
+	XoShiro128 xoshiro;
+
+	double minVal = numeric_limits<double>::max();
+	double maxVal = numeric_limits<double>::min();
+	for (int i = 0; i < 100000; i++)
+	{
+		const double n = xoshiro.nextDouble();
+		minVal = min(minVal, n);
+		maxVal = max(maxVal, n);
+	}
+	cout << minVal << endl;
+	cout << maxVal << endl;
+
 	sw.start();
 
-	MemoryPool<A, 5> pool;
-
-	cout << "-" << endl;
-
-	A* a0;
-	A* a1;
-	A* a2;
-	A* a3;
-	A* a4;
-
-	a0 = pool.push();
-	a1 = pool.push(2);
-
-	pool.pop();
-	pool.pop();
-
-	a0 = pool.push(0);
-	a1 = pool.push(1);
-	a2 = pool.push(2);
-	a3 = pool.push(3);
-	a4 = pool.push(4);
-
-	a0->show();
-	a1->show();
-	a2->show();
-	a3->show();
-	a4->show();
-
-	pool.clear();
+	XoShiro128::value_type val = 0;
+	for (int i = 0; i < 1000000; i++)
+	{
+		val ^= xoshiro.next();
+	}
 
 	sw.stop();
+
+	cout << val << endl;
+
+	cout << sw.toString_ms() << endl;
+
+	sw.start();
+	double val2 = 0;
+	for (int i = 0; i < 1000000; i++)
+	{
+		val2 += xoshiro.nextDouble();
+	}
+
+	sw.stop();
+
+	cout << val2 << endl;
 
 	cout << sw.toString_ms() << endl;
 
