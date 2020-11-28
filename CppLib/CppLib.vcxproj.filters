@@ -22,6 +22,9 @@
     <Filter Include="ヘッダー ファイル\Random">
       <UniqueIdentifier>{948141de-8c7b-4317-b9d6-f4d8413ebded}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Utility">
+      <UniqueIdentifier>{c36ba2b7-4754-44a6-8666-630454eb103b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -50,14 +53,17 @@
     <ClInclude Include="FixedGrid.hpp">
       <Filter>ヘッダー ファイル\Container</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryPool.hpp">
-      <Filter>ヘッダー ファイル\Container</Filter>
-    </ClInclude>
     <ClInclude Include="FiexdPriorityQueue.hpp">
       <Filter>ヘッダー ファイル\Container</Filter>
     </ClInclude>
     <ClInclude Include="Random.hpp">
       <Filter>ヘッダー ファイル\Random</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryPool.hpp">
+      <Filter>ヘッダー ファイル\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometricSequence.hpp">
+      <Filter>ヘッダー ファイル\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

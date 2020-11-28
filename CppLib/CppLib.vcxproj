@@ -155,6 +155,7 @@
     <ClInclude Include="FiexdPriorityQueue.hpp" />
     <ClInclude Include="FixedQueue.hpp" />
     <ClInclude Include="FixedStack.hpp" />
+    <ClInclude Include="GeometricSequence.hpp" />
     <ClInclude Include="MemoryPool.hpp" />
     <ClInclude Include="Random.hpp" />
     <ClInclude Include="Stopwatch.hpp" />

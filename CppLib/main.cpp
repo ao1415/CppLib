@@ -2,9 +2,10 @@
 #include <numeric>
 #include <queue>
 
+#include "Basic.hpp"
 #include "Stopwatch.hpp"
 
-#include "FiexdPriorityQueue.hpp"
+#include "GeometricSequence.hpp"
 
 using namespace std;
 
@@ -12,28 +13,16 @@ int main() {
 
 	using namespace alib;
 
-	Stopwatch sw;
-	FiexdPriorityQueue<int, 2 << 16> que;
+	GeometricSequence<10> geo(0.9);
 
-	sw.start();
+	double a = geo[4];
+	cout << a << endl;
 
-	que.push(100000);
-	forange(i, 100000)
+	forange(i, geo.size())
 	{
-		que.push(i);
+		cout << geo[i] << endl;
 	}
 
-	forange(i, 100000)
-	{
-		que.pop();
-	}
-	
-	cout << que.top() << endl;
-
-
-	sw.stop();
-
-	cout << sw.toString_ms() << endl;
 
 	return 0;
 }
