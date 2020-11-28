@@ -30,6 +30,7 @@ C++バージョン：C++17
 - [x] FixedDeque
 - [x] FixedStack
 - [x] FixedQueue
+- [x] FiexdPriorityQueue
 - [ ] FixedGrid
 
 ### 探査
