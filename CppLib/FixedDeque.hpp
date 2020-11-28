@@ -3,65 +3,79 @@
 #include <array>
 #include "Basic.hpp"
 
-namespace alib {
+namespace alib
+{
 
-	/// <summary>
-	/// 要素数が固定のdeque
-	/// </summary>
-	template<typename Type, size_t Size>
-	class FixedDeque {
+	/**
+	 * @brief 要素数が固定のdeque
+	 * 
+	 * @tparam Type 格納する型
+	 * @tparam Size 格納できる最大数
+	 */
+	template <typename Type, size_t Size>
+	class FixedDeque
+	{
 	private:
-
 		using ContainerType = std::array<Type, containerAllocator(Size)>;
 
 		ContainerType m_data;
 
-		int begin = 0;
-		int end = 0;
-		int element = 0;
+		size_t begin = 0;
+		size_t end = 0;
+		size_t element = 0;
 
-		constexpr size_t bit_mask() {
+		constexpr size_t bit_mask()
+		{
 			return size() - 1;
 		}
 
 	public:
-
-		/// <summary>
-		/// コンストラクタ
-		/// </summary>
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 */
 		FixedDeque() = default;
-		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		FixedDeque(const FixedDeque& other) = default;
-		/// <summary>
-		/// コンストラクタ
-		/// </summary>
-		FixedDeque(FixedDeque&& other) {
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 * @param other コピー対象
+		 */
+		FixedDeque(const FixedDeque &other) = default;
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 * @param other ムーブ対象
+		 */
+		FixedDeque(FixedDeque &&other)
+		{
 			begin = other.begin;
 			end = other.end;
 			element = other.element;
 			m_data = std::move(other.m_data);
 		}
 
-		/// <summary>
-		/// コピー演算子
-		/// </summary>
-		/// <param name="other">Deque</param>
-		/// <returns>自分の参照</returns>
-		FixedDeque& operator=(const FixedDeque& other) = default;
-		/// <summary>
-		/// ムーブ演算子
-		/// </summary>
-		/// <param name="other">Deque</param>
-		/// <returns>自分の参照</returns>
-		FixedDeque& operator=(FixedDeque&& other) = default;
+		/**
+		 * @brief コピー演算子
+		 * 
+		 * @param other コピー対象
+		 * @return FixedDeque& 自分の参照
+		 */
+		FixedDeque &operator=(const FixedDeque &other) = default;
+		/**
+		 * @brief ムーブ演算子
+		 * 
+		 * @param other ムーブ対象
+		 * @return FixedDeque& 自分の参照
+		 */
+		FixedDeque &operator=(FixedDeque &&other) = default;
 
-		/// <summary>
-		/// 先頭に要素を追加
-		/// </summary>
-		/// <param name="val">要素</param>
-		void push_front(const Type& val) {
+		/**
+		 * @brief 先頭に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_front(const Type &val)
+		{
 			if (full())
 			{
 				throw std::out_of_range("FixedDeque full before push");
@@ -74,11 +88,13 @@ namespace alib {
 				m_data[begin] = val;
 			}
 		}
-		/// <summary>
-		/// 終端に要素を追加
-		/// </summary>
-		/// <param name="val">要素</param>
-		void push_back(const Type& val) {
+		/**
+		 * @brief 終端に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_back(const Type &val)
+		{
 			if (full())
 			{
 				throw std::out_of_range("FixedDeque full back push");
@@ -92,11 +108,13 @@ namespace alib {
 			}
 		}
 
-		/// <summary>
-		/// 先頭に要素を追加
-		/// </summary>
-		/// <param name="val">要素</param>
-		void push_front(Type&& val) {
+		/**
+		 * @brief 先頭に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_front(Type &&val)
+		{
 			if (full())
 			{
 				throw std::out_of_range("FixedDeque full before push");
@@ -109,11 +127,13 @@ namespace alib {
 				m_data[begin] = std::move(val);
 			}
 		}
-		/// <summary>
-		/// 終端に要素を追加
-		/// </summary>
-		/// <param name="val">要素</param>
-		void push_back(Type&& val) {
+		/**
+		 * @brief 終端に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_back(Type &&val)
+		{
 			if (full())
 			{
 				throw std::out_of_range("FixedDeque full back push");
@@ -127,10 +147,12 @@ namespace alib {
 			}
 		}
 
-		/// <summary>
-		/// 先頭の要素を削除する
-		/// </summary>
-		void pop_front() {
+		/**
+		 * @brief 先頭の要素を削除する
+		 * 
+		 */
+		void pop_front()
+		{
 			if (empty())
 			{
 				throw std::out_of_range("FixedDeque empty before push");
@@ -141,10 +163,12 @@ namespace alib {
 				begin = (begin + 1) & bit_mask();
 			}
 		}
-		/// <summary>
-		/// 終端の要素を削除する
-		/// </summary>
-		void pop_back() {
+		/**
+		 * @brief 先頭の要素を削除する
+		 * 
+		 */
+		void pop_back()
+		{
 			if (empty())
 			{
 				throw std::out_of_range("FixedDeque empty back push");
@@ -156,127 +180,158 @@ namespace alib {
 			}
 		}
 
-		/// <summary>
-		/// 最大要素数を返す
-		/// </summary>
-		/// <returns>最大要素数</returns>
-		constexpr size_t size() const noexcept {
+		/**
+		 * @brief 最大要素数を返す
+		 * 
+		 * @return constexpr size_t 最大要素数
+		 */
+		constexpr size_t size() const noexcept
+		{
 			return containerAllocator(Size);
 		}
-		/// <summary>
-		/// 現在の要素数を返す
-		/// </summary>
-		/// <returns>現在の要素数</returns>
-		size_t element_num() const noexcept {
+		/**
+		 * @brief 現在の要素数を返す
+		 * 
+		 * @return size_t 現在の要素数
+		 */
+		size_t element_num() const noexcept
+		{
 			return element;
 		}
 
-		/// <summary>
-		/// 追加された要素がないかを返す
-		/// </summary>
-		/// <returns>要素がなければばtrue, それ以外ならfalse</returns>
-		bool empty() const noexcept {
+		/**
+		 * @brief 容量が空かを返す
+		 * 
+		 * @return true 空
+		 * @return false 要素あり
+		 */
+		inline bool empty() const noexcept
+		{
 			return element == 0;
 		}
-		/// <summary>
-		/// 要素がいっぱいかを返す
-		/// </summary>
-		/// <returns>いっぱいならばtrue, それ以外ならfalse</returns>
-		bool full() const noexcept {
+		/**
+		 * @brief 容量がいっぱいかを返す
+		 * 
+		 * @return true いっぱい
+		 * @return false 空きあり
+		 */
+		inline bool full() const noexcept
+		{
 			return element >= size();
 		}
 
-		/// <summary>
-		/// 要素にアクセスする
-		/// </summary>
-		/// <param name="pos">先頭からの番地</param>
-		/// <returns>指定された要素</returns>
-		const Type& at(size_t pos) const {
-			if (pos >= element) throw std::out_of_range("FixedDeque::at");
+		/**
+		 * @brief 要素にアクセスする
+		 * 
+		 * @param pos 先頭からの番地
+		 * @return const Type& 指定された要素
+		 */
+		const Type &at(size_t pos) const
+		{
+			if (pos >= element)
+				throw std::out_of_range("FixedDeque::at");
 
 			size_t n = begin + pos;
 			n &= bit_mask();
 			return m_data[n];
 		}
-		/// <summary>
-		/// 要素にアクセスする
-		/// </summary>
-		/// <param name="pos">先頭からの番地</param>
-		/// <returns>指定された要素</returns>
-		Type& at(size_t pos) {
-			if (pos >= element) throw std::out_of_range("FixedDeque::at");
+		/**
+		 * @brief 要素にアクセスする
+		 * 
+		 * @param pos 先頭からの番地
+		 * @return Type& 指定された要素
+		 */
+		Type &at(size_t pos)
+		{
+			if (pos >= element)
+				throw std::out_of_range("FixedDeque::at");
 
 			size_t n = begin + pos;
 			n &= bit_mask();
 			return m_data[n];
 		}
 
-		/// <summary>
-		/// 要素にアクセスする
-		/// </summary>
-		/// <param name="pos">先頭からの番地</param>
-		/// <returns>指定された要素</returns>
-		const Type& operator[](size_t pos) const {
+		/**
+		 * @brief 要素にアクセスする
+		 * 
+		 * @param pos 先頭からの番地
+		 * @return const Type& 指定された要素
+		 */
+		const Type &operator[](size_t pos) const
+		{
 			size_t n = begin + pos;
 			n &= bit_mask();
 			return m_data[n];
 		}
-		/// <summary>
-		/// 要素にアクセスする
-		/// </summary>
-		/// <param name="pos">先頭からの番地</param>
-		/// <returns>指定された要素</returns>
-		Type& operator[](size_t pos) {
+		/**
+		 * @brief 要素にアクセスする
+		 * 
+		 * @param pos 先頭からの番地
+		 * @return Type& 指定された要素
+		 */
+		Type &operator[](size_t pos)
+		{
 			size_t n = begin + pos;
 			n &= bit_mask();
 			return m_data[n];
 		}
 
-		/// <summary>
-		/// 先頭の要素を返す
-		/// </summary>
-		/// <returns>先頭の要素</returns>
-		const Type& front() const {
+		/**
+		 * @brief 先頭の要素を返す
+		 * 
+		 * @return const Type& 先頭の要素
+		 */
+		const Type &front() const
+		{
 			return m_data[begin];
 		}
-		/// <summary>
-		/// 先頭の要素を返す
-		/// </summary>
-		/// <returns>先頭の要素</returns>
-		Type& front() {
+		/**
+		 * @brief 先頭の要素を返す
+		 * 
+		 * @return Type& 先頭の要素
+		 */
+		Type &front()
+		{
 			return m_data[begin];
 		}
 
-		/// <summary>
-		/// 終端の要素を返す
-		/// </summary>
-		/// <returns>終端の要素</returns>
-		const Type& back() const {
+		/**
+		 * @brief 終端の要素を返す
+		 * 
+		 * @return const Type& 終端の要素
+		 */
+		const Type &back() const
+		{
 			return m_data[(end - 1) & bit_mask()];
 		}
-		/// <summary>
-		/// 終端の要素を返す
-		/// </summary>
-		/// <returns>終端の要素</returns>
-		Type& back() {
+		/**
+		 * @brief 終端の要素を返す
+		 * 
+		 * @return Type& 終端の要素
+		 */
+		Type &back()
+		{
 			return m_data[(end - 1) & bit_mask()];
 		}
 
-		/// <summary>
-		/// 要素を削除する
-		/// </summary>
-		void clear() noexcept {
+		/**
+		 * @brief 要素を削除する
+		 * 
+		 */
+		void clear() noexcept
+		{
 			begin = 0;
 			end = 0;
 			element = 0;
 			m_data.swap(ContainerType());
 		}
 
-		/// <summary>
-		/// 別のDequeと交換する
-		/// </summary>
-		/// <param name="other">Deque</param>
-		void swap(FixedDeque& other) noexcept(_Is_nothrow_swappable<Type>::value)
+		/**
+		 * @brief 別のDequeと交換する
+		 * 
+		 * @param other Deque
+		 */
+		void swap(FixedDeque &other) noexcept(_Is_nothrow_swappable<Type>::value)
 		{
 			m_data.swap(other.m_data);
 
@@ -284,7 +339,227 @@ namespace alib {
 			std::swap(end, other.end);
 			std::swap(element, other.element);
 		}
-
 	};
 
-}
+	/**
+	 * @brief 要素数が固定のdeque（エラーチェックなし）
+	 * 
+	 * @tparam Type 格納する型
+	 * @tparam Size 格納できる最大数
+	 */
+	template <typename Type, size_t Size>
+	class FastFixedDeque
+	{
+	private:
+		using ContainerType = std::array<Type, containerAllocator(Size)>;
+
+		ContainerType m_data;
+
+		size_t begin = 0;
+		size_t end = 0;
+		size_t element = 0;
+
+		constexpr size_t bit_mask()
+		{
+			return size() - 1;
+		}
+
+	public:
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 */
+		FixedDeque() = default;
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 * @param other コピー対象
+		 */
+		FixedDeque(const FixedDeque &other) = default;
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 * @param other ムーブ対象
+		 */
+		FixedDeque(FixedDeque &&other)
+		{
+			begin = other.begin;
+			end = other.end;
+			element = other.element;
+			m_data = std::move(other.m_data);
+		}
+
+		/**
+		 * @brief コピー演算子
+		 * 
+		 * @param other コピー対象
+		 * @return FixedDeque& 自分の参照
+		 */
+		FixedDeque &operator=(const FixedDeque &other) = default;
+		/**
+		 * @brief ムーブ演算子
+		 * 
+		 * @param other ムーブ対象
+		 * @return FixedDeque& 自分の参照
+		 */
+		FixedDeque &operator=(FixedDeque &&other) = default;
+
+		/**
+		 * @brief 先頭に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_front(const Type &val)
+		{
+			element++;
+			begin = (begin - 1) & bit_mask();
+
+			m_data[begin] = val;
+		}
+		/**
+		 * @brief 先頭に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_front(Type &&val)
+		{
+			element++;
+			begin = (begin - 1) & bit_mask();
+
+			m_data[begin] = std::move(val);
+		}
+
+		/**
+		 * @brief 終端に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_back(const Type &val)
+		{
+			m_data[end] = val;
+
+			element++;
+			end = (end + 1) & bit_mask();
+		}
+		/**
+		 * @brief 終端に要素を追加
+		 * 
+		 * @param val 要素
+		 */
+		void push_back(Type &&val)
+		{
+			m_data[end] = std::move(val);
+
+			element++;
+			end = (end + 1) & bit_mask();
+		}
+
+		/**
+		 * @brief 先頭の要素を削除する
+		 * 
+		 */
+		void pop_front()
+		{
+			element--;
+			begin = (begin + 1) & bit_mask();
+		}
+		/**
+		 * @brief 先頭の要素を削除する
+		 * 
+		 */
+		void pop_back()
+		{
+			element--;
+			end = (end - 1) & bit_mask();
+		}
+
+		/**
+		 * @brief 最大要素数を返す
+		 * 
+		 * @return constexpr size_t 最大要素数
+		 */
+		constexpr size_t size() const noexcept
+		{
+			return containerAllocator(Size);
+		}
+		/**
+		 * @brief 現在の要素数を返す
+		 * 
+		 * @return size_t 現在の要素数
+		 */
+		size_t element_num() const noexcept
+		{
+			return element;
+		}
+
+		/**
+		 * @brief 容量が空かを返す
+		 * 
+		 * @return true 空
+		 * @return false 要素あり
+		 */
+		inline bool empty() const noexcept
+		{
+			return element == 0;
+		}
+		/**
+		 * @brief 容量がいっぱいかを返す
+		 * 
+		 * @return true いっぱい
+		 * @return false 空きあり
+		 */
+		inline bool full() const noexcept
+		{
+			return element >= size();
+		}
+
+		/**
+		 * @brief 先頭の要素を返す
+		 * 
+		 * @return const Type& 先頭の要素
+		 */
+		const Type &front() const
+		{
+			return m_data[begin];
+		}
+		/**
+		 * @brief 先頭の要素を返す
+		 * 
+		 * @return Type& 先頭の要素
+		 */
+		Type &front()
+		{
+			return m_data[begin];
+		}
+
+		/**
+		 * @brief 終端の要素を返す
+		 * 
+		 * @return const Type& 終端の要素
+		 */
+		const Type &back() const
+		{
+			return m_data[(end - 1) & bit_mask()];
+		}
+		/**
+		 * @brief 終端の要素を返す
+		 * 
+		 * @return Type& 終端の要素
+		 */
+		Type &back()
+		{
+			return m_data[(end - 1) & bit_mask()];
+		}
+
+		/**
+		 * @brief 要素を削除する
+		 * 
+		 */
+		void clear() noexcept
+		{
+			begin = 0;
+			end = 0;
+			element = 0;
+		}
+	};
+} // namespace alib

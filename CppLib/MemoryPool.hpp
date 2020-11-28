@@ -2,60 +2,139 @@
 
 #include <memory>
 #include <string>
+#include <deque>
 
-namespace alib {
+#include "FixedDeque.hpp"
+
+#ifndef _MSC_VER
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define likely(x) x
+#define unlikely(x) x
+#endif
+
+namespace alib
+{
+
+	/**
+	 * @brief メモリプールの管理クラス
+	 * 
+	 * @tparam Type プールする型
+	 * @tparam Size プールサイズ
+	 */
 	template <class Type, size_t Size>
-	class MemoryPool {
+	class MemoryPool
+	{
 	private:
+		using Deque = FastFixedDeque<Type *, Size / 16>;
 
-		Type* m_data = nullptr;
-		uint64_t address = 0;
+		Type *m_data = nullptr;
+		size_t pointer = 0;
 
-	public:
+		bool isRecycle = false;
 
-		MemoryPool() noexcept {
-			address = 0;
+		Deque addr;
+
+		inline static std::shared_ptr<MemoryPool<Type, Size>> instance{};
+
+		/**
+		 * @brief コンストラクタ
+		 * 
+		 */
+		MemoryPool() noexcept
+		{
+			pointer = 0;
 
 			constexpr uint64_t memorySize = sizeof(Type) * Size;
 
-			m_data = static_cast<Type*>(std::malloc(memorySize));
+			m_data = static_cast<Type *>(std::malloc(memorySize));
 		}
 
-		~MemoryPool() {
+	public:
+		/**
+		 * @brief メモリプールを作成する
+		 * 
+		 */
+		static void Create()
+		{
+			instance.reset(new MemoryPool());
+		}
 
+		/**
+		 * @brief メモリプールのインスタンスを取得する
+		 * 
+		 * @return MemoryPool<Type, Size>& インスタンス
+		 */
+		static MemoryPool<Type, Size> &Get()
+		{
+			return *instance;
+		}
+
+		/**
+		 * @brief デストラクタ
+		 * 
+		 */
+		~MemoryPool()
+		{
 			if (m_data != nullptr)
 				std::free(m_data);
 		}
 
-		uint64_t useRate() const {
-			return address;
-		}
-
-		template<class... Args>
-		Type* push(Args... args) {
-			address++;
-
-			if (address > Size)
+		/**
+		 * @brief プールにデータを作成する
+		 * 
+		 * @tparam Args コンストラクタ引数
+		 * @param args コンストラクタ引数
+		 * @return Type* 生成ポインタ
+		 */
+		template <class... Args>
+		inline Type *push(Args... args)
+		{
+			if (unlikely(isRecycle))
 			{
-				return nullptr;
+				if (unlikely(addr.empty()))
+				{
+					return nullptr;
+				}
+
+				const auto p = new (addr.back()) Type(std::forward<Args>(args)...);
+				addr.pop_back();
+
+				return p;
 			}
-			
-			new(&m_data[address - 1]) Type(std::forward<Args>(args)...);
-
-			return &m_data[address - 1];
-		}
-		void pop() {
-			m_data[address - 1].~Type();
-			address--;
-		}
-
-		void clear() {
-			for (int i = 0; i < address; i++)
+			else
 			{
-				m_data[i].~Type();
+				pointer++;
+				if (pointer >= Size)
+				{
+					isRecycle = true;
+				}
+
+				const auto p = new (&m_data[pointer - 1]) Type(std::forward<Args>(args)...);
+				return p;
 			}
-			address = 0;
 		}
 
+		/**
+		 * @brief 不要のポインタを返却する
+		 * 
+		 * @param p ポインタ
+		 */
+		inline void release(Type *p)
+		{
+			addr.push_back(p);
+		}
+
+		/**
+		 * @brief メモリプールの使用状態をリセットする
+		 * 
+		 */
+		void clear()
+		{
+			isRecycle = false;
+			pointer = 0;
+			addr.clear();
+		}
 	};
-}
+} // namespace alib
