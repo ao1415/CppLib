@@ -7,22 +7,13 @@
 
 #include "GeometricSequence.hpp"
 
-using namespace std;
-
 int main() {
 
 	using namespace alib;
 
-	GeometricSequence<10> geo(0.9);
+	forange(i, 10) {
 
-	double a = geo[4];
-	cout << a << endl;
-
-	forange(i, geo.size())
-	{
-		cout << geo[i] << endl;
 	}
-
 
 	return 0;
 }
