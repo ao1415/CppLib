@@ -187,7 +187,7 @@ namespace alib
 		 */
 		constexpr size_t size() const noexcept
 		{
-			return containerAllocator(Size);
+			return ContainerAllocator(Size);
 		}
 		/**
 		 * @brief Œ»İ‚Ì—v‘f”‚ğ•Ô‚·
@@ -480,7 +480,7 @@ namespace alib
 		 */
 		constexpr size_t size() const noexcept
 		{
-			return containerAllocator(Size);
+			return ContainerAllocator(Size);
 		}
 		/**
 		 * @brief Œ»İ‚Ì—v‘f”‚ğ•Ô‚·

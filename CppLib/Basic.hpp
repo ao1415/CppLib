@@ -7,14 +7,11 @@
 
 namespace alib {
 
-	constexpr size_t containerAllocator(size_t n) {
-		n = n <= 0 ? 0 : n - 1;
-		n |= (n >> 1);
-		n |= (n >> 2);
-		n |= (n >> 4);
-		n |= (n >> 8);
-		n |= (n >> 16);
-		return n + 1;
+	constexpr auto ContainerAllocator(size_t n) {
+		if (n != 0) { n -= 1; }
+		forange(lShift, 5) { n |= (n >> (1 << lShift)); }
+		if (n != std::numeric_limits<decltype(n)>::max()) { n += 1; }
+		return n;
 	}
 
 }

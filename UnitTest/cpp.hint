@@ -1,0 +1,5 @@
+// ヒント ファイルは、Visual Studio IDE が Visual C++ 識別子を解釈するのに役立ちます
+// 関数およびマクロの名前などです。
+// 詳細については次を参照してください https://go.microsoft.com/fwlink/?linkid=865984
+#define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < loop_end_##COUNTER; COUNTER += 1)
+#define forange_type(COUNTER_TYPE, COUNTER, END) forstep_type(COUNTER_TYPE, COUNTER, 0, END)

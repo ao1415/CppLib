@@ -17,4 +17,8 @@
       <UniqueIdentifier>{dbd5d340-80f3-4df7-93eb-5791590ee618}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="cpp.hint" />
+  </ItemGroup>
 </Project>

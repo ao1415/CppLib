@@ -306,3 +306,55 @@ namespace forstep_type {
 		EXPECT_EQ(count, 10);
 	}
 }
+
+namespace ContainerAllocator {
+	/**
+	 * @brief サイズ0指定
+	*/
+	TEST(Basic, ContainerAllocator_Test01) {
+		constexpr auto size = alib::ContainerAllocator(0);
+		EXPECT_EQ(size, 1);
+	}
+
+	/**
+	 * @brief サイズ1指定
+	*/
+	TEST(Basic, ContainerAllocator_Test02) {
+		constexpr auto size = alib::ContainerAllocator(1);
+		EXPECT_EQ(size, 1);
+	}
+
+	/**
+	 * @brief サイズ10指定
+	*/
+	TEST(Basic, ContainerAllocator_Test03) {
+		constexpr auto size = alib::ContainerAllocator(10);
+		EXPECT_EQ(size, 16);
+	}
+
+	/**
+	 * @brief サイズ16指定
+	*/
+	TEST(Basic, ContainerAllocator_Test04) {
+		constexpr auto size = alib::ContainerAllocator(16);
+		EXPECT_EQ(size, 16);
+	}
+
+	/**
+	 * @brief サイズ2^32-1指定
+	*/
+	TEST(Basic, ContainerAllocator_Test05) {
+		constexpr auto max = std::numeric_limits<size_t>::max();
+		constexpr auto size = alib::ContainerAllocator(max);
+		EXPECT_EQ(size, max);
+	}
+
+	/**
+	 * @brief サイズ-1指定
+	*/
+	TEST(Basic, ContainerAllocator_Test06) {
+		constexpr auto max = std::numeric_limits<size_t>::max();
+		constexpr auto size = alib::ContainerAllocator(-1);
+		EXPECT_EQ(size, max);
+	}
+}
