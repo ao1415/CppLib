@@ -17,7 +17,7 @@ namespace alib
 		using const_reference = const Type &;
 		using value_compare = Compare;
 
-		using Sequence = std::array<Type, containerAllocator(Size)>;
+		using Sequence = std::array<Type, containerAllocator<Size>()>;
 
 	private:
 		Sequence c;

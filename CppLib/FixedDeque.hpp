@@ -8,7 +8,7 @@ namespace alib
 
 	/**
 	 * @brief 要素数が固定のdeque
-	 * 
+	 *
 	 * @tparam Type 格納する型
 	 * @tparam Size 格納できる最大数
 	 */
@@ -16,7 +16,7 @@ namespace alib
 	class FixedDeque
 	{
 	private:
-		using ContainerType = std::array<Type, containerAllocator(Size)>;
+		using ContainerType = std::array<Type, containerAllocator<Size>()>;
 
 		ContainerType m_data;
 
@@ -32,21 +32,21 @@ namespace alib
 	public:
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 */
 		FixedDeque() = default;
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 * @param other コピー対象
 		 */
-		FixedDeque(const FixedDeque &other) = default;
+		FixedDeque(const FixedDeque&) = default;
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 * @param other ムーブ対象
 		 */
-		FixedDeque(FixedDeque &&other)
+		FixedDeque(FixedDeque&& other)
 		{
 			begin = other.begin;
 			end = other.end;
@@ -56,25 +56,25 @@ namespace alib
 
 		/**
 		 * @brief コピー演算子
-		 * 
+		 *
 		 * @param other コピー対象
 		 * @return FixedDeque& 自分の参照
 		 */
-		FixedDeque &operator=(const FixedDeque &other) = default;
+		FixedDeque& operator=(const FixedDeque&) = default;
 		/**
 		 * @brief ムーブ演算子
-		 * 
+		 *
 		 * @param other ムーブ対象
 		 * @return FixedDeque& 自分の参照
 		 */
-		FixedDeque &operator=(FixedDeque &&other) = default;
+		FixedDeque& operator=(FixedDeque&&) = default;
 
 		/**
 		 * @brief 先頭に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_front(const Type &val)
+		void push_front(const Type& val)
 		{
 			if (full())
 			{
@@ -90,10 +90,10 @@ namespace alib
 		}
 		/**
 		 * @brief 終端に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_back(const Type &val)
+		void push_back(const Type& val)
 		{
 			if (full())
 			{
@@ -110,10 +110,10 @@ namespace alib
 
 		/**
 		 * @brief 先頭に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_front(Type &&val)
+		void push_front(Type&& val)
 		{
 			if (full())
 			{
@@ -129,10 +129,10 @@ namespace alib
 		}
 		/**
 		 * @brief 終端に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_back(Type &&val)
+		void push_back(Type&& val)
 		{
 			if (full())
 			{
@@ -149,7 +149,7 @@ namespace alib
 
 		/**
 		 * @brief 先頭の要素を削除する
-		 * 
+		 *
 		 */
 		void pop_front()
 		{
@@ -165,7 +165,7 @@ namespace alib
 		}
 		/**
 		 * @brief 先頭の要素を削除する
-		 * 
+		 *
 		 */
 		void pop_back()
 		{
@@ -182,16 +182,16 @@ namespace alib
 
 		/**
 		 * @brief 最大要素数を返す
-		 * 
+		 *
 		 * @return constexpr size_t 最大要素数
 		 */
 		constexpr size_t size() const noexcept
 		{
-			return ContainerAllocator(Size);
+			return ContainerAllocator<Size>();
 		}
 		/**
 		 * @brief 現在の要素数を返す
-		 * 
+		 *
 		 * @return size_t 現在の要素数
 		 */
 		size_t element_num() const noexcept
@@ -201,7 +201,7 @@ namespace alib
 
 		/**
 		 * @brief 容量が空かを返す
-		 * 
+		 *
 		 * @return true 空
 		 * @return false 要素あり
 		 */
@@ -211,7 +211,7 @@ namespace alib
 		}
 		/**
 		 * @brief 容量がいっぱいかを返す
-		 * 
+		 *
 		 * @return true いっぱい
 		 * @return false 空きあり
 		 */
@@ -222,11 +222,11 @@ namespace alib
 
 		/**
 		 * @brief 要素にアクセスする
-		 * 
+		 *
 		 * @param pos 先頭からの番地
 		 * @return const Type& 指定された要素
 		 */
-		const Type &at(size_t pos) const
+		const Type& at(size_t pos) const
 		{
 			if (pos >= element)
 				throw std::out_of_range("FixedDeque::at");
@@ -237,11 +237,11 @@ namespace alib
 		}
 		/**
 		 * @brief 要素にアクセスする
-		 * 
+		 *
 		 * @param pos 先頭からの番地
 		 * @return Type& 指定された要素
 		 */
-		Type &at(size_t pos)
+		Type& at(size_t pos)
 		{
 			if (pos >= element)
 				throw std::out_of_range("FixedDeque::at");
@@ -253,11 +253,11 @@ namespace alib
 
 		/**
 		 * @brief 要素にアクセスする
-		 * 
+		 *
 		 * @param pos 先頭からの番地
 		 * @return const Type& 指定された要素
 		 */
-		const Type &operator[](size_t pos) const
+		const Type& operator[](size_t pos) const
 		{
 			size_t n = begin + pos;
 			n &= bit_mask();
@@ -265,11 +265,11 @@ namespace alib
 		}
 		/**
 		 * @brief 要素にアクセスする
-		 * 
+		 *
 		 * @param pos 先頭からの番地
 		 * @return Type& 指定された要素
 		 */
-		Type &operator[](size_t pos)
+		Type& operator[](size_t pos)
 		{
 			size_t n = begin + pos;
 			n &= bit_mask();
@@ -278,45 +278,45 @@ namespace alib
 
 		/**
 		 * @brief 先頭の要素を返す
-		 * 
+		 *
 		 * @return const Type& 先頭の要素
 		 */
-		const Type &front() const
+		const Type& front() const
 		{
 			return m_data[begin];
 		}
 		/**
 		 * @brief 先頭の要素を返す
-		 * 
+		 *
 		 * @return Type& 先頭の要素
 		 */
-		Type &front()
+		Type& front()
 		{
 			return m_data[begin];
 		}
 
 		/**
 		 * @brief 終端の要素を返す
-		 * 
+		 *
 		 * @return const Type& 終端の要素
 		 */
-		const Type &back() const
+		const Type& back() const
 		{
 			return m_data[(end - 1) & bit_mask()];
 		}
 		/**
 		 * @brief 終端の要素を返す
-		 * 
+		 *
 		 * @return Type& 終端の要素
 		 */
-		Type &back()
+		Type& back()
 		{
 			return m_data[(end - 1) & bit_mask()];
 		}
 
 		/**
 		 * @brief 要素を削除する
-		 * 
+		 *
 		 */
 		void clear() noexcept
 		{
@@ -328,10 +328,10 @@ namespace alib
 
 		/**
 		 * @brief 別のDequeと交換する
-		 * 
+		 *
 		 * @param other Deque
 		 */
-		void swap(FixedDeque &other) noexcept(_Is_nothrow_swappable<Type>::value)
+		void swap(FixedDeque& other) noexcept(_Is_nothrow_swappable<Type>::value)
 		{
 			m_data.swap(other.m_data);
 
@@ -343,7 +343,7 @@ namespace alib
 
 	/**
 	 * @brief 要素数が固定のdeque（エラーチェックなし）
-	 * 
+	 *
 	 * @tparam Type 格納する型
 	 * @tparam Size 格納できる最大数
 	 */
@@ -351,7 +351,7 @@ namespace alib
 	class FastFixedDeque
 	{
 	private:
-		using ContainerType = std::array<Type, containerAllocator(Size)>;
+		using ContainerType = std::array<Type, containerAllocator<Size>()>;
 
 		ContainerType m_data;
 
@@ -367,21 +367,21 @@ namespace alib
 	public:
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 */
 		FixedDeque() = default;
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 * @param other コピー対象
 		 */
-		FixedDeque(const FixedDeque &other) = default;
+		FixedDeque(const FixedDeque&) = default;
 		/**
 		 * @brief コンストラクタ
-		 * 
+		 *
 		 * @param other ムーブ対象
 		 */
-		FixedDeque(FixedDeque &&other)
+		FixedDeque(FixedDeque&& other)
 		{
 			begin = other.begin;
 			end = other.end;
@@ -391,25 +391,25 @@ namespace alib
 
 		/**
 		 * @brief コピー演算子
-		 * 
+		 *
 		 * @param other コピー対象
 		 * @return FixedDeque& 自分の参照
 		 */
-		FixedDeque &operator=(const FixedDeque &other) = default;
+		FixedDeque& operator=(const FixedDeque&) = default;
 		/**
 		 * @brief ムーブ演算子
-		 * 
+		 *
 		 * @param other ムーブ対象
 		 * @return FixedDeque& 自分の参照
 		 */
-		FixedDeque &operator=(FixedDeque &&other) = default;
+		FixedDeque& operator=(FixedDeque&&) = default;
 
 		/**
 		 * @brief 先頭に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_front(const Type &val)
+		void push_front(const Type& val)
 		{
 			element++;
 			begin = (begin - 1) & bit_mask();
@@ -418,10 +418,10 @@ namespace alib
 		}
 		/**
 		 * @brief 先頭に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_front(Type &&val)
+		void push_front(Type&& val)
 		{
 			element++;
 			begin = (begin - 1) & bit_mask();
@@ -431,10 +431,10 @@ namespace alib
 
 		/**
 		 * @brief 終端に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_back(const Type &val)
+		void push_back(const Type& val)
 		{
 			m_data[end] = val;
 
@@ -443,10 +443,10 @@ namespace alib
 		}
 		/**
 		 * @brief 終端に要素を追加
-		 * 
+		 *
 		 * @param val 要素
 		 */
-		void push_back(Type &&val)
+		void push_back(Type&& val)
 		{
 			m_data[end] = std::move(val);
 
@@ -456,7 +456,7 @@ namespace alib
 
 		/**
 		 * @brief 先頭の要素を削除する
-		 * 
+		 *
 		 */
 		void pop_front()
 		{
@@ -465,7 +465,7 @@ namespace alib
 		}
 		/**
 		 * @brief 先頭の要素を削除する
-		 * 
+		 *
 		 */
 		void pop_back()
 		{
@@ -475,16 +475,16 @@ namespace alib
 
 		/**
 		 * @brief 最大要素数を返す
-		 * 
+		 *
 		 * @return constexpr size_t 最大要素数
 		 */
 		constexpr size_t size() const noexcept
 		{
-			return ContainerAllocator(Size);
+			return ContainerAllocator<Size>();
 		}
 		/**
 		 * @brief 現在の要素数を返す
-		 * 
+		 *
 		 * @return size_t 現在の要素数
 		 */
 		size_t element_num() const noexcept
@@ -494,7 +494,7 @@ namespace alib
 
 		/**
 		 * @brief 容量が空かを返す
-		 * 
+		 *
 		 * @return true 空
 		 * @return false 要素あり
 		 */
@@ -504,7 +504,7 @@ namespace alib
 		}
 		/**
 		 * @brief 容量がいっぱいかを返す
-		 * 
+		 *
 		 * @return true いっぱい
 		 * @return false 空きあり
 		 */
@@ -515,45 +515,45 @@ namespace alib
 
 		/**
 		 * @brief 先頭の要素を返す
-		 * 
+		 *
 		 * @return const Type& 先頭の要素
 		 */
-		const Type &front() const
+		const Type& front() const
 		{
 			return m_data[begin];
 		}
 		/**
 		 * @brief 先頭の要素を返す
-		 * 
+		 *
 		 * @return Type& 先頭の要素
 		 */
-		Type &front()
+		Type& front()
 		{
 			return m_data[begin];
 		}
 
 		/**
 		 * @brief 終端の要素を返す
-		 * 
+		 *
 		 * @return const Type& 終端の要素
 		 */
-		const Type &back() const
+		const Type& back() const
 		{
 			return m_data[(end - 1) & bit_mask()];
 		}
 		/**
 		 * @brief 終端の要素を返す
-		 * 
+		 *
 		 * @return Type& 終端の要素
 		 */
-		Type &back()
+		Type& back()
 		{
 			return m_data[(end - 1) & bit_mask()];
 		}
 
 		/**
 		 * @brief 要素を削除する
-		 * 
+		 *
 		 */
 		void clear() noexcept
 		{

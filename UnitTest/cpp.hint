@@ -3,3 +3,4 @@
 // 詳細については次を参照してください https://go.microsoft.com/fwlink/?linkid=865984
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < loop_end_##COUNTER; COUNTER += 1)
 #define forange_type(COUNTER_TYPE, COUNTER, END) forstep_type(COUNTER_TYPE, COUNTER, 0, END)
+#define TEST(test_case_name, test_name) GTEST_TEST(test_case_name, test_name)
