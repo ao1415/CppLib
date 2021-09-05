@@ -60,10 +60,10 @@ namespace alib {
 		NODISCARD inline constexpr value_type manhattanLength(const BasicPoint v) const noexcept { const auto dx = this->x - v.x; const auto dy = this->y - v.y; return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy); }
 
 		NODISCARD inline constexpr size_t hash() const noexcept {
-			const size_t offset_basis = 14695981039346656037ULL;
-			const size_t FNV_prime = 1099511628211ULL;
+			constexpr size_t offset_basis = 14695981039346656037ULL;
+			constexpr size_t FNV_prime = 1099511628211ULL;
 
-			const size_t size = sizeof(BasicPoint);
+			constexpr size_t size = sizeof(BasicPoint);
 			const std::byte* const bytes = reinterpret_cast<const std::byte* const>(this);
 
 			size_t result = offset_basis;
