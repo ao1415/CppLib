@@ -160,6 +160,7 @@
     <ClInclude Include="FixedStack.hpp" />
     <ClInclude Include="GeometricSequence.hpp" />
     <ClInclude Include="MemoryPool.hpp" />
+    <ClInclude Include="BasicPoint.hpp" />
     <ClInclude Include="Random.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />

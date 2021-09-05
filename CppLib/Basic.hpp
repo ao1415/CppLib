@@ -11,6 +11,8 @@
 // [BEGIN, END)で指定された型のCOUNTERを増加させる
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)
 
+#define NODISCARD [[nodiscard]]
+
 namespace alib {
 
 	/**
@@ -19,7 +21,7 @@ namespace alib {
 	 * @return 確保するコンテナサイズ
 	*/
 	template <size_t Size>
-	constexpr auto ContainerAllocator() {
+	NODISCARD constexpr auto ContainerAllocator() noexcept {
 		size_t n = Size;
 		if (n != 0) { n -= 1; }
 		forange(lShift, 5) { n |= (n >> (1 << lShift)); }

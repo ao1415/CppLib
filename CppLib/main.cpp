@@ -3,28 +3,19 @@
 #include <queue>
 
 #include "Basic.hpp"
-#include "Stopwatch.hpp"
-
-#include "GeometricSequence.hpp"
+#include "BasicPoint.hpp"
 
 int main() {
 
 	using namespace alib;
-	{
-		forange(i, 10) {
 
-		}
-	}
+	constexpr Point pos;
+	constexpr BasicPoint<unsigned char> posc(255, 127);
 
-	int size;
-	std::cin >> size;
-	{
-		forange(i, size) {
-
-		}
-	}
-
-	std::decay_t<decltype(10)> a = std::decay_t<decltype(10)>(), b = 10;
+	std::cout << pos << std::endl;
+	std::cout << pos.hash() << std::endl;
+	std::cout << posc << std::endl;
+	std::cout << posc.hash() << std::endl;
 
 	return 0;
 }

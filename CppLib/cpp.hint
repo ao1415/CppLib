@@ -6,3 +6,4 @@
 // 関数およびマクロの名前などです。
 // 詳細については次を参照してください https://go.microsoft.com/fwlink/?linkid=865984
 #define forange(COUNTER, END) forstep_type(std::decay_t<decltype(END)>, COUNTER, std::decay_t<decltype(END)>(), END)
+#define NODISCARD [[nodiscard]]
