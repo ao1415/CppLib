@@ -16,10 +16,11 @@ int main() {
 	std::cout << pos.hash() << std::endl;
 	std::cout << Point::manhattanLength(pos, pos) << std::endl;
 
-	FixedGrid<int, 3, 4> grid(1);
+	constexpr FixedGrid<int, 3, 4> grid;
 	static_assert(std::is_integral_v<decltype(grid)::value_type>);
-	int a = grid[1];
-	int b = grid.at(1);
+	constexpr int a = grid[1];
+	constexpr int b = grid.at(1);
+	std::cout << a << "," << b << std::endl;
 
 	return 0;
 }
