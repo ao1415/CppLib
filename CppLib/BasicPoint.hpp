@@ -3,9 +3,14 @@
 #include "Basic.hpp"
 #include <iostream>
 #include <string>
+#include <cmath>
 
 namespace alib {
 
+	/**
+	 * @brief xyÀ•W
+	 * @tparam Type À•WŒ^
+	*/
 	template<typename Type>
 	struct BasicPoint {
 #define DefBasicPoint
@@ -44,20 +49,54 @@ namespace alib {
 		NODISCARD inline constexpr bool operator==(const BasicPoint v) noexcept { return this->x == v.x && this->y == v.y; }
 		NODISCARD inline constexpr bool operator!=(const BasicPoint v) noexcept { return this->x != v.x || this->y != v.y; }
 
-		NODISCARD inline constexpr bool isZero() const noexcept { const auto zero = value_type(); return this->x == zero && this->y == zero; }
-		inline constexpr void clear() noexcept { const auto zero = value_type(); this->x = zero; this->y = zero; }
+		NODISCARD inline constexpr bool isZero() const noexcept {
+			const auto zero = value_type();
+			return this->x == zero && this->y == zero;
+		}
+		inline constexpr void clear() noexcept {
+			const auto zero = value_type();
+			this->x = zero;
+			this->y = zero;
+		}
 
 		inline constexpr BasicPoint& set(const value_type x, const value_type y) noexcept { this->x = x; this->y = y; }
 		inline constexpr BasicPoint& set(const BasicPoint v) noexcept { this->x = v.x; this->y = v.y; }
 
 		NODISCARD inline constexpr value_type dot() const noexcept { return (this->x * this->x + this->y * this->y); }
-		NODISCARD inline constexpr value_type dot(const BasicPoint v) const noexcept { const auto dx = this->x - v.x; const auto dy = this->y - v.y; return (dx * dx + dy * dy); }
+		NODISCARD inline constexpr value_type dot(const BasicPoint v) const noexcept {
+			const auto dx = this->x - v.x;
+			const auto dy = this->y - v.y;
+			return (dx * dx + dy * dy);
+		}
+		NODISCARD inline static constexpr value_type dot(const BasicPoint v1, const BasicPoint v2) noexcept {
+			const auto dx = v1.x - v2.x;
+			const auto dy = v1.y - v2.y;
+			return (dx * dx + dy * dy);
+		}
 
 		NODISCARD inline constexpr value_type length() const noexcept { return std::sqrt(this->x * this->x + this->y * this->y); }
-		NODISCARD inline constexpr value_type length(const BasicPoint v) const noexcept { const auto dx = this->x - v.x; const auto dy = this->y - v.y; return std::sqrt(dx * dx + dy * dy); }
+		NODISCARD inline constexpr value_type length(const BasicPoint v) const noexcept {
+			const auto dx = this->x - v.x;
+			const auto dy = this->y - v.y;
+			return std::sqrt(dx * dx + dy * dy);
+		}
+		NODISCARD inline static constexpr value_type length(const BasicPoint v1, const BasicPoint v2) noexcept {
+			const auto dx = v1.x - v2.x;
+			const auto dy = v1.y - v2.y;
+			return std::sqrt(dx * dx + dy * dy);
+		}
 
 		NODISCARD inline constexpr value_type manhattanLength() const noexcept { return (this->x < 0 ? -this->x : this->x) + (this->y < 0 ? -this->y : this->y); }
-		NODISCARD inline constexpr value_type manhattanLength(const BasicPoint v) const noexcept { const auto dx = this->x - v.x; const auto dy = this->y - v.y; return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy); }
+		NODISCARD inline constexpr value_type manhattanLength(const BasicPoint v) const noexcept {
+			const auto dx = this->x - v.x;
+			const auto dy = this->y - v.y;
+			return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
+		}
+		NODISCARD inline static constexpr value_type manhattanLength(const BasicPoint v1, const BasicPoint v2) noexcept {
+			const auto dx = v1.x - v2.x;
+			const auto dy = v1.y - v2.y;
+			return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
+		}
 
 		NODISCARD inline constexpr size_t hash() const noexcept {
 			constexpr size_t offset_basis = 14695981039346656037ULL;
@@ -79,9 +118,13 @@ namespace alib {
 
 	};
 
+	/** @brief ®”Œ^À•W*/
 	using Point = BasicPoint<int>;
+	/** @brief ”{¸“x®”Œ^À•W*/
 	using PointL = BasicPoint<long long int>;
+	/** @brief ¬”Œ^À•W*/
 	using Vec2 = BasicPoint<double>;
+	/** @brief ”{¸“x¬”Œ^À•W*/
 	using Vec2L = BasicPoint<long double>;
 
 	template<typename Type>

@@ -3,64 +3,45 @@
 
 namespace alib {
 
+	/**
+	 * @brief ŒÅ’è’·2ŽŸŒ³”z—ñ
+	 * @tparam Type ”z—ñŒ^
+	*/
 	template<typename Type, size_t Width, size_t Height>
-	class FixedGrid {
+	class FixedGrid : public std::array<Type, Width* Height>{
 	private:
 
-		using ContainerType = std::array<Type, Width * Height>;
-		ContainerType m_data;
+		using base = std::array<Type, Width* Height>;
 
 	public:
 
-		FixedGrid() = default;
-		FixedGrid(const Type& v) { fill(v); }
-		FixedGrid(const FixedGrid& other) = default;
-		FixedGrid(FixedGrid&& other) {
-			m_data = std::move(other.m_data);
-		}
+		constexpr FixedGrid() : base() {}
+		constexpr FixedGrid(const FixedGrid& other) = default;
+		constexpr FixedGrid(FixedGrid&& other) = default;
+		constexpr FixedGrid& operator =(const FixedGrid& other) = default;
+		constexpr FixedGrid& operator =(FixedGrid&& other) = default;
 
-		FixedGrid& operator=(const FixedGrid& other) = default;
-		FixedGrid& operator=(FixedGrid&& other) = default;
+		[[nodiscard]] inline constexpr const Type& operator()(int x, int y) const { return base::operator[](y* Width + x); }
+		[[nodiscard]] inline constexpr Type& operator()(int x, int y) { return base::operator[](y* Width + x); }
+		[[nodiscard]] inline constexpr const Type& operator()(size_t x, size_t y) const { return base::operator[](y* Width + x); }
+		[[nodiscard]] inline constexpr Type& operator()(size_t x, size_t y) { return base::operator[](y* Width + x); }
 
-		const Type* operator[](size_t y) const {
-			return &m_data[y * Width];
-		}
-		Type* operator[](size_t y) {
-			return &m_data[y * Width];
-		}
+		[[nodiscard]] inline constexpr const Type& at(int x, int y) const { return base::at(y * Width + x); }
+		[[nodiscard]] inline constexpr Type& at(int x, int y) { return base::at(y * Width + x); }
+		[[nodiscard]] inline constexpr const Type& at(size_t x, size_t y) const { return base::at(y * Width + x); }
+		[[nodiscard]] inline constexpr Type& at(size_t x, size_t y) { return base::at(y * Width + x); }
 
-		const Type& at(size_t x, size_t y) const {
-			if (outside(x, y))
-				throw std::out_of_range("FixedGrid::at");
-			return m_data[y * Width + x];
-		}
-		Type& at(size_t x, size_t y) {
-			if (outside(x, y))
-				throw std::out_of_range("FixedGrid::at");
-			return m_data[y * Width + x];
-		}
+		[[nodiscard]] inline constexpr const Type& operator()(const Point p) const { return operator()(p.x, p.y); }
+		[[nodiscard]] inline constexpr Type& operator()(const Point p) { return operator()(p.x, p.y); }
 
-		constexpr size_t width() const {
-			return Width;
-		}
-		constexpr size_t height() const {
-			return Height;
-		}
+		[[nodiscard]] inline constexpr const Type& at(const Point p) const { return at(p.x, p.y); }
+		[[nodiscard]] inline constexpr Type& at(const Point p) { return at(p.x, p.y); }
 
-		bool inside(size_t x, size_t y) const {
-			return (0 <= x && x < Width && 0 <= y && y < Height);
-		}
-		bool outside(size_t x, size_t y) const {
-			return (0 > x || x >= Width || 0 > y || y >= Height);
-		}
+		[[nodiscard]] inline constexpr size_t width() const { return Width; }
+		[[nodiscard]] inline constexpr size_t height() const { return Height; }
 
-		void fill(const Type& v) noexcept {
-			m_data.fill(v);
-		}
-
-		void clear() {
-			m_data.swap(ContainerType());
-		}
+		[[nodiscard]] inline constexpr bool inside(size_t x, size_t y) const { return (0 <= x && x < Width && 0 <= y && y < Height); }
+		[[nodiscard]] inline constexpr bool outside(size_t x, size_t y) const { return (0 > x || x >= Width || 0 > y || y >= Height); }
 
 	};
 
