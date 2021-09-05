@@ -1,66 +1,60 @@
 #pragma once
 #include <array>
+#include "BasicPoint.hpp"
 
 namespace alib {
 
+	/**
+	 * @brief ŒÅ’è’·2ŽŸŒ³”z—ñ
+	 * @tparam Type ”z—ñŒ^
+	*/
 	template<typename Type, size_t Width, size_t Height>
-	class FixedGrid {
-	private:
-
-		using ContainerType = std::array<Type, Width * Height>;
-		ContainerType m_data;
-
+	class FixedGrid : public std::array<Type, Width* Height>{
 	public:
 
-		FixedGrid() = default;
-		FixedGrid(const Type& v) { fill(v); }
-		FixedGrid(const FixedGrid& other) = default;
-		FixedGrid(FixedGrid&& other) {
-			m_data = std::move(other.m_data);
-		}
+		using base = std::array<Type, Width* Height>;
+		using value_type = Type;
+		using base::at;
 
-		FixedGrid& operator=(const FixedGrid& other) = default;
-		FixedGrid& operator=(FixedGrid&& other) = default;
+		constexpr FixedGrid() noexcept : base() {};
+		constexpr FixedGrid(const FixedGrid& other) = default;
+		constexpr FixedGrid(FixedGrid&& other) = default;
 
-		const Type* operator[](size_t y) const {
-			return &m_data[y * Width];
-		}
-		Type* operator[](size_t y) {
-			return &m_data[y * Width];
-		}
+		constexpr FixedGrid(const value_type& v) { base::fill(v); };
 
-		const Type& at(size_t x, size_t y) const {
-			if (outside(x, y))
-				throw std::out_of_range("FixedGrid::at");
-			return m_data[y * Width + x];
-		}
-		Type& at(size_t x, size_t y) {
-			if (outside(x, y))
-				throw std::out_of_range("FixedGrid::at");
-			return m_data[y * Width + x];
-		}
+		constexpr FixedGrid& operator=(const FixedGrid& other) = default;
+		constexpr FixedGrid& operator=(FixedGrid&& other) = default;
 
-		constexpr size_t width() const {
-			return Width;
-		}
-		constexpr size_t height() const {
-			return Height;
-		}
+		NODISCARD inline constexpr const value_type& operator()(size_t x, size_t y) const { return base::operator[](y* Width + x); }
+		NODISCARD inline constexpr value_type& operator()(size_t x, size_t y) { return base::operator[](y* Width + x); }
 
-		bool inside(size_t x, size_t y) const {
-			return (0 <= x && x < Width && 0 <= y && y < Height);
-		}
-		bool outside(size_t x, size_t y) const {
-			return (0 > x || x >= Width || 0 > y || y >= Height);
-		}
+		NODISCARD inline constexpr const value_type& at(size_t x, size_t y) const { return base::at(y * Width + x); }
+		NODISCARD inline constexpr value_type& at(size_t x, size_t y) { return base::at(y * Width + x); }
 
-		void fill(const Type& v) noexcept {
-			m_data.fill(v);
-		}
+		NODISCARD inline constexpr size_t width() const noexcept { return Width; }
+		NODISCARD inline constexpr size_t height() const noexcept { return Height; }
 
-		void clear() {
-			m_data.swap(ContainerType());
-		}
+		NODISCARD inline constexpr bool inside(size_t x, size_t y) const noexcept { return (0 <= x && x < Width && 0 <= y && y < Height); }
+		NODISCARD inline constexpr bool outside(size_t x, size_t y) const noexcept { return (0 > x || x >= Width || 0 > y || y >= Height); }
+
+#ifdef DefBasicPoint
+
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr const value_type& operator()(const BasicPoint<T> p) const { return operator()(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr value_type& operator()(const BasicPoint<T> p) { return operator()(p.x, p.y); }
+
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr const value_type& at(const BasicPoint<T> p) const { return at(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr value_type& at(const BasicPoint<T> p) { return at(p.x, p.y); }
+
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr bool inside(const BasicPoint<T> p) const noexcept { return inside(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr bool outside(const BasicPoint<T> p) const noexcept { return outside(p.x, p.y); }
+
+#endif // DefBasicPoint
 
 	};
 
