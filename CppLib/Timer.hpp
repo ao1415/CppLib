@@ -201,6 +201,7 @@ namespace alib
 	{
 	private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> s;
+		long long time = 0;
 
 	public:
 		/**

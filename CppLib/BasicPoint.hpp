@@ -23,6 +23,10 @@ namespace alib {
 		inline static constexpr BasicPoint Left() { return BasicPoint(-1, 0); }
 		/** @brief ‰E•ûŒü */
 		inline static constexpr BasicPoint Right() { return BasicPoint(1, 0); }
+		/** @brief ‘S•ûŒü */
+		inline static constexpr auto Direction() {
+			return std::array<BasicPoint, 4>{ {Up(), Right(), Down(), Left()} };
+		}
 
 		/** @brief Œ^ */
 		using value_type = Type;
@@ -44,14 +48,17 @@ namespace alib {
 		inline constexpr void operator+=(const BasicPoint v) noexcept { this->x += v.x; this->y += v.y; }
 		inline constexpr void operator-=(const BasicPoint v) noexcept { this->x -= v.x; this->y -= v.y; }
 
-		NODISCARD inline constexpr bool operator<(const BasicPoint v) noexcept { if (this->y != v.y) return this->y < v.y; else return this->x < v.x; }
+		NODISCARD inline constexpr bool operator<(const BasicPoint v) const noexcept { if (this->y != v.y) return this->y < v.y; else return this->x < v.x; }
 
-		NODISCARD inline constexpr bool operator==(const BasicPoint v) noexcept { return this->x == v.x && this->y == v.y; }
-		NODISCARD inline constexpr bool operator!=(const BasicPoint v) noexcept { return this->x != v.x || this->y != v.y; }
+		NODISCARD inline constexpr bool operator==(const BasicPoint v) const noexcept { return this->x == v.x && this->y == v.y; }
+		NODISCARD inline constexpr bool operator!=(const BasicPoint v) const noexcept { return this->x != v.x || this->y != v.y; }
+
+		NODISCARD inline constexpr bool equals(const BasicPoint v) const noexcept { return *this == v; }
+		NODISCARD inline constexpr bool equals(const value_type x, const value_type y) const noexcept { return (this->x == x && this->y == y); }
 
 		NODISCARD inline constexpr bool isZero() const noexcept {
 			const auto zero = value_type();
-			return this->x == zero && this->y == zero;
+			return (this->x == zero && this->y == zero);
 		}
 		inline constexpr void clear() noexcept {
 			const auto zero = value_type();

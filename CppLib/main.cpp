@@ -5,6 +5,7 @@
 #include "Basic.hpp"
 #include "BasicPoint.hpp"
 #include "FixedGrid.hpp"
+#include "Stopwatch.hpp"
 
 int main() {
 
@@ -12,15 +13,40 @@ int main() {
 
 	constexpr Point pos;
 
-	std::cout << pos << std::endl;
-	std::cout << pos.hash() << std::endl;
-	std::cout << Point::manhattanLength(pos, pos) << std::endl;
+	for (const auto& d : Point::Direction()) {
+		std::cout << d << std::endl;
+	}
 
-	constexpr FixedGrid<int, 3, 4> grid;
-	static_assert(std::is_integral_v<decltype(grid)::value_type>);
-	constexpr int a = grid[1];
-	constexpr int b = grid.at(1);
-	std::cout << a << "," << b << std::endl;
+	int count = 0;
+	std::cin >> count;
+
+	Stopwatch sw;
+	sw.start();
+	long long int c = 0;
+	forange(i, count) {
+		forange(i, count) {
+			for (const auto& d : Point::Direction()) {
+				c++;
+			}
+		}
+	}
+	sw.stop();
+	std::cout << c << std::endl;
+	std::cout << sw.toString_us() << std::endl;
+
+	sw.start();
+	c = 0;
+	forange(i, count) {
+		forange(i, count) {
+			const auto direction = Point::Direction();
+			for (const auto& d : direction) {
+				c++;
+			}
+		}
+	}
+	sw.stop();
+	std::cout << c << std::endl;
+	std::cout << sw.toString_us() << std::endl;
 
 	return 0;
 }
