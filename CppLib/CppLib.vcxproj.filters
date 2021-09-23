@@ -25,6 +25,9 @@
     <Filter Include="ヘッダー ファイル\Utility">
       <UniqueIdentifier>{c36ba2b7-4754-44a6-8666-630454eb103b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Search">
+      <UniqueIdentifier>{c212838d-38dd-45c9-a0be-bd8d0ff840f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="BasicPoint.hpp">
       <Filter>ヘッダー ファイル\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="BeamSearch.hpp">
+      <Filter>ヘッダー ファイル\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicMemo.hpp">
+      <Filter>ヘッダー ファイル\Search</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

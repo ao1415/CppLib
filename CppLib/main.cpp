@@ -4,49 +4,28 @@
 
 #include "Basic.hpp"
 #include "BasicPoint.hpp"
-#include "FixedGrid.hpp"
-#include "Stopwatch.hpp"
+#include "BasicMemo.hpp"
 
 int main() {
 
 	using namespace alib;
 
-	constexpr Point pos;
+	BufferMemoryStream buffer(32);
 
-	for (const auto& d : Point::Direction()) {
-		std::cout << d << std::endl;
-	}
+	struct Data {
+		int a = 10;
+		int b = 20;
+	};
 
-	int count = 0;
-	std::cin >> count;
+	Data data;
+	std::cout << buffer.toString() << std::endl;
+	buffer.push(data);
+	std::cout << buffer.toString() << std::endl;
 
-	Stopwatch sw;
-	sw.start();
-	long long int c = 0;
-	forange(i, count) {
-		forange(i, count) {
-			for (const auto& d : Point::Direction()) {
-				c++;
-			}
-		}
-	}
-	sw.stop();
-	std::cout << c << std::endl;
-	std::cout << sw.toString_us() << std::endl;
+	forange(i, 10) {}
 
-	sw.start();
-	c = 0;
-	forange(i, count) {
-		forange(i, count) {
-			const auto direction = Point::Direction();
-			for (const auto& d : direction) {
-				c++;
-			}
-		}
-	}
-	sw.stop();
-	std::cout << c << std::endl;
-	std::cout << sw.toString_us() << std::endl;
+	const Point pos;
+	std::cout << pos << std::endl;
 
 	return 0;
 }

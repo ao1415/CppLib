@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <utility>
 
 // [0, END)Ç≈COUNTERÇëùâ¡Ç≥ÇπÇÈ
 #define forange(COUNTER, END) forstep_type(std::decay_t<decltype(END)>, COUNTER, std::decay_t<decltype(END)>(), END)
@@ -9,9 +10,21 @@
 // [BEGIN, END)Ç≈COUNTERÇëùâ¡Ç≥ÇπÇÈ
 #define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
 // [BEGIN, END)Ç≈éwíËÇ≥ÇÍÇΩå^ÇÃCOUNTERÇëùâ¡Ç≥ÇπÇÈ
-#define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)
+#define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) \
+__pragma(warning(push))\
+__pragma(warning(disable:26496))\
+for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)\
+__pragma(warning(pop))\
 
 #define NODISCARD [[nodiscard]]
+
+template <class T, class U>
+inline constexpr T narrow_cast(U&& u) noexcept {
+#pragma warning(push)
+#pragma warning(disable:26472)
+	return static_cast<T>(std::forward<U>(u));
+#pragma warning(pop)
+}
 
 namespace alib {
 

@@ -153,6 +153,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Basic.hpp" />
+    <ClInclude Include="BasicMemo.hpp" />
+    <ClInclude Include="BeamSearch.hpp" />
     <ClInclude Include="FixedDeque.hpp" />
     <ClInclude Include="FixedGrid.hpp" />
     <ClInclude Include="FiexdPriorityQueue.hpp" />

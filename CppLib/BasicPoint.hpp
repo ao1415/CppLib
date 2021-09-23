@@ -142,8 +142,8 @@ namespace alib {
 	std::istream& operator>>(std::istream& is, BasicPoint<char>& v) {
 		int x, y;
 		is >> x >> y;
-		v.x = static_cast<char>(x);
-		v.y = static_cast<char>(y);
+		v.x = narrow_cast<char>(x);
+		v.y = narrow_cast<char>(y);
 		return is;
 	}
 	std::ostream& operator<<(std::ostream& os, const BasicPoint<char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
@@ -151,8 +151,8 @@ namespace alib {
 	std::istream& operator>>(std::istream& is, BasicPoint<unsigned char>& v) {
 		int x, y;
 		is >> x >> y;
-		v.x = static_cast<unsigned char>(x);
-		v.y = static_cast<unsigned char>(y);
+		v.x = narrow_cast<unsigned char>(x);
+		v.y = narrow_cast<unsigned char>(y);
 		return is;
 	}
 	std::ostream& operator<<(std::ostream& os, const BasicPoint<unsigned char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
