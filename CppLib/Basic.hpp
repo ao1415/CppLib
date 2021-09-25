@@ -3,6 +3,14 @@
 #include <type_traits>
 #include <utility>
 
+#ifndef _MSC_VER
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define LIKELY(x) x
+#define UNLIKELY(x) x
+#endif
+
 // [0, END)‚ÅCOUNTER‚ğ‘‰Á‚³‚¹‚é
 #define forange(COUNTER, END) forstep_type(std::decay_t<decltype(END)>, COUNTER, std::decay_t<decltype(END)>(), END)
 // [0, END)‚Åw’è‚³‚ê‚½Œ^‚ÌCOUNTER‚ğ‘‰Á‚³‚¹‚é

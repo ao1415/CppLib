@@ -10,480 +10,438 @@
 #include <sstream>
 #include <iomanip>
 
-#ifndef _MSC_VER
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
-#else
-#define likely(x) x
-#define unlikely(x) x
-#endif
-
-class MemoryStream {
-public:
-
-	using value_type = std::byte;
-	using pointer = value_type*;
+namespace Search {
 
 	using Int = int32_t;
 	using UInt = uint32_t;
 
-protected:
+	constexpr UInt kbToB(unsigned long long kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
+	constexpr UInt mbToB(unsigned long long mByte) noexcept { return kbToB(mByte * 1024); }
 
-	/** @brief バイトストリーム */
-	pointer stream;
-	/** @brief ストリームの長さ */
-	UInt length;
-
-	/** @brief ストリーム内の読み取り位置 */
-	UInt readPosition;
-
-	/** @brief ストリーム内の書き込み位置 */
-	UInt writePosition;
-
-	/** @brief ストリーム内の位置 */
-	std::shared_ptr<value_type[]> garbage;
-
-	/**
-	 * @brief ストリームの現在位置のポインタを取得する
-	 * @tparam Type（算術型、ポインタ型）
-	 * @return
-	*/
-	template<typename Type = void>
-	NODISCARD inline Type* readPointer() noexcept {
 #pragma warning(push)
-#pragma warning(disable:26474 26481 26490)
-		return reinterpret_cast<Type*>(std::addressof(stream[readPosition]));
+#pragma warning(disable:26467)
+	constexpr UInt kbToB(long double kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
+	constexpr UInt mbToB(long double mByte) noexcept { return kbToB(mByte * 1024); }
 #pragma warning(pop)
-	}
 
-	/**
-	 * @brief ストリームの現在位置のポインタを取得する
-	 * @tparam Type（算術型、ポインタ型）
-	 * @return
-	*/
-	template<typename Type = void>
-	NODISCARD inline Type* writePointer() noexcept {
-#pragma warning(push)
-#pragma warning(disable:26474 26481 26490)
-		return reinterpret_cast<Type*>(std::addressof(stream[writePosition]));
-#pragma warning(pop)
-	}
+	constexpr UInt operator"" _KB(unsigned long long kByte) noexcept { return kbToB(kByte); }
+	constexpr UInt operator"" _MB(unsigned long long mByte) noexcept { return mbToB(mByte); }
+	constexpr UInt operator"" _KB(long double kByte) noexcept { return kbToB(kByte); }
+	constexpr UInt operator"" _MB(long double mByte) noexcept { return mbToB(mByte); }
 
-	/**
-	 * @brief ストリームの現在位置のポインタを取得する
-	 * @return
-	*/
-	NODISCARD inline value_type at(const UInt index) const noexcept {
-		assert(index < length);
-#pragma warning(push)
-#pragma warning(disable:26481)
-		return stream[index];
-#pragma warning(pop)
-	}
+	class MemoMemory;
+	class MemoryStreamPool;
 
-public:
+	class MemoryStream {
+	public:
 
-	NODISCARD MemoryStream(const UInt length) {
+		using value_type = std::byte;
+		using pointer = value_type*;
 
+		using shared_pointer = std::shared_ptr<MemoryStream::value_type[]>;
+
+		inline static shared_pointer MakeShared(const UInt size) {
 #pragma warning(push)
 #pragma warning(disable:26409)
-		this->garbage = std::shared_ptr<value_type[]>(new value_type[length]);
+			return std::shared_ptr<MemoryStream::value_type[]>(new MemoryStream::value_type[size]);
 #pragma warning(pop)
-		this->stream = garbage.get();
-		this->length = length;
-		this->readPosition = 0;
-		this->writePosition = 0;
-	}
-
-	NODISCARD MemoryStream(const std::shared_ptr<value_type[]>& stream, const UInt length) noexcept {
-		this->garbage = stream;
-		this->stream = garbage.get();
-		this->length = length;
-		this->readPosition = 0;
-		this->writePosition = 0;
-	}
-
-	/**
-	 * @brief 指定された型でストリームから読み取る
-	 * @tparam Type 読み取り型（算術型）
-	 * @return 値
-	*/
-	template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
-	NODISCARD inline Type read() noexcept {
-		assert(readPosition + sizeof(Type) <= length);
-		assert(readPosition + sizeof(Type) <= writePosition);
-
-		Type t = *readPointer<Type>();
-		readPosition += sizeof(Type);
-		return t;
-	}
-
-	/**
-	 * @brief 指定されたサイズでストリームから読み取る
-	 * @param count 読み取りバイト数
-	 * @return voidポインタ
-	*/
-	NODISCARD inline void* read(const UInt count) noexcept {
-		assert(readPosition + count <= length);
-		assert(readPosition + count <= writePosition);
-
-		void* p = readPointer<void>();
-		readPosition += count;
-		return p;
-	}
-
-	/**
-	 * @brief 指定されたバイト数をストリームから読み取る
-	 * @param buffer 読み取り先ストリーム
-	 * @param count 読み取りバイト数
-	 * @return
-	*/
-	NODISCARD inline void read(MemoryStream& buffer, const UInt count) noexcept {
-		assert(readPosition + count <= length);
-		assert(readPosition + count <= writePosition);
-
-		assert(buffer.writePosition + count <= buffer.length);
-
-		std::memcpy(buffer.writePointer(), readPointer(), count);
-		readPosition += count;
-		buffer.writePosition += count;
-	}
-
-	/**
-	 * @brief 指定された型でストリームから読み取り削除する
-	 * @tparam Type 読み取り型（算術型）
-	 * @return 値
-	*/
-	template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
-	NODISCARD inline Type popBack() noexcept {
-		assert(sizeof(Type) <= writePosition);
-
-		writePosition -= sizeof(Type);
-		readPosition = std::min(readPosition, writePosition);
-		Type t = *writePointer<Type>();
-		return t;
-	}
-
-	/**
-	 * @brief 指定されたサイズでストリームから読み取り削除する
-	 * @tparam count 読み取りバイト数
-	 * @return voidポインタ
-	*/
-	NODISCARD inline void* popBack(const UInt count) noexcept {
-		assert(count <= writePosition);
-
-		writePosition -= count;
-		readPosition = std::min(readPosition, writePosition);
-		return writePointer<void*>();
-	}
-
-	/**
-	 * @brief 指定されたバイト数をストリームから読み取り削除する
-	 * @param buffer 読み取り先ストリーム
-	 * @param count 読み取りバイト数
-	 * @return
-	*/
-	NODISCARD inline void popBack(MemoryStream& buffer, const UInt count) noexcept {
-		assert(count <= writePosition);
-
-		assert(buffer.writePosition + count <= buffer.length);
-
-		writePosition -= count;
-		readPosition = std::min(readPosition, writePosition);
-		std::memcpy(buffer.writePointer(), writePointer(), count);
-		buffer.writePosition += count;
-	}
-
-	/**
-	 * @brief 指定された型でストリームに書き込む
-	 * @tparam Type 書き込み型（算術型）
-	 * @param value 値
-	*/
-	template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
-	NODISCARD inline void write(const Type value) noexcept {
-		assert(writePosition + sizeof(Type) <= length);
-
-		*writePointer<Type>() = value;
-		writePosition += sizeof(Type);
-	}
-
-	/**
-	 * @brief 指定されたバイト数をストリームへ書き込む
-	 * @param buffer 書き込むストリーム
-	 * @param count 書き込みバイト数
-	 * @return
-	*/
-	NODISCARD inline void write(const void* buffer, const UInt count) noexcept {
-		assert(writePosition + count <= length);
-
-		std::memcpy(writePointer(), buffer, count);
-		writePosition += count;
-	}
-
-	/**
-	 * @brief 指定されたデータをストリームへ書き込む
-	 * @param data 書き込み対象
-	*/
-	template<class Class, typename std::enable_if_t<!std::is_arithmetic_v<Class> && !std::is_pointer_v<Class>, std::nullptr_t> = nullptr>
-	inline void write(const Class& data) noexcept {
-		assert(writePosition + sizeof(Class) <= length);
-
-		std::memcpy(writePointer(), std::addressof(data), sizeof(Class));
-		writePosition += sizeof(Class);
-	}
-
-	inline UInt getWritePosition() const noexcept { return writePosition; }
-	inline void setWritePosition(const UInt position) noexcept {
-		this->writePosition = position;
-		readPosition = std::min(readPosition, writePosition);
-	}
-
-	inline bool endOfStream() const noexcept { return readPosition >= writePosition; }
-
-	std::string toString() const {
-		std::stringstream ss;
-		ss << std::hex;
-
-		forange(i, length) {
-			ss << std::setw(2) << std::setfill('0') << static_cast<UInt>(at(i)) << " ";
 		}
 
-		return ss.str();
-	}
-};
+	protected:
 
-class BufferMemoryStream : public MemoryStream {
-public:
+		friend MemoryStreamPool;
 
-	struct Node {
-		void* buffer;
-		void* target;
-		UInt size;
+		/** @brief バイトストリーム */
+		pointer stream;
+		/** @brief ストリームの長さ */
+		UInt length;
+
+		/** @brief ストリーム内の読み取り位置 */
+		UInt readPosition;
+
+		/** @brief ストリーム内の書き込み位置 */
+		UInt writePosition;
+
+		NODISCARD MemoryStream(MemoryStream& stream, const UInt length) noexcept {
+			assert(stream.writePosition + length < stream.length);
+			this->stream = stream.writePointer<value_type>();
+			this->length = length;
+			this->readPosition = 0;
+			this->writePosition = 0;
+
+			stream.writePosition += length;
+		}
+
+		NODISCARD MemoryStream(pointer stream, const UInt length) noexcept {
+			this->stream = stream;
+			this->length = length;
+			this->readPosition = 0;
+			this->writePosition = 0;
+		}
+
+		/**
+		 * @brief ストリームの現在位置のポインタを取得する
+		 * @tparam Type（算術型、ポインタ型）
+		 * @return
+		*/
+		template<typename Type = void>
+		NODISCARD inline Type* readPointer() noexcept {
+#pragma warning(push)
+#pragma warning(disable:26474 26481 26490)
+			return reinterpret_cast<Type*>(std::addressof(stream[readPosition]));
+#pragma warning(pop)
+		}
+
+		/**
+		 * @brief ストリームの現在位置のポインタを取得する
+		 * @tparam Type（算術型、ポインタ型）
+		 * @return
+		*/
+		template<typename Type = void>
+		NODISCARD inline Type* writePointer() noexcept {
+#pragma warning(push)
+#pragma warning(disable:26473 26474 26481 26490)
+			return reinterpret_cast<Type*>(std::addressof(stream[writePosition]));
+#pragma warning(pop)
+		}
+
+		/**
+		 * @brief ストリームの現在位置のポインタを取得する
+		 * @return
+		*/
+		NODISCARD inline value_type at(const UInt index) const noexcept {
+			assert(index < length);
+#pragma warning(push)
+#pragma warning(disable:26481)
+			return stream[index];
+#pragma warning(pop)
+		}
+
+	public:
+
+		/**
+		 * @brief 指定された型でストリームから読み取る
+		 * @tparam Type 読み取り型（算術型）
+		 * @return 値
+		*/
+		template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
+		NODISCARD inline Type read() noexcept {
+			assert(readPosition + sizeof(Type) <= length);
+			assert(readPosition + sizeof(Type) <= writePosition);
+
+			Type t = *readPointer<Type>();
+			readPosition += sizeof(Type);
+			return t;
+		}
+
+		/**
+		 * @brief 指定されたサイズでストリームから読み取る
+		 * @param count 読み取りバイト数
+		 * @return voidポインタ
+		*/
+		NODISCARD inline void* read(const UInt count) noexcept {
+			assert(readPosition + count <= length);
+			assert(readPosition + count <= writePosition);
+
+			void* p = readPointer<void>();
+			readPosition += count;
+			return p;
+		}
+
+		/**
+		 * @brief 指定された型でストリームから読み取り削除する
+		 * @tparam Type 読み取り型（算術型）
+		 * @return 値
+		*/
+		template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
+		NODISCARD inline Type popBack() noexcept {
+			assert(sizeof(Type) <= writePosition);
+
+			writePosition -= sizeof(Type);
+			readPosition = std::min(readPosition, writePosition);
+			Type t = *writePointer<Type>();
+			return t;
+		}
+
+		/**
+		 * @brief 指定されたサイズでストリームから読み取り削除する
+		 * @tparam count 読み取りバイト数
+		 * @return voidポインタ
+		*/
+		NODISCARD inline void* popBack(const UInt count) noexcept {
+			assert(count <= writePosition);
+
+			writePosition -= count;
+			readPosition = std::min(readPosition, writePosition);
+			return writePointer<void*>();
+		}
+
+		/**
+		 * @brief 指定された型でストリームに書き込む
+		 * @tparam Type 書き込み型（算術型）
+		 * @param value 値
+		*/
+		template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type> || std::is_pointer_v<Type>, std::nullptr_t> = nullptr>
+		NODISCARD inline void write(const Type value) noexcept {
+			assert(writePosition + sizeof(Type) <= length);
+
+			*writePointer<Type>() = value;
+			writePosition += sizeof(Type);
+		}
+
+		/**
+		 * @brief 指定されたバイト数をストリームへ書き込む
+		 * @param buffer 書き込むストリーム
+		 * @param count 書き込みバイト数
+		 * @return
+		*/
+		NODISCARD inline void write(const void* buffer, const UInt count) noexcept {
+			assert(writePosition + count <= length);
+
+			std::memcpy(writePointer(), buffer, count);
+			writePosition += count;
+		}
+
+		/**
+		 * @brief 指定されたデータをストリームへ書き込む
+		 * @param data 書き込み対象
+		*/
+		template<class Class, typename std::enable_if_t<!std::is_arithmetic_v<Class> && !std::is_pointer_v<Class>, std::nullptr_t> = nullptr>
+		inline void write(const Class& data) noexcept {
+			assert(writePosition + sizeof(Class) <= length);
+
+			std::memcpy(writePointer(), std::addressof(data), sizeof(Class));
+			writePosition += sizeof(Class);
+		}
+
+		inline bool endOfStream() const noexcept { return readPosition >= writePosition; }
+
+		std::string toString() const {
+			std::stringstream ss;
+			ss << std::hex;
+
+			forange(i, length) {
+				ss << std::setw(2) << std::setfill('0') << static_cast<UInt>(at(i)) << " ";
+			}
+
+			return ss.str();
+		}
 	};
 
-	using MemoryStream::MemoryStream;
+	class MemoryStreamPool {
+	public:
 
-	/**
-	 * @brief バッファストリームにコピーする
-	 * @tparam Class コピー対象
-	 * @param data コピー対象
-	*/
-	template<class Class, typename std::enable_if_t<!std::is_const_v<Class>, std::nullptr_t> = nullptr>
-	inline void push(Class& data) noexcept {
-		write(data);
-		write(narrow_cast<UInt>(sizeof(Class)));
-		write(std::addressof(data));
-	}
+		static constexpr UInt MaxMemsize = 1_MB;
 
-	/**
-	 * @brief バッファストリームから最後尾のデータを取り出す
-	 * @return 最後尾のバッファデータ
-	*/
-	NODISCARD inline Node pop() noexcept {
-		Node node{};
+	private:
 
-		node.target = popBack<void*>();
-		node.size = popBack<UInt>();
+		std::vector<std::shared_ptr<MemoryStream::value_type[]>> fragmentPools;
+		MemoryStream fragment{ nullptr,0 };
 
-		node.buffer = popBack(node.size);
+		MemoryStream alloc() {
+			fragmentPools.push_back(MemoryStream::MakeShared(MaxMemsize));
+			return MemoryStream(fragmentPools.back().get(), MaxMemsize);
+		}
 
-		return node;
-	}
+	public:
 
-};
+		inline MemoryStream alloc(const UInt size) {
+			assert(size <= MaxMemsize);
 
-class PatchMemoryStream : public MemoryStream {
-public:
+			if (fragment.writePosition + size >= fragment.length) {
+				fragment = alloc();
+			}
 
-	struct Node {
-		void* buffer;
-		void* target;
-		UInt size;
+			return MemoryStream(fragment);
+		}
+
 	};
 
-	using MemoryStream::MemoryStream;
+	template<UInt Size>
+	class BufferMemoryStream : public MemoryStream {
+	private:
 
-	/**
-	 * @brief バッファストリームにコピーする
-	 * @tparam Class コピー対象
-	 * @param data コピー対象
-	*/
-	template<class Class, typename std::enable_if_t<!std::is_const_v<Class>, std::nullptr_t> = nullptr>
-	inline void push(Class& data) noexcept {
-		write(std::addressof(data));
-		write(narrow_cast<UInt>(sizeof(Class)));
-		write(data);
-	}
+		UInt redoSize = 0;
+		std::vector<std::tuple<UInt, UInt>> locks{};
+		value_type buffer[Size] = {};
 
-	/**
-	 * @brief バッファストリームから先頭のデータを取り出す
-	 * @return 先頭のバッファデータ
-	*/
-	NODISCARD inline Node dequeue() noexcept {
-		Node node{};
+	public:
 
-		node.target = read<void*>();
-		node.size = read<UInt>();
-		node.buffer = read(node.size);
+		using MemoryStream::MemoryStream;
 
-		return node;
-	}
+#pragma warning(push)
+#pragma warning(disable:26485)
+		NODISCARD BufferMemoryStream() noexcept : MemoryStream(buffer, Size) {}
+#pragma warning(pop)
 
-};
+		/**
+		 * @brief バッファストリームにコピーする
+		 * @tparam Class コピー対象
+		 * @param data コピー対象
+		*/
+		template<class Class, typename std::enable_if_t<!std::is_const_v<Class>, std::nullptr_t> = nullptr>
+		inline bool push(Class& data) noexcept {
 
+			//ロック中は失敗
+			if (!enabled()) {
+				return false;
+			}
 
-struct MemoNodeFooter {
-	using size_type = size_t;
-	using index_type = size_t;
+			write(data);
+			write(narrow_cast<UInt>(sizeof(Class)));
+			write(std::addressof(data));
 
-	MemoNodeFooter(size_type size, index_type pointerIndex) noexcept :
-		size(size), pointerIndex(pointerIndex) {}
+			redoSize += sizeof(Class);
 
-	const size_type size;
-	const index_type pointerIndex;
-};
-
-class MemoMemory {
-public:
-	using UInt = MemoryStream::UInt;
-
-private:
-	static constexpr int MaxMemsize = 1048576 - 256;
-	inline static UInt redoSize;
-	inline static std::vector<std::tuple<UInt, UInt>> locks;
-	inline static BufferMemoryStream buffer{ 262144 };
-	std::vector<MemoryStream::pointer> mems;
-
-	int usedMems = 0;
-	int mymemsize = 0;
-	MemoryStream::pointer mymem = 0;
-
-public:
-	inline static void free(const void*) noexcept {}
-
-	/**
-	 * @brief ロック
-	*/
-	inline static void lock() {
-		locks.emplace_back(buffer.getWritePosition(), redoSize);
-		redoSize = 0;
-	}
-	/**
-	 * @brief ロック解除
-	*/
-	inline static void unlock() noexcept {
-		assert(!locks.empty());
-		MemoryStream::UInt bufferSize;
-		std::tie(bufferSize, redoSize) = locks.back();
-		locks.pop_back();
-		buffer.setWritePosition(bufferSize);
-	}
-
-	/**
-	 * @brief ロック状態
-	 * @return true:ロックなし
-	*/
-	inline static bool enabled() noexcept {
-		return !locks.empty();
-	}
-
-	template<class Class>
-	inline static bool modify(const Class& data) noexcept {
-
-		//ロック中は失敗
-		if (!enabled()) {
-			return false;
+			return true;
 		}
 
-		buffer.push(data);
-		redoSize += sizeof(Class);
-
-		return true;
-	}
-
-	/**
-	 * @brief 巻き戻し
-	*/
-	inline static void undo() noexcept {
-
-		assert(enabled());
-
-		const UInt baseBufferSize = std::get<0>(locks.back());
-
-		while (baseBufferSize < buffer.getWritePosition()) {
-			const auto node = buffer.pop();
-			std::memcpy(node.target, node.buffer, node.size);
+		/**
+		 * @brief バッファストリームから最後尾のデータを取り出す
+		 * @return 最後尾のバッファデータ<target, size, buffer>
+		*/
+		NODISCARD inline std::tuple<void*, UInt, void*> pop() noexcept {
+			auto target = popBack<void*>();
+			const auto size = popBack<UInt>();
+			auto buffer = popBack(size);
+			return std::make_tuple(target, size, buffer);
 		}
 
-		assert(baseBufferSize == buffer.getWritePosition());
-		redoSize = 0;
-	}
+		inline void free(const void*) const noexcept {}
 
-	/**
-	 * @brief 巻き戻しパッチ適応
-	 * @param patch
-	 * @return
-	*/
-	static inline void undo(PatchMemoryStream& patch) noexcept {
-
-		while (!patch.endOfStream()) {
-			const auto node = patch.dequeue();
-			std::memcpy(node.target, node.buffer, node.size);
+		/**
+		 * @brief ロック
+		*/
+		inline void lock() {
+			locks.emplace_back(writePosition, redoSize);
+			redoSize = 0;
+		}
+		/**
+		 * @brief ロック解除
+		*/
+		inline void unlock() noexcept {
+			assert(!locks.empty());
+			std::tie(writePosition, redoSize) = locks.back();
+			locks.pop_back();
 		}
 
-	}
-
-	static inline void redo(PatchMemoryStream& patch) noexcept {
-
-		while (!patch.endOfStream()) {
-			const auto node = patch.dequeue();
-			std::memcpy(node.target, node.buffer, node.size);
+		/**
+		 * @brief ロック状態
+		 * @return true:ロックなし
+		*/
+		inline bool enabled() noexcept {
+			return !locks.empty();
 		}
 
-	}
+		/**
+		 * @brief 巻き戻し
+		*/
+		inline void undo() noexcept {
 
-	MemoMemory() noexcept {}
+			assert(enabled());
 
-	/**
-	 * @brief 初期化
-	*/
-	inline void clear() noexcept {
-		usedMems = 0;
-		mymemsize = 0;
-	}
+			const UInt baseBufferSize = std::get<0>(locks.back());
 
-	/**
-	 * @brief 領域確保
-	 * @param size 領域サイズ
-	 * @return ポインタ
-	*/
-	inline MemoryStream alloc(const UInt size) {
-		// todo:毎回メモリ確保しないようにする
-		return MemoryStream(size);
-	}
+			while (baseBufferSize < writePosition) {
+				auto [target, size, buffer] = pop();
+				std::memcpy(target, buffer, size);
+			}
 
-	inline MemoryStream build() {
+			assert(baseBufferSize == writePosition);
 
-		assert(!locks.empty());
-
-		const UInt base_buffer_size = std::get<0>(locks.back());
-
-		const UInt buildSize = (buffer.getWritePosition() - base_buffer_size) + redoSize;
-
-		MemoryStream ret = alloc(buildSize);
-
-		while (base_buffer_size < buffer.getWritePosition()) {
-
-			const auto node = buffer.pop();
-			ret.write<void*>(node.target);
-			ret.write<UInt>(node.size);
-			ret.write(node.target, node.size);
-			ret.write(node.buffer, node.size);
+			redoSize = 0;
 		}
 
-		redoSize = 0;
+		/**
+		 * @brief
+		 * @param pool
+		 * @return
+		*/
+		inline MemoryStream build(MemoryStreamPool pool) {
+			assert(!locks.empty());
+			const UInt baseBufferSize = std::get<0>(locks.back());
 
-		return ret;
-	}
+			MemoryStream ret = pool.alloc((writePosition - baseBufferSize) + redoSize);
+			while (baseBufferSize < writePosition) {
+				auto [target, size, buffer] = pop();
+				ret.write<void*>(target);
+				ret.write<UInt>(size);
+				ret.write(target, size);
+				ret.write(buffer, size);
+			}
+			redoSize = 0;
 
-};
+			return ret;
+		}
+
+
+	};
+
+	class PatchMemoryStream : public MemoryStream {
+	private:
+
+		friend MemoMemory;
+
+		inline void adaptation() noexcept {
+			void* target = read<void*>();
+			const UInt size = read<UInt>();
+			const void* buffer = read(size);
+
+			std::memcpy(target, buffer, size);
+		}
+
+		/**
+		 * @brief 巻き戻しパッチ適応
+		 * @param patch パッチ
+		*/
+		inline void undo() noexcept {
+			while (!endOfStream()) { adaptation(); }
+		}
+
+		/**
+		 * @brief 巻き戻しパッチ適応
+		 * @param patch パッチ
+		*/
+		inline void redo() noexcept {
+			while (!endOfStream()) { adaptation(); }
+		}
+
+	public:
+
+		using MemoryStream::MemoryStream;
+
+		/**
+		 * @brief バッファストリームにコピーする
+		 * @tparam Class コピー対象
+		 * @param data コピー対象
+		*/
+		template<class Class, typename std::enable_if_t<!std::is_const_v<Class>, std::nullptr_t> = nullptr>
+		inline void push(Class& data) noexcept {
+			write(std::addressof(data));
+			write(narrow_cast<UInt>(sizeof(Class)));
+			write(data);
+		}
+
+	};
+
+	class MemoMemory final {
+	private:
+		inline static BufferMemoryStream<MemoryStreamPool::MaxMemsize> buffer;
+		MemoryStreamPool memoryPool;
+
+	public:
+
+		template<class Class>
+		inline static bool modify(const Class& data) noexcept { return buffer.push(data); }
+
+		inline static void undo() noexcept { buffer.undo(); }
+		inline static void undo(PatchMemoryStream& patch) noexcept { patch.undo(); }
+		inline static void redo(PatchMemoryStream& patch) noexcept { patch.redo(); }
+
+		MemoMemory() noexcept {}
+
+		inline MemoryStream build() { return buffer.build(memoryPool); }
+
+	};
+
+}

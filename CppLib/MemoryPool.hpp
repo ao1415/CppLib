@@ -6,14 +6,6 @@
 
 #include "FixedDeque.hpp"
 
-#ifndef _MSC_VER
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
-#else
-#define likely(x) x
-#define unlikely(x) x
-#endif
-
 namespace alib
 {
 
@@ -91,9 +83,9 @@ namespace alib
 		template <class... Args>
 		inline Type *push(Args... args)
 		{
-			if (unlikely(isRecycle))
+			if (UNLIKELY(isRecycle))
 			{
-				if (unlikely(addr.empty()))
+				if (UNLIKELY(addr.empty()))
 				{
 					return nullptr;
 				}
