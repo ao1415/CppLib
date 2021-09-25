@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Basic.hpp"
+#include <array>
 #include <vector>
 #include <cassert>
 #include <memory>
@@ -11,23 +12,25 @@
 #include <iomanip>
 
 namespace Search {
-
 	using Int = int32_t;
 	using UInt = uint32_t;
+}
 
-	constexpr UInt kbToB(unsigned long long kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
-	constexpr UInt mbToB(unsigned long long mByte) noexcept { return kbToB(mByte * 1024); }
+namespace Search::Memory {
+
+	NODISCARD constexpr UInt kbToB(unsigned long long kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
+	NODISCARD constexpr UInt mbToB(unsigned long long mByte) noexcept { return kbToB(mByte * 1024); }
 
 #pragma warning(push)
 #pragma warning(disable:26467)
-	constexpr UInt kbToB(long double kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
-	constexpr UInt mbToB(long double mByte) noexcept { return kbToB(mByte * 1024); }
+	NODISCARD constexpr UInt kbToB(long double kByte) noexcept { return narrow_cast<UInt>(kByte * 1024); }
+	NODISCARD constexpr UInt mbToB(long double mByte) noexcept { return kbToB(mByte * 1024); }
 #pragma warning(pop)
 
-	constexpr UInt operator"" _KB(unsigned long long kByte) noexcept { return kbToB(kByte); }
-	constexpr UInt operator"" _MB(unsigned long long mByte) noexcept { return mbToB(mByte); }
-	constexpr UInt operator"" _KB(long double kByte) noexcept { return kbToB(kByte); }
-	constexpr UInt operator"" _MB(long double mByte) noexcept { return mbToB(mByte); }
+	NODISCARD constexpr UInt operator"" _KB(unsigned long long kByte) noexcept { return kbToB(kByte); }
+	NODISCARD constexpr UInt operator"" _MB(unsigned long long mByte) noexcept { return mbToB(mByte); }
+	NODISCARD constexpr UInt operator"" _KB(long double kByte) noexcept { return kbToB(kByte); }
+	NODISCARD constexpr UInt operator"" _MB(long double mByte) noexcept { return mbToB(mByte); }
 
 	class MemoMemory;
 	class MemoryStreamPool;
@@ -214,9 +217,9 @@ namespace Search {
 			writePosition += sizeof(Class);
 		}
 
-		inline bool endOfStream() const noexcept { return readPosition >= writePosition; }
+		NODISCARD inline bool endOfStream() const noexcept { return readPosition >= writePosition; }
 
-		std::string toString() const {
+		NODISCARD std::string toString() const {
 			std::stringstream ss;
 			ss << std::hex;
 
@@ -238,14 +241,14 @@ namespace Search {
 		std::vector<std::shared_ptr<MemoryStream::value_type[]>> fragmentPools;
 		MemoryStream fragment{ nullptr,0 };
 
-		MemoryStream alloc() {
+		NODISCARD MemoryStream alloc() {
 			fragmentPools.push_back(MemoryStream::MakeShared(MaxMemsize));
 			return MemoryStream(fragmentPools.back().get(), MaxMemsize);
 		}
 
 	public:
 
-		inline MemoryStream alloc(const UInt size) {
+		NODISCARD inline MemoryStream alloc(const UInt size) {
 			assert(size <= MaxMemsize);
 
 			if (fragment.writePosition + size >= fragment.length) {
@@ -280,7 +283,7 @@ namespace Search {
 		 * @param data コピー対象
 		*/
 		template<class Class, typename std::enable_if_t<!std::is_const_v<Class>, std::nullptr_t> = nullptr>
-		inline bool push(Class& data) noexcept {
+		NODISCARD inline bool push(Class& data) noexcept {
 
 			//ロック中は失敗
 			if (!enabled()) {
@@ -329,9 +332,7 @@ namespace Search {
 		 * @brief ロック状態
 		 * @return true:ロックなし
 		*/
-		inline bool enabled() noexcept {
-			return !locks.empty();
-		}
+		NODISCARD inline bool enabled() noexcept { return !locks.empty(); }
 
 		/**
 		 * @brief 巻き戻し
@@ -357,7 +358,7 @@ namespace Search {
 		 * @param pool
 		 * @return
 		*/
-		inline MemoryStream build(MemoryStreamPool pool) {
+		NODISCARD inline MemoryStream build(MemoryStreamPool pool) {
 			assert(!locks.empty());
 			const UInt baseBufferSize = std::get<0>(locks.back());
 
@@ -438,9 +439,162 @@ namespace Search {
 		inline static void undo(PatchMemoryStream& patch) noexcept { patch.undo(); }
 		inline static void redo(PatchMemoryStream& patch) noexcept { patch.redo(); }
 
-		MemoMemory() noexcept {}
+		NODISCARD MemoMemory() noexcept {}
 
 		inline MemoryStream build() { return buffer.build(memoryPool); }
+
+	};
+
+}
+
+namespace Search::Ref {
+
+	template<class Class>
+	class RefMemory {
+	private:
+
+		Class* pointer = nullptr;
+
+		inline void modify() { Memory::MemoMemory::modify(*pointer); }
+		inline void modify(const Class& o) {
+			if (*pointer != o) {
+				modify();
+				*pointer = o;
+			}
+		}
+
+	public:
+		inline RefMemory(Class* p) : pointer(p) {}
+
+		inline void operator=(const Class& o) { modify(o); }
+		inline void operator+=(const Class& o) { Class v = *pointer + o; modify(v); }
+		inline void operator-=(const Class& o) { Class v = *pointer - o; modify(v); }
+		inline void operator*=(const Class& o) { Class v = *pointer * o; modify(v); }
+		inline void operator/=(const Class& o) { Class v = *pointer / o; modify(v); }
+		inline void operator&=(const Class& o) { Class v = *pointer & o; modify(v); }
+		inline void operator|=(const Class& o) { Class v = *pointer | o; modify(v); }
+		inline void operator^=(const Class& o) { Class v = *pointer ^ o; modify(v); }
+
+		inline RefMemory<Class>& operator++() { modify(); ++(*pointer); return *this; }
+		inline Class operator++(int) { modify(); Class v = *pointer; ++(*pointer); return v; }
+		inline RefMemory<Class>& operator--() { modify(); --(*pointer); return *this; }
+		inline Class operator--(int) { modify(); Class v = *pointer; --(*pointer); return v; }
+
+		NODISCARD inline Class value() const { return *pointer; }
+		NODISCARD inline operator Class() const { return *pointer; }
+	};
+
+	template<typename Type, UInt Size>
+	class RefArray : public std::array<Type, Size> {
+	public:
+
+		using size_type = UInt;
+		using base = std::array<Type, Size>;
+
+		RefArray() noexcept : base() {};
+		RefArray(const RefArray& other) = default;
+		RefArray(RefArray&& other) = default;
+		RefArray& operator=(const RefArray& other) = default;
+		RefArray& operator=(RefArray&& other) = default;
+
+		inline void set(const size_type idx, const Type& o) noexcept { Memory::MemoMemory::modify(base::operator[](idx)); base::operator[](idx) = o; }
+		NODISCARD inline const Type& get(const size_type idx) const noexcept { return base::operator[](idx); }
+
+		NODISCARD inline const Type& operator[](const size_type idx) const noexcept { return base::operator[](idx); }
+		NODISCARD inline RefMemory<Type> operator[](const size_type idx) noexcept { return RefMemory<Type>(std::addressof(base::operator[](idx))); }
+
+		NODISCARD inline const Type& at(const size_type idx) const noexcept { return base::at(idx); }
+		NODISCARD inline RefMemory<Type> at(const size_type idx) noexcept { return RefMemory<Type>(std::addressof(base::at(idx))); }
+	};
+
+	template<typename Type, UInt Size>
+	class RefVector : public std::array<Type, Size> {
+	public:
+
+		using size_type = UInt;
+		using base = std::array<Type, Size>;
+
+	private:
+
+		size_type count = 0;
+
+		NODISCARD inline void hasCapacity(const size_type n) { assert(0 <= n && n < Size); }
+		NODISCARD inline void inside(const size_type idx) { assert(0 <= idx && idx < count); }
+		NODISCARD inline void any() { assert(0 < count); }
+
+	public:
+
+		RefVector() noexcept : base() {};
+		RefVector(const RefVector& other) = default;
+		RefVector(RefVector&& other) = default;
+		RefVector& operator=(const RefVector& other) = default;
+		RefVector& operator=(RefVector&& other) = default;
+
+		inline void set(const size_type idx, const Type& o) noexcept {
+			inside(idx);
+			Memory::MemoMemory::modify(base::operator[](idx));
+			base::operator[](idx) = o;
+		}
+		NODISCARD inline const Type& get(const size_type idx) const noexcept {
+			inside(idx);
+			return base::operator[](idx);
+		}
+
+		inline void clear() noexcept { Memory::MemoMemory::modify(count); count = 0; }
+		NODISCARD inline bool empty() const noexcept { return count == 0; }
+		NODISCARD inline bool full() const noexcept { return count == base::size(); }
+		NODISCARD inline size_type full_size() const noexcept { return base::size(); }
+		NODISCARD inline size_type size() const noexcept { return count; }
+
+		inline void push_back(const Type& value) noexcept {
+			inside(idx);
+			Memory::MemoMemory::modify(count);
+			Memory::MemoMemory::modify(base::oprator[](count));
+			base::oprator[](count) = value;
+			++count;
+		}
+		template<class ...Args>
+		inline void emplace_back(Args&& ...args) noexcept {
+			inside(idx);
+			Memory::MemoMemory::modify(count);
+			Memory::MemoMemory::modify(base::oprator[](count));
+			new(std::addressof(base::oprator[](count))) Type(std::forward<TyArgs>(args)...);
+			++count;
+		}
+
+		inline void pop_back() noexcept {
+			any();
+			Memory::MemoMemory::modify(count);
+			--count;
+		}
+
+		NODISCARD inline RefMemory<Type> front() noexcept { any(); return RefMemory<Type>(std::addressof(base::front())); }
+		NODISCARD inline const Type& front() const noexcept { any(); return base::front(); }
+
+		NODISCARD inline RefMemory<Type> back() noexcept { any(); return RefMemory<Type>(std::addressof(base::back())); }
+		NODISCARD inline const Type& back() const noexcept { any(); return base::back(); }
+
+		inline void resize(UInt n, const Type& value) noexcept {
+			hasCapacity(n);
+			Memory::MemoMemory::modify(count);
+			if (count < n) {
+				const auto addCount = n - count;
+				Memory::MemoMemory::modify(std::addressof(base::oprator[](count)), sizeof(Type) * addCount);
+				forstep(idx, count, n) { base::oprator[](i) = value; }
+			}
+			count = n;
+		}
+		inline void resize(int n) noexcept {
+			hasCapacity(n);
+			Memory::MemoMemory::modify(count);
+			count = n;
+		}
+
+		NODISCARD inline const Type& operator[](const size_type idx) const noexcept { inside(idx); return base::operator[](idx); }
+		NODISCARD inline RefMemory<Type> operator[](const size_type idx) noexcept { inside(idx); return RefMemory<Type>(std::addressof(base::operator[](idx))); }
+
+		NODISCARD inline const Type& at(const size_type idx) const noexcept { inside(idx); return base::at(idx); }
+		NODISCARD inline RefMemory<Type> at(const size_type idx) noexcept { inside(idx); return RefMemory<Type>(std::addressof(base::at(idx))); }
 
 	};
 

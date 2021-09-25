@@ -6,6 +6,8 @@
 #include "BasicPoint.hpp"
 #include "MemoMemory.hpp"
 
+using namespace std;
+
 int main() {
 
 	using namespace alib;
