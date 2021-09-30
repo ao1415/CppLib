@@ -26,15 +26,15 @@ __pragma(warning(pop))\
 
 #define NODISCARD [[nodiscard]]
 
-template <class T, class U>
-inline constexpr T narrow_cast(U&& u) noexcept {
+namespace alib {
+
+	template <class T, class U>
+	inline constexpr T narrow_cast(U&& u) noexcept {
 #pragma warning(push)
 #pragma warning(disable:26472)
-	return static_cast<T>(std::forward<U>(u));
+		return static_cast<T>(std::forward<U>(u));
 #pragma warning(pop)
-}
-
-namespace alib {
+	}
 
 	/**
 	 * @brief 指定されたサイズから、確保するサイズを算出する
