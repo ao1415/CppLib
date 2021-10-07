@@ -11,7 +11,7 @@
 #include <sstream>
 #include <iomanip>
 
-namespace alib {
+namespace alib_alpha {
 	namespace Search {
 		using Int = int32_t;
 		using UInt = uint32_t;
@@ -33,7 +33,7 @@ namespace alib {
 		NODISCARD constexpr UInt operator"" _KB(long double kByte) noexcept { return kbToB(kByte); }
 		NODISCARD constexpr UInt operator"" _MB(long double mByte) noexcept { return mbToB(mByte); }
 
-		template<typename Type = void>
+		template<typename Type = std::byte>
 		class Span {
 		public:
 			using value_type = std::remove_extent_t<Type>;
@@ -48,7 +48,7 @@ namespace alib {
 		public:
 
 			Span() = default;
-			Span(void* data, size_type length) noexcept : m_data(data), length(length) {}
+			Span(pointer data, size_type length) noexcept : m_data(data), length(length) {}
 
 			~Span() = default;
 			Span& operator=(const Span&) = default;
@@ -59,20 +59,26 @@ namespace alib {
 			NODISCARD inline Span subspan(size_type offset, size_type count) const { assert(offset + count <= length); return Span(seek(offset), count); }
 
 			NODISCARD inline std::pair<Span, Span> split(size_type count) const { return std::make_pair(first(count), last(length - count)); }
+			template<class Class>
+			NODISCARD inline std::pair<Span, Span> split() const noexcept { return split(sizeof(Class)); }
+
+			template<class Class, class... Args>
+			NODISCARD inline Class* emplace(Args&&... args) const noexcept { assert(sizeof(Class) <= length); return new(m_data) Class(std::forward<Args>(args)...); }
 
 			NODISCARD inline size_type size() const noexcept { return length; }
 			NODISCARD inline size_type size_bytes() const noexcept { return length * sizeof(value_type); }
+
 			NODISCARD inline bool empty() const noexcept { return length == 0; }
 
 			NODISCARD inline pointer data() const noexcept { return m_data; }
 
 			template<typename CastType>
 			NODISCARD inline auto reinterpretPointerCast() const noexcept {
-				return Span<CastType>(reinterpret_cast<std::remove_extent_t<CastType>*>(m_data), (sizeof(value_type) * length) / sizeof(remove_extent_t<CastType>));
+				return Span<CastType>(reinterpret_cast<std::remove_extent_t<CastType>*>(m_data), (sizeof(value_type) * length) / sizeof(Span<CastType>::value_type));
 			}
 			template<typename CastType>
 			NODISCARD inline auto reinterpretPointerCast() noexcept {
-				return Span<CastType>(reinterpret_cast<std::remove_extent_t<CastType>*>(m_data), (sizeof(value_type) * length) / sizeof(remove_extent_t<CastType>));
+				return Span<CastType>(reinterpret_cast<std::remove_extent_t<CastType>*>(m_data), (sizeof(value_type) * length) / sizeof(Span<CastType>::value_type));
 			}
 
 			NODISCARD inline auto asBytes() const noexcept { return reinterpretPointerCast<const std::byte>(); }

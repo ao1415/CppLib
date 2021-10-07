@@ -1,6 +1,5 @@
 #pragma once
 
-#include <type_traits>
 #include <utility>
 
 #ifndef _MSC_VER
