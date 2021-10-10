@@ -8,17 +8,17 @@
 
 using namespace std;
 
-struct Args {
-	Args() noexcept {}
+struct Argument {
+	Argument() noexcept {}
 };
 
-class Beam : public alib::BeamSearchTemplate<10, 10, 2900, Args> {
+using BeamConfig = alib::BeamSearchConfig<10, 10, 2900, Argument>;
+
+class Beam : public BeamConfig::BeamBase {
 public:
 
-	Beam() noexcept = default;
-
-	void search(ArgumentType args) override {
-		throw exception();
+	void search(SearchArgument search) override {
+		nextSearch(search.score, search.argument);
 	}
 };
 

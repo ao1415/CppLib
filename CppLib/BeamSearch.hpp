@@ -5,16 +5,8 @@
 #include <array>
 #include <vector>
 #include <unordered_set>
-#include <unordered_map>
 
-#include <stack>
-
-#include <cstdint>
 #include <cassert>
-
-#include <string>
-#include <sstream>
-#include <iomanip>
 
 #include <memory>
 #include <chrono>
@@ -44,7 +36,7 @@ namespace alib {
 			/** @brief タイマー開始 */
 			void start() noexcept { startPoint = Clock::now(); }
 			/** @brief 経過時間（ms） */
-			inline double interval() const noexcept {
+			NODISCARD inline double interval() const noexcept {
 				constexpr auto basicDuration = std::chrono::milliseconds(1);
 				constexpr auto duration = std::chrono::duration_cast<Rep>(basicDuration).count();
 				return std::chrono::duration_cast<Rep>(Clock::now() - startPoint).count() / static_cast<double>(duration);
@@ -54,16 +46,16 @@ namespace alib {
 		template <class Type, class Compare = std::less<typename std::vector<Type>::value_type>>
 		class ExPriorityQueue : public std::priority_queue<Type, std::vector<Type>, Compare> {
 		public:
-			auto& container() noexcept { return this->c; }
-			const auto& container() const noexcept { return this->c; }
+			NODISCARD auto& container() noexcept { return this->c; }
+			NODISCARD const auto& container() const noexcept { return this->c; }
 			void clear() noexcept { this->c.clear(); }
 		};
 
-		template<SizeType MaxMemorySize = 1_MB>
+		template<class Class = std::byte, SizeType MaxMemorySize = 1_MB>
 		class MemoryPool {
 		public:
 
-			using ValueType = std::byte;
+			using ValueType = Class;
 			using Pointer = ValueType*;
 			using PointerConst = ValueType const*;
 
@@ -83,7 +75,7 @@ namespace alib {
 			std::list<SharedPtr> unusedMemory;
 			std::list<Ref> refMemory;
 
-			inline uintptr_t toInteger(const PointerConst p) const noexcept {
+			NODISCARD inline uintptr_t toInteger(const PointerConst p) const noexcept {
 				WARN_PUSH(disable:26490);
 				return reinterpret_cast<uintptr_t>(p);
 				WARN_POP();
@@ -91,7 +83,7 @@ namespace alib {
 
 		public:
 
-			inline Pointer alloc(const SizeType size) {
+			NODISCARD inline Pointer alloc(const SizeType size) {
 				assert(size < MaxMemorySize);
 
 				if (memorySize + size >= MaxMemorySize) {
@@ -154,21 +146,21 @@ namespace alib {
 				Stream(Pointer data, const SizeType pos, const SizeType length) noexcept
 					: data(data), pos(pos), length(length) {}
 
-				inline Pointer address() const noexcept {
+				NODISCARD inline Pointer address() const noexcept {
 					WARN_PUSH(disable:26481);
 					return std::addressof(data[pos]);
 					WARN_POP();
 				}
 
 				template<typename Ptr>
-				inline Ptr reinterpret() const noexcept {
+				NODISCARD inline Ptr reinterpret() const noexcept {
 					WARN_PUSH(disable:26490);
 					return reinterpret_cast<Ptr>(address());
 					WARN_POP();
 				};
 
 				template<typename Type>
-				inline Type get() noexcept {
+				NODISCARD inline Type get() noexcept {
 					assert(pos + sizeof(Type) <= length);
 					Type ret = *(reinterpret<Type*>());
 					pos += sizeof(Type);
@@ -176,7 +168,7 @@ namespace alib {
 				}
 
 				template<typename Type>
-				inline Type pop() noexcept {
+				NODISCARD inline Type pop() noexcept {
 					assert(sizeof(Type) <= pos);
 					pos -= sizeof(Type);
 					return *(reinterpret<Type*>());
@@ -214,11 +206,11 @@ namespace alib {
 					pos += size;
 				}
 
-				inline bool endOfStream() const noexcept {
+				NODISCARD inline bool endOfStream() const noexcept {
 					return pos == length;
 				}
 
-				inline bool hasStream() const noexcept {
+				NODISCARD inline bool hasStream() const noexcept {
 					return pos < length;
 				}
 
@@ -244,7 +236,7 @@ namespace alib {
 					WARN_POP();
 				}
 
-				inline bool isEnabled() noexcept { return !locks.empty(); }
+				NODISCARD inline bool isEnabled() noexcept { return !locks.empty(); }
 
 				inline void lock() {
 					locks.emplace_back(stream.pos, redoSize);
@@ -276,10 +268,11 @@ namespace alib {
 					redoSize += size;
 				}
 
-				inline SizeType getBufferSize() const noexcept { return stream.pos - locks.back().first; }
+				NODISCARD inline SizeType getBufferSize() const noexcept { return stream.pos - locks.back().first; }
 			};
 
 			inline static Buffer<256_KB> buffer{};
+
 			MemoryPool<> pool;
 
 		public:
@@ -294,8 +287,8 @@ namespace alib {
 				Patch(Pointer data, const SizeType length) noexcept
 					: data(data), length(length) {}
 
-				inline bool hasValue() const noexcept { return length != 0; }
-				inline Pointer address() const noexcept { return data; }
+				NODISCARD inline bool hasValue() const noexcept { return length != 0; }
+				NODISCARD inline Pointer address() const noexcept { return data; }
 
 				/** @brief 戻す */
 				inline void undo() const noexcept {
@@ -333,7 +326,7 @@ namespace alib {
 			}
 
 			/** @brief 差分パッチ作成 */
-			inline Patch commit() {
+			NODISCARD inline Patch commit() {
 				assert(buffer.isEnabled());
 
 				const SizeType wholeSize = buffer.getBufferSize() + buffer.redoSize;
@@ -376,7 +369,8 @@ namespace alib {
 			DefaultSearchArgument(const ScoreType score, const Argument& argument) : score(score), argument(argument) {}
 			DefaultSearchArgument(const ScoreType score) noexcept : score(score) {}
 			template<class... Args>
-			DefaultSearchArgument(const ScoreType score, Args&& ...args) : score(score), argument(Argument(std::forward<Args>(args)...)) {}
+			DefaultSearchArgument(const ScoreType score, Args&& ...args) noexcept
+				: score(score), argument(Argument(std::forward<Args>(args)...)) {}
 		};
 
 		template<typename Argument, typename HashTy = size_t, typename ScoreTy = double>
@@ -401,13 +395,14 @@ namespace alib {
 		 * @brief 探査ノードの構造体
 		 * @tparam Argument 探索引数
 		*/
-		template<typename Argument>
+		template<class Config>
 		struct SearchNode {
 
+			using SearchArgument = typename Config::SearchArgumentType;
 			using Pointer = SearchNode*;
 
 			SearchNode() noexcept = default;
-			SearchNode(Pointer parent, const Argument& argument) noexcept : argument(argument) {
+			SearchNode(Pointer parent, const SearchArgument& argument) noexcept : argument(argument) {
 				assert(parent != nullptr);
 				this->parent = parent;
 				parent->addRef();
@@ -417,7 +412,7 @@ namespace alib {
 			/** @brief 親ノードのポインタ */
 			Pointer parent = nullptr;
 			/** @brief 探査引数 */
-			Argument argument{};
+			SearchArgument argument{};
 			/** @brief ノード遷移パッチ */
 			VersionControl::Patch patch{};
 			/** @brief ノード深度 */
@@ -429,32 +424,31 @@ namespace alib {
 			inline void subRef() noexcept { ref--; }
 		};
 
-		template<SizeType Depth, SizeType Witdh, SizeType Limit, typename Argument, typename SearchArgument>
+		template<class Config>
 		class BeamSearchProcess {
 		private:
 
-			using Node = SearchNode<SearchArgument>;
-			using NodePointer = typename Node::Pointer;
+			using SearchArgument = typename Config::SearchArgumentType;
+
+			using Node = SearchNode<Config>;
+			using NodePointer = Node*;
 
 			using RankingItem = std::pair<double, NodePointer>;
 			using Ranking = ExPriorityQueue<RankingItem>;
 
 			class SearchNodePool {
 			private:
-				MemoryPool<> pool{};
+				MemoryPool<Node, 16_KB> pool{};
 				NodePointer top = nullptr;
 			public:
-				inline NodePointer alloc() {
+				NODISCARD inline NodePointer alloc() {
 					if (top != nullptr) {
 						NodePointer ptr = top;
 						top = ptr->parent;
 						return ptr;
 					}
 					else {
-						MemoryPool<>::Pointer ptr = pool.alloc(sizeof(Node));
-						WARN_PUSH(disable:26490);
-						return reinterpret_cast<NodePointer>(ptr);
-						WARN_POP();
+						return pool.alloc(1);
 					}
 				}
 				inline void release(NodePointer ptr) noexcept {
@@ -465,7 +459,6 @@ namespace alib {
 
 			// TODO:初期化方法
 			inline static constexpr bool enabelDebug = false;
-			inline static Timer timer;
 
 			/** @brief 現在の探査ノード */
 			NodePointer currentNode = nullptr;
@@ -477,12 +470,15 @@ namespace alib {
 			/** @brief 次のの探査ノードキュー */
 			Ranking nextRanking;
 			/** @brief 現在の探査ノードキューの低スコアキュー */
-			std::priority_queue<double, std::vector<double>, std::greater<>> currentScoreRinking;
+			std::priority_queue<double, std::vector<double>, std::greater<>> nextScoreRinking;
 
 			/** @brief 残探査深度 */
-			int remainDepth = Depth;
+			int remainDepth = Config::GetDepth();
 			/** @brief 次深度の探査時間（ms） */
-			double nextLimit = static_cast<double>(Limit) / Depth;
+			double nextLimit = static_cast<double>(Config::GetLimit()) / Config::GetDepth();
+
+			/** @brief 探査タイマー */
+			Timer timer;
 
 			/** @brief 変更管理 */
 			VersionControl version;
@@ -507,8 +503,8 @@ namespace alib {
 				NodePointer currentRoot = current;
 				NodePointer nextRoot = next->parent;
 
-				std::array<VersionControl::Patch, Depth> redos{};
-				int stack = Depth;
+				std::array<VersionControl::Patch, Config::GetDepth()> redos{};
+				int stack = Config::GetDepth();
 
 				while (currentRoot != nextRoot) {
 					assert(currentRoot != nullptr);
@@ -527,7 +523,7 @@ namespace alib {
 						currentRoot = currentRoot->parent;
 					}
 				}
-				forstep(idx, stack, Depth) {
+				forstep(idx, stack, Config::GetDepth()) {
 					WARN_PUSH(disable:26446 26482);
 					redos[idx].redo();
 					WARN_POP();
@@ -542,8 +538,8 @@ namespace alib {
 				rank.clear();
 			}
 
-			double getNextLimit(const double interval) const noexcept {
-				return ((Limit - interval) / remainDepth) + interval;
+			NODISCARD double getNextLimit(const double interval) const noexcept {
+				return ((Config::GetLimit() - interval) / remainDepth) + interval;
 			}
 
 			void release(NodePointer node) {
@@ -570,7 +566,7 @@ namespace alib {
 			void timerStart() noexcept { timer.start(); }
 
 			void init() {
-				remainDepth = Depth;
+				remainDepth = Config::GetDepth();
 
 				nextLimit = getNextLimit(timer.interval());
 
@@ -578,11 +574,12 @@ namespace alib {
 
 				clearRanking(currentRanking);
 				clearRanking(nextRanking);
+				nextScoreRinking.swap(decltype(nextScoreRinking)());
 
 				VersionControl::lock();
 			}
 
-			bool onloop() {
+			NODISCARD bool onloop() {
 				if (nextNode != nullptr) {
 					release(nextNode);
 					nextNode = nullptr;
@@ -623,106 +620,109 @@ namespace alib {
 				nextNode = nullptr;
 			}
 
-			void reserve(const SearchArgument& arg) {
-				if (Witdh <= nextRanking.size()) {
-					if (arg.score <= currentScoreRinking.top()) {
+			void reserve(const SearchArgument& argument) {
+				if (Config::GetWidth() <= nextRanking.size()) {
+					if (argument.score <= nextScoreRinking.top()) {
 						return;
 					}
 					else {
-						currentScoreRinking.pop();
+						nextScoreRinking.pop();
 					}
 				}
 
-				nextRanking.emplace(arg.score, new(nodePool.alloc()) Node(currentNode, arg));
-				currentScoreRinking.push(arg.score);
+				nextRanking.emplace(argument.score, new(nodePool.alloc()) Node(currentNode, argument));
+				nextScoreRinking.push(argument.score);
 			}
 
-			SearchArgument getArgument() const noexcept {
+			NODISCARD SearchArgument getArgument() const noexcept {
 				assert(nextNode != nullptr);
 				return nextNode->argument;
 			}
 		};
-	}
-
-	/**
-	 * @brief ビームサーチ用テンプレートクラス
-	 * @tparam Depth ビーム深度
-	 * @tparam Witdh ビーム幅
-	 * @tparam Limit サーチ時間（ms）
-	 * @tparam Argument 状態引数
-	 * @tparam SearchArgument 探査タイプ
-	*/
-	template<BeamSearch::Lib::SizeType Depth, BeamSearch::Lib::SizeType Witdh, BeamSearch::Lib::SizeType Limit, typename Argument, typename SearchArgument = BeamSearch::Lib::DefaultSearchArgument<Argument>>
-	class BeamSearchTemplate {
-	public:
-
-		using ArgumentType = SearchArgument;
-
-		BeamSearchTemplate() noexcept = default;
-		BeamSearchTemplate(BeamSearchTemplate&&) = default;
-		BeamSearchTemplate& operator=(BeamSearchTemplate&&) = default;
-		virtual ~BeamSearchTemplate() = default;
-
-		// コピー禁止
-		BeamSearchTemplate(const BeamSearchTemplate&) = delete;
-		BeamSearchTemplate& operator=(const BeamSearchTemplate&) = delete;
-
-	private:
-
-		// 探査済みハッシュ
-		// TODO:ハッシュ化した値を直接使用する方法
-		std::unordered_set<size_t> visited;
-
-		// ビームサーチ処理
-		BeamSearch::Lib::BeamSearchProcess<Depth, Witdh, Limit, Argument, SearchArgument> process;
 
 		/**
-		 * @brief ループ処理
-		 * @param process 次の状態処理の引数
+		 * @brief ビームサーチ用テンプレートクラス
+		 * @tparam Config 設定
 		*/
-		void loop() {
-			while (process.onloop()) {
-				if constexpr (SearchArgument::HasHash) {
-					const auto& arg = process.getArgument();
-					if (visited.find(arg.hash) != visited.end()) { continue; }
-					visited.insert(arg.hash);
-					process.accept();
-					search(arg);
-				}
-				else {
-					const auto& arg = process.getArgument();
-					process.accept();
-					search(arg);
+		template<class Config>
+		class BeamSearchTemplate {
+		public:
+
+			using Argument = typename Config::ArgumentType;
+			using SearchArgument = typename Config::SearchArgumentType;
+
+			BeamSearchTemplate() = default;
+			virtual ~BeamSearchTemplate() = default;
+			BeamSearchTemplate(BeamSearchTemplate&&) = default;
+			BeamSearchTemplate& operator=(BeamSearchTemplate&&) = default;
+
+			BeamSearchTemplate(const BeamSearchTemplate&) = delete;
+			BeamSearchTemplate& operator=(const BeamSearchTemplate&) = delete;
+
+		private:
+
+			// 探査済みハッシュ
+			// TODO:ハッシュ化した値を直接使用する方法
+			std::unordered_set<size_t> visited{};
+			BeamSearchProcess<Config> process{};
+
+			void loop() {
+				while (process.onloop()) {
+					if constexpr (SearchArgument::HasHash) {
+						const auto& argument = process.getArgument();
+						if (visited.find(arg.hash) != visited.end()) { continue; }
+						visited.insert(arg.hash);
+						process.accept();
+						search(argument);
+					}
+					else {
+						const auto& argument = process.getArgument();
+						process.accept();
+						search(argument);
+					}
 				}
 			}
-		}
 
-	protected:
+		protected:
 
-		/**
-		 * @brief 次の状態処理
-		 * @param args 次の状態処理の引数
-		*/
-		template<class... Args>
-		inline void nextSearch(Args&& ...args) { nextSearch(SearchArgument(std::forward<Args>(args)...)); }
+			/**
+			 * @brief 次の状態処理
+			 * @param args 次の状態処理の引数
+			*/
+			template<class... Args>
+			inline void nextSearch(Args&& ...args) { nextSearch(SearchArgument(std::forward<Args>(args)...)); }
 
-		/**
-		 * @brief 次の状態処理
-		 * @param arg 次の状態処理の引数
-		*/
-		inline void nextSearch(SearchArgument arg) { process.reserve(arg); }
+			/**
+			 * @brief 次の状態処理
+			 * @param arg 次の状態処理の引数
+			*/
+			inline void nextSearch(SearchArgument argument) { process.reserve(argument); }
 
-	public:
+		public:
 
-		void start(const ArgumentType& arg) {
-			process.timerStart();
-			process.init();
-			process.reserve(arg);
-			loop();
-		}
+			void start(const SearchArgument& argument) {
+				process.timerStart();
+				process.init();
+				process.reserve(argument);
+				loop();
+			}
 
-		virtual void search(ArgumentType) = 0;
+			virtual void search(SearchArgument) = 0;
 
+		};
+	}
+
+	template<BeamSearch::Lib::SizeType Depth, BeamSearch::Lib::SizeType Width, BeamSearch::Lib::SizeType Limit, typename Argument, typename SearchArgument = BeamSearch::Lib::DefaultSearchArgument<Argument>>
+	struct BeamSearchConfig {
+
+		using BeamBase = BeamSearch::Lib::BeamSearchTemplate<BeamSearchConfig>;
+
+		using ArgumentType = Argument;
+		using SearchArgumentType = SearchArgument;
+
+		NODISCARD static constexpr int GetDepth() { return narrow_cast<int>(Depth); }
+		NODISCARD static constexpr int GetWidth() { return narrow_cast<int>(Width); }
+		NODISCARD static constexpr int GetLimit() { return narrow_cast<int>(Limit); }
 	};
 
 }

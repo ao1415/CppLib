@@ -25,7 +25,7 @@ __pragma(warning(x))
 #define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
 // [BEGIN, END)Ç≈éwíËÇ≥ÇÍÇΩå^ÇÃCOUNTERÇëùâ¡Ç≥ÇπÇÈ
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) \
-WARN_PUSH(disable:26496)\
+WARN_PUSH(disable:26496 26498)\
 for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)\
 WARN_POP()
 
