@@ -3,11 +3,18 @@
 #include <utility>
 
 #ifndef _MSC_VER
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
+#define LIKELY(x) __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+#define WARN_PUSH(x)
+#define WARN_POP()
 #else
 #define LIKELY(x) x
 #define UNLIKELY(x) x
+
+#define WARN_PUSH(x) __pragma(warning(push))\
+__pragma(warning(x))
+#define WARN_POP() __pragma(warning(pop))
 #endif
 
 // [0, END)Ç≈COUNTERÇëùâ¡Ç≥ÇπÇÈ
@@ -18,10 +25,9 @@
 #define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
 // [BEGIN, END)Ç≈éwíËÇ≥ÇÍÇΩå^ÇÃCOUNTERÇëùâ¡Ç≥ÇπÇÈ
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) \
-__pragma(warning(push))\
-__pragma(warning(disable:26496))\
+WARN_PUSH(disable:26496)\
 for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)\
-__pragma(warning(pop))\
+WARN_POP()
 
 #define NODISCARD [[nodiscard]]
 
@@ -29,10 +35,9 @@ namespace alib {
 
 	template <class T, class U>
 	inline constexpr T narrow_cast(U&& u) noexcept {
-#pragma warning(push)
-#pragma warning(disable:26472)
+		WARN_PUSH(disable:26472);
 		return static_cast<T>(std::forward<U>(u));
-#pragma warning(pop)
+		WARN_POP();
 	}
 
 	/**

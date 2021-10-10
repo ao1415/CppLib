@@ -10,3 +10,7 @@
 #define assert(expression) ((void)0)
 #define assert(expression) (void)( (!!(expression)) || (_wassert(_CRT_WIDE(#expression), _CRT_WIDE(__FILE__), (unsigned)(__LINE__)), 0) )
 #define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
+#define WARN_POP() __pragma(warning(pop))
+#define WARN_POP()
+#define WARN_PUSH(x)
+#define WARN_PUSH(x) __pragma(warning(push))__pragma(warning(x))
