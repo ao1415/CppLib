@@ -116,7 +116,7 @@ namespace alib {
 				return ret;
 			}
 
-			inline void release(const Pointer data) {
+			inline void release(const PointerConst data) {
 
 				const auto ptr = toInteger(data);
 				for (auto ite = refMemory.begin(); ite != refMemory.end();) {
@@ -295,6 +295,7 @@ namespace alib {
 					: data(data), length(length) {}
 
 				inline bool hasValue() const noexcept { return length != 0; }
+				inline Pointer address() const noexcept { return data; }
 
 				/** @brief 戻す */
 				inline void undo() const noexcept {
@@ -358,6 +359,8 @@ namespace alib {
 				return Patch(stream.data, stream.length);
 			}
 
+			inline void release(const Patch& patch) { pool.release(patch.address()); }
+
 		};
 
 		template<typename Argument, typename ScoreTy = double>
@@ -403,30 +406,27 @@ namespace alib {
 
 			using Pointer = SearchNode*;
 
-			// TODO:実装
-			static Pointer Create() noexcept {
-				return nullptr;
-			}
-
-			// TODO:実装
-			static Pointer Create(Pointer parent, const Argument& arg) noexcept {
-				return nullptr;
+			SearchNode() noexcept = default;
+			SearchNode(Pointer parent, const Argument& argument) noexcept : argument(argument) {
+				assert(parent != nullptr);
+				this->parent = parent;
+				parent->addRef();
+				depth = parent->depth + 1;
 			}
 
 			/** @brief 親ノードのポインタ */
 			Pointer parent = nullptr;
 			/** @brief 探査引数 */
-			Argument argument;
+			Argument argument{};
 			/** @brief ノード遷移パッチ */
-			VersionControl::Patch patch;
+			VersionControl::Patch patch{};
 			/** @brief ノード深度 */
-			int depth;
+			int depth = 0;
+			/** @brief 参照カウント */
+			int ref = 1;
 
-			// TODO:実装
-			void release() const noexcept {
-
-			}
-
+			inline void addRef() noexcept { ref++; }
+			inline void subRef() noexcept { ref--; }
 		};
 
 		template<SizeType Depth, SizeType Witdh, SizeType Limit, typename Argument, typename SearchArgument>
@@ -438,6 +438,30 @@ namespace alib {
 
 			using RankingItem = std::pair<double, NodePointer>;
 			using Ranking = ExPriorityQueue<RankingItem>;
+
+			class SearchNodePool {
+			private:
+				MemoryPool<> pool{};
+				NodePointer top = nullptr;
+			public:
+				inline NodePointer alloc() {
+					if (top != nullptr) {
+						NodePointer ptr = top;
+						top = ptr->parent;
+						return ptr;
+					}
+					else {
+						MemoryPool<>::Pointer ptr = pool.alloc(sizeof(Node));
+						WARN_PUSH(disable:26490);
+						return reinterpret_cast<NodePointer>(ptr);
+						WARN_POP();
+					}
+				}
+				inline void release(NodePointer ptr) noexcept {
+					ptr->parent = top;
+					top = ptr;
+				}
+			};
 
 			// TODO:初期化方法
 			inline static constexpr bool enabelDebug = false;
@@ -460,7 +484,10 @@ namespace alib {
 			/** @brief 次深度の探査時間（ms） */
 			double nextLimit = static_cast<double>(Limit) / Depth;
 
+			/** @brief 変更管理 */
 			VersionControl version;
+			/** @brief ノード管理 */
+			SearchNodePool nodePool;
 
 			/** @brief 探査終了処理 */
 			void destruction() noexcept {
@@ -507,16 +534,33 @@ namespace alib {
 				}
 			}
 
-			void clearRanking(Ranking& rank) const noexcept {
+			void clearRanking(Ranking& rank) {
 				const auto& container = rank.container();
 				for (const auto& node : container) {
-					node.second->release();
+					release(node.second);
 				}
 				rank.clear();
 			}
 
 			double getNextLimit(const double interval) const noexcept {
 				return ((Limit - interval) / remainDepth) + interval;
+			}
+
+			void release(NodePointer node) {
+				assert(node != nullptr);
+				assert(0 < node->ref);
+
+				if (node->ref == 1) {
+					if (node->parent != nullptr) {
+						release(node->parent);
+					}
+					version.release(node->patch);
+					nodePool.release(node);
+				}
+				else {
+					node->subRef();
+				}
+
 			}
 
 		public:
@@ -530,7 +574,7 @@ namespace alib {
 
 				nextLimit = getNextLimit(timer.interval());
 
-				currentNode = Node::Create();
+				currentNode = new(nodePool.alloc()) Node();
 
 				clearRanking(currentRanking);
 				clearRanking(nextRanking);
@@ -540,7 +584,7 @@ namespace alib {
 
 			bool onloop() {
 				if (nextNode != nullptr) {
-					nextNode->release();
+					release(nextNode);
 					nextNode = nullptr;
 				}
 				else {
@@ -571,10 +615,10 @@ namespace alib {
 				return true;
 			}
 
-			void accept() noexcept {
+			void accept() {
 				assert(nextNode != nullptr);
 				transitin(currentNode, nextNode);
-				currentNode->release();
+				release(currentNode);
 				currentNode = nextNode;
 				nextNode = nullptr;
 			}
@@ -588,7 +632,8 @@ namespace alib {
 						currentScoreRinking.pop();
 					}
 				}
-				nextRanking.emplace(arg.score, Node::Create(currentNode, arg));
+
+				nextRanking.emplace(arg.score, new(nodePool.alloc()) Node(currentNode, arg));
 				currentScoreRinking.push(arg.score);
 			}
 

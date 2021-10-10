@@ -15,6 +15,8 @@ struct Args {
 class Beam : public alib::BeamSearchTemplate<10, 10, 2900, Args> {
 public:
 
+	Beam() noexcept = default;
+
 	void search(ArgumentType args) override {
 		throw exception();
 	}
