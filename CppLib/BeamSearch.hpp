@@ -70,7 +70,7 @@ namespace alib {
 			};
 
 			SharedPtr memory;
-			SizeType memorySize = 0;
+			SizeType memorySize = MaxMemorySize;
 
 			std::list<SharedPtr> unusedMemory;
 			std::list<Ref> refMemory;
@@ -318,11 +318,16 @@ namespace alib {
 				}
 			};
 
-			inline static void lock() { buffer.lock(); }
-			inline static void unlock() noexcept { buffer.unlock(); }
+			inline static void Lock() { buffer.lock(); }
+			inline static void Unlock() noexcept { buffer.unlock(); }
 
-			inline static void modify(void* mem, const SizeType size) noexcept {
+			inline static void Modify(void* mem, const SizeType size) noexcept {
 				buffer.modify(mem, narrow_cast<VersionSizeType>(size));
+			}
+
+			template<class Class>
+			inline static void Modify(Class& mem) noexcept {
+				buffer.modify(reinterpret_cast<void*>(std::addressof(mem)), narrow_cast<VersionSizeType>(sizeof(Class)));
 			}
 
 			/** @brief 差分パッチ作成 */
@@ -458,7 +463,7 @@ namespace alib {
 			};
 
 			// TODO:初期化方法
-			inline static constexpr bool enabelDebug = false;
+			inline static constexpr bool EnabelDebug = false;
 
 			/** @brief 現在の探査ノード */
 			NodePointer currentNode = nullptr;
@@ -487,7 +492,7 @@ namespace alib {
 
 			/** @brief 探査終了処理 */
 			void destruction() noexcept {
-				VersionControl::unlock();
+				VersionControl::Unlock();
 			}
 
 			/**
@@ -550,7 +555,9 @@ namespace alib {
 					if (node->parent != nullptr) {
 						release(node->parent);
 					}
-					version.release(node->patch);
+					if (node->patch.address() != nullptr) {
+						version.release(node->patch);
+					}
 					nodePool.release(node);
 				}
 				else {
@@ -576,11 +583,12 @@ namespace alib {
 				clearRanking(nextRanking);
 				nextScoreRinking.swap(decltype(nextScoreRinking)());
 
-				VersionControl::lock();
+				VersionControl::Lock();
 			}
 
 			NODISCARD bool onloop() {
 				if (nextNode != nullptr) {
+					// ハッシュ一致でスキップされた場合
 					release(nextNode);
 					nextNode = nullptr;
 				}
@@ -670,8 +678,8 @@ namespace alib {
 				while (process.onloop()) {
 					if constexpr (SearchArgument::HasHash) {
 						const auto& argument = process.getArgument();
-						if (visited.find(arg.hash) != visited.end()) { continue; }
-						visited.insert(arg.hash);
+						if (visited.find(argument.hash) != visited.end()) { continue; }
+						visited.insert(argument.hash);
 						process.accept();
 						search(argument);
 					}
@@ -707,9 +715,180 @@ namespace alib {
 				loop();
 			}
 
-			virtual void search(SearchArgument) = 0;
+			virtual void search(const SearchArgument&) = 0;
 
 		};
+	}
+
+	namespace BeamSearch {
+
+		template<class Class>
+		class RefValue {
+		private:
+			Class* ptr = nullptr;
+
+			inline void modify() { Lib::VersionControl::Modify(*ptr); }
+			inline void modify(const Class& o) {
+				if (*ptr != o) {
+					modify();
+					(*ptr) = o;
+				}
+			}
+
+		public:
+			RefValue(Class* ptr) : ptr(ptr) {}
+
+			inline void operator=(const Class& o) { modify(o); }
+			inline void operator+=(const Class& o) { Class v = (*ptr) + o; modify(v); }
+			inline void operator-=(const Class& o) { Class v = (*ptr) - o; modify(v); }
+			inline void operator*=(const Class& o) { Class v = (*ptr) * o; modify(v); }
+			inline void operator/=(const Class& o) { Class v = (*ptr) / o; modify(v); }
+			inline void operator&=(const Class& o) { Class v = (*ptr) & o; modify(v); }
+			inline void operator|=(const Class& o) { Class v = (*ptr) | o; modify(v); }
+			inline void operator^=(const Class& o) { Class v = (*ptr) ^ o; modify(v); }
+
+			inline RefValue<Class>& operator++() { modify(); ++(*ptr); return *this; }
+			inline Class operator++(int) { modify(); Class v = *ptr; ++(*ptr); return v; }
+			inline RefValue<Class>& operator--() { modify(); --(*ptr); return *this; }
+			inline Class operator--(int) { modify(); Class v = *ptr; --(*ptr); return v; }
+
+			NODISCARD inline Class value() const { return *ptr; }
+			NODISCARD inline operator Class() const { return *ptr; }
+		};
+
+		template<typename Type, Lib::SizeType Size>
+		class RefArray : public std::array<Type, Size> {
+		public:
+			using base = std::array<Type, Size>;
+
+			RefArray() noexcept : base() {};
+			RefArray(const RefArray& other) = default;
+			RefArray(RefArray&& other) = default;
+			RefArray& operator=(const RefArray& other) = default;
+			RefArray& operator=(RefArray&& other) = default;
+
+			inline void set(const size_type idx, const Type& o) noexcept { Lib::VersionControl::Modify(base::operator[](idx)); base::operator[](idx) = o; }
+			NODISCARD inline const Type& get(const size_type idx) const noexcept { return base::operator[](idx); }
+
+			NODISCARD inline const Type& operator[](const size_type idx) const noexcept { return base::operator[](idx); }
+			NODISCARD inline RefValue<Type> operator[](const size_type idx) noexcept { return RefValue<Type>(std::addressof(base::operator[](idx))); }
+
+			NODISCARD inline const Type& at(const size_type idx) const noexcept { return base::at(idx); }
+			NODISCARD inline RefValue<Type> at(const size_type idx) noexcept { return RefValue<Type>(std::addressof(base::at(idx))); }
+		};
+
+		template<typename Type, Lib::SizeType Size>
+		class RefVector : public std::array<Type, Size> {
+		public:
+			using base = std::array<Type, Size>;
+		private:
+
+			size_type count = 0;
+
+			NODISCARD inline void hasCapacity(const size_type n) noexcept { assert(0 <= n && n < Size); }
+			NODISCARD inline void inside(const size_type idx) noexcept { assert(0 <= idx && idx < count); }
+			NODISCARD inline void any() noexcept { assert(0 < count); }
+
+		public:
+
+			RefVector() noexcept : base() {};
+			RefVector(const RefVector& other) = default;
+			RefVector(RefVector&& other) = default;
+			RefVector& operator=(const RefVector& other) = default;
+			RefVector& operator=(RefVector&& other) = default;
+
+			inline void set(const size_type idx, const Type& o) noexcept {
+				inside(idx);
+				Lib::VersionControl::Modify(base::operator[](idx));
+				base::operator[](idx) = o;
+			}
+			NODISCARD inline const Type& get(const size_type idx) const noexcept {
+				inside(idx);
+				return base::operator[](idx);
+			}
+
+			inline void clear() noexcept { Lib::VersionControl::Modify(count); count = 0; }
+			NODISCARD inline bool empty() const noexcept { return count == 0; }
+			NODISCARD inline bool full() const noexcept { return count == base::size(); }
+			NODISCARD inline size_type full_size() const noexcept { return base::size(); }
+			NODISCARD inline size_type size() const noexcept { return count; }
+
+			inline void push_back(const Type& value) noexcept {
+				hasCapacity(count + 1);
+				Lib::VersionControl::Modify(count);
+				Lib::VersionControl::Modify(base::operator[](count));
+				base::operator[](count) = value;
+				++count;
+			}
+			template<class ...Args>
+			inline void emplace_back(Args&& ...args) noexcept {
+				hasCapacity(count + 1);
+				Lib::VersionControl::Modify(count);
+				Lib::VersionControl::Modify(base::operator[](count));
+				new(std::addressof(base::operator[](count))) Type(std::forward<TypeArgs>(args)...);
+				++count;
+			}
+
+			inline void pop_back() noexcept {
+				any();
+				Lib::VersionControl::Modify(count);
+				--count;
+			}
+
+			NODISCARD inline RefValue<Type> front() noexcept {
+				any();
+				return RefMemory<Type>(std::addressof(base::front()));
+			}
+			NODISCARD inline const Type& front() const noexcept {
+				any();
+				return base::front();
+			}
+
+			NODISCARD inline RefValue<Type> back() noexcept {
+				any();
+				return RefValue<Type>(std::addressof(base::back()));
+			}
+			NODISCARD inline const Type& back() const noexcept {
+				any();
+				return base::back();
+			}
+
+			inline void resize(const Lib::SizeType n, const Type& value) noexcept {
+				hasCapacity(n);
+				Lib::VersionControl::Modify(count);
+				if (count < n) {
+					const auto addCount = n - count;
+					Lib::VersionControl::Modify(std::addressof(base::operator[](count)), sizeof(Type) * addCount);
+					forstep(idx, count, n) { base::operator[](i) = value; }
+				}
+				count = n;
+			}
+			inline void resize(int n) noexcept {
+				hasCapacity(n);
+				Lib::VersionControl::Modify(count);
+				count = n;
+			}
+
+			NODISCARD inline const Type& operator[](const size_type idx) const noexcept {
+				inside(idx);
+				return base::operator[](idx);
+			}
+			NODISCARD inline RefValue<Type> operator[](const size_type idx) noexcept {
+				inside(idx);
+				return RefValue<Type>(std::addressof(base::operator[](idx)));
+			}
+
+			NODISCARD inline const Type& at(const size_type idx) const noexcept {
+				inside(idx);
+				return base::at(idx);
+			}
+			NODISCARD inline RefValue<Type> at(const size_type idx) noexcept {
+				inside(idx);
+				return RefValue<Type>(std::addressof(base::at(idx)));
+			}
+
+		};
+
 	}
 
 	template<BeamSearch::Lib::SizeType Depth, BeamSearch::Lib::SizeType Width, BeamSearch::Lib::SizeType Limit, typename Argument, typename SearchArgument = BeamSearch::Lib::DefaultSearchArgument<Argument>>
