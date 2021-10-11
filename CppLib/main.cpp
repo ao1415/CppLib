@@ -30,7 +30,8 @@ public:
 	const Table& table;
 	std::pair<double, std::vector<int>> best{ 0,{} };
 
-	alib::BeamSearch::RefVector<int, 10> sum;
+	alib::VersionRef::Vector<int, 10> arr;
+	alib::VersionRef::Value<int> sum = 0;
 
 	Beam(const Table& table) noexcept : table(table) {}
 
@@ -45,17 +46,18 @@ public:
 
 	void search(const SearchArgument& search) override {
 
-		sum.push_back(table.at(search.argument.turn, search.argument.num));
+		arr.push_back(table.at(search.argument.turn, search.argument.num));
+		sum += arr.back();
 
-		std::cout << getDepth() << ":" << search.score << ":";
-		for (const auto& v : sum) {
+		std::cout << getDepth() << ":" << sum.value() << ":";
+		for (const auto& v : arr) {
 			std::cout << v << ",";
 		}
 		std::cout << std::endl;
 
 		if (best.first < search.score) {
 			best.first = search.score;
-			best.second.assign(sum.begin(), sum.end());
+			best.second.assign(arr.begin(), arr.end());
 		}
 
 		if (endOfSearch()) return;

@@ -153,7 +153,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Basic.hpp" />
-    <ClInclude Include="MemoMemory.hpp" />
     <ClInclude Include="BeamSearch.hpp" />
     <ClInclude Include="FixedDeque.hpp" />
     <ClInclude Include="FixedGrid.hpp" />
@@ -164,6 +163,7 @@
     <ClInclude Include="MemoryPool.hpp" />
     <ClInclude Include="BasicPoint.hpp" />
     <ClInclude Include="Random.hpp" />
+    <ClInclude Include="SearchLib.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />
   </ItemGroup>

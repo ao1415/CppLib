@@ -74,7 +74,7 @@
     <ClInclude Include="BeamSearch.hpp">
       <Filter>ヘッダー ファイル\Search</Filter>
     </ClInclude>
-    <ClInclude Include="MemoMemory.hpp">
+    <ClInclude Include="SearchLib.hpp">
       <Filter>ヘッダー ファイル\Search</Filter>
     </ClInclude>
   </ItemGroup>
