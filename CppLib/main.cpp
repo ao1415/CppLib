@@ -12,15 +12,17 @@ using namespace std;
 
 struct Argument {
 	Argument() noexcept {}
-	Argument(int turn) noexcept
-		:turn(turn) {}
+	Argument(int turn, int num) noexcept
+		:turn(turn),
+		num(num) {}
 
 	int turn = 0;
+	int num = 0;
 };
 
-using BeamConfig = alib::BeamSearchConfig<10, 10, 2900, Argument>;
+using BeamConfig = alib::BeamSearchConfig<11, 20, 2900, Argument>;
 
-using Table = alib::FixedGrid<int, 10, 10>;
+using Table = alib::FixedGrid<int, 11, 10>;
 
 class Beam : public BeamConfig::BeamBase {
 public:
@@ -34,22 +36,27 @@ public:
 
 	void search(const SearchArgument& search) override {
 
-		sum.push_back(0);
+		sum.push_back(table.at(search.argument.turn, search.argument.num));
+
+		std::cout << getDepth() << ":" << search.score << ":";
+		for (const auto& v : sum) {
+			std::cout << v << ",";
+		}
+		std::cout << std::endl;
+
+		if (best.first < search.score) {
+			best.first = search.score;
+			best.second.assign(sum.begin(), sum.end());
+		}
+
+		if (endOfSearch()) return;
+
 		forange(i, table.height()) {
-			sum.back() = table.at(i, search.argument.turn);
-			double score = search.score + table.at(i, search.argument.turn);
 
-			if (best.first < score) {
-				best.first = score;
-				best.second.assign(sum.begin(), sum.end());
-			}
+			double score = search.score +
+				table.at(search.argument.turn + 1, i);
 
-			std::cout << search.argument.turn << ":" << score << std::endl;
-			for (const auto& v : sum) {
-				std::cout << v << ",";
-			}
-			std::cout << std::endl;
-			nextSearch(score, search.argument.turn + 1);
+			nextSearch(score, search.argument.turn + 1, alib::narrow_cast<int>(i));
 		}
 
 	}

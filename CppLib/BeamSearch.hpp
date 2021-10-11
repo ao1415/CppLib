@@ -327,7 +327,9 @@ namespace alib {
 
 			template<class Class>
 			inline static void Modify(Class& mem) noexcept {
+				WARN_PUSH(disable:26474);
 				buffer.modify(reinterpret_cast<void*>(std::addressof(mem)), narrow_cast<VersionSizeType>(sizeof(Class)));
+				WARN_POP();
 			}
 
 			/** @brief 差分パッチ作成 */
@@ -475,7 +477,8 @@ namespace alib {
 			/** @brief 次のの探査ノードキュー */
 			Ranking nextRanking;
 			/** @brief 現在の探査ノードキューの低スコアキュー */
-			std::priority_queue<double, std::vector<double>, std::greater<>> nextScoreRinking;
+			ExPriorityQueue<double, std::greater<double>> nextScoreRinking;
+			int nodeWidthCount = 0;
 
 			/** @brief 残探査深度 */
 			int remainDepth = Config::GetDepth();
@@ -581,7 +584,8 @@ namespace alib {
 
 				clearRanking(currentRanking);
 				clearRanking(nextRanking);
-				nextScoreRinking.swap(decltype(nextScoreRinking)());
+				nextScoreRinking.clear();
+				nodeWidthCount = 0;
 
 				VersionControl::Lock();
 			}
@@ -597,7 +601,9 @@ namespace alib {
 				}
 
 				const double interval = timer.interval();
-				if (nextLimit <= interval || currentRanking.empty()) {
+				if (nextLimit <= interval ||
+					currentRanking.empty() ||
+					nodeWidthCount >= Config::GetWidth()) {
 					if (remainDepth <= 0) {
 						destruction();
 						return false;
@@ -607,6 +613,8 @@ namespace alib {
 					remainDepth--;
 					clearRanking(currentRanking);
 					std::swap(currentRanking, nextRanking);
+					nextScoreRinking.clear();
+					nodeWidthCount = 0;
 				}
 
 				if (currentRanking.empty()) {
@@ -616,6 +624,7 @@ namespace alib {
 
 				nextNode = currentRanking.top().second;
 				currentRanking.pop();
+				nodeWidthCount++;
 
 				return true;
 			}
@@ -646,6 +655,10 @@ namespace alib {
 				assert(nextNode != nullptr);
 				return nextNode->argument;
 			}
+
+			NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
+			NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 1; }
+
 		};
 
 		/**
@@ -706,6 +719,9 @@ namespace alib {
 			*/
 			inline void nextSearch(SearchArgument argument) { process.reserve(argument); }
 
+			NODISCARD inline bool endOfSearch() const { return process.endOfSearch(); }
+			NODISCARD inline int getDepth() const { return process.getDepth(); }
+
 		public:
 
 			void start(const SearchArgument& argument) {
@@ -727,8 +743,8 @@ namespace alib {
 		private:
 			Class* ptr = nullptr;
 
-			inline void modify() { Lib::VersionControl::Modify(*ptr); }
-			inline void modify(const Class& o) {
+			inline void modify() noexcept { Lib::VersionControl::Modify(*ptr); }
+			inline void modify(const Class& o) noexcept {
 				if (*ptr != o) {
 					modify();
 					(*ptr) = o;
@@ -736,9 +752,9 @@ namespace alib {
 			}
 
 		public:
-			RefValue(Class* ptr) : ptr(ptr) {}
+			RefValue(Class* ptr) noexcept : ptr(ptr) {}
 
-			inline void operator=(const Class& o) { modify(o); }
+			inline void operator=(const Class& o) noexcept { modify(o); }
 			inline void operator+=(const Class& o) { Class v = (*ptr) + o; modify(v); }
 			inline void operator-=(const Class& o) { Class v = (*ptr) - o; modify(v); }
 			inline void operator*=(const Class& o) { Class v = (*ptr) * o; modify(v); }
@@ -785,7 +801,7 @@ namespace alib {
 
 			size_type count = 0;
 
-			NODISCARD inline void hasCapacity(const size_type n) noexcept { assert(0 <= n && n < Size); }
+			NODISCARD inline void hasCapacity(const size_type n) noexcept { assert(0 < n && n <= Size); }
 			NODISCARD inline void inside(const size_type idx) noexcept { assert(0 <= idx && idx < count); }
 			NODISCARD inline void any() noexcept { assert(0 < count); }
 
@@ -816,8 +832,10 @@ namespace alib {
 			inline void push_back(const Type& value) noexcept {
 				hasCapacity(count + 1);
 				Lib::VersionControl::Modify(count);
+				WARN_PUSH(disable:26446);
 				Lib::VersionControl::Modify(base::operator[](count));
 				base::operator[](count) = value;
+				WARN_POP();
 				++count;
 			}
 			template<class ...Args>
@@ -844,13 +862,18 @@ namespace alib {
 				return base::front();
 			}
 
+			WARN_PUSH(disable:26434);
 			NODISCARD inline RefValue<Type> back() noexcept {
 				any();
-				return RefValue<Type>(std::addressof(base::back()));
+				WARN_PUSH(disable:26446);
+				return RefValue<Type>(std::addressof(base::operator[](count - 1)));
+				WARN_POP();
 			}
+			WARN_POP();
+
 			NODISCARD inline const Type& back() const noexcept {
 				any();
-				return base::back();
+				return base::operator[](count - 1);
 			}
 
 			inline void resize(const Lib::SizeType n, const Type& value) noexcept {
