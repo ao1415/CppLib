@@ -657,7 +657,7 @@ namespace alib {
 			}
 
 			NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
-			NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 1; }
+			NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 2; }
 
 		};
 
@@ -688,19 +688,25 @@ namespace alib {
 			BeamSearchProcess<Config> process{};
 
 			void loop() {
-				while (process.onloop()) {
+
+				if (process.onloop()) {
+					const auto& argument = process.getArgument();
 					if constexpr (SearchArgument::HasHash) {
-						const auto& argument = process.getArgument();
-						if (visited.find(argument.hash) != visited.end()) { continue; }
 						visited.insert(argument.hash);
-						process.accept();
-						search(argument);
 					}
-					else {
-						const auto& argument = process.getArgument();
-						process.accept();
-						search(argument);
+					process.accept();
+					init(argument);
+				}
+				while (process.onloop()) {
+					const auto& argument = process.getArgument();
+					if constexpr (SearchArgument::HasHash) {
+						if (visited.find(argument.hash) != visited.end()) {
+							continue;
+						}
+						visited.insert(argument.hash);
 					}
+					process.accept();
+					search(argument);
 				}
 			}
 
@@ -719,18 +725,28 @@ namespace alib {
 			*/
 			inline void nextSearch(SearchArgument argument) { process.reserve(argument); }
 
-			NODISCARD inline bool endOfSearch() const { return process.endOfSearch(); }
-			NODISCARD inline int getDepth() const { return process.getDepth(); }
+			NODISCARD inline bool endOfSearch() const noexcept { return process.endOfSearch(); }
+			NODISCARD inline int getDepth() const noexcept { return process.getDepth(); }
 
 		public:
 
 			void start(const SearchArgument& argument) {
+				visited.clear();
 				process.timerStart();
 				process.init();
 				process.reserve(argument);
 				loop();
 			}
 
+			/**
+			 * @brief èââÒÇÃÉpÉ^Å[ÉìÇê∂ê¨Ç∑ÇÈ
+			 * @param à¯êî
+			*/
+			virtual void init(const SearchArgument&) = 0;
+			/**
+			 * @brief íTç∏èàóù
+			 * @param à¯êî
+			*/
 			virtual void search(const SearchArgument&) = 0;
 
 		};
@@ -922,7 +938,7 @@ namespace alib {
 		using ArgumentType = Argument;
 		using SearchArgumentType = SearchArgument;
 
-		NODISCARD static constexpr int GetDepth() { return narrow_cast<int>(Depth); }
+		NODISCARD static constexpr int GetDepth() { return narrow_cast<int>(Depth + 1); }
 		NODISCARD static constexpr int GetWidth() { return narrow_cast<int>(Width); }
 		NODISCARD static constexpr int GetLimit() { return narrow_cast<int>(Limit); }
 	};

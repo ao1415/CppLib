@@ -20,9 +20,9 @@ struct Argument {
 	int num = 0;
 };
 
-using BeamConfig = alib::BeamSearchConfig<11, 20, 2900, Argument>;
+using BeamConfig = alib::BeamSearchConfig<10, 20, 2900, Argument>;
 
-using Table = alib::FixedGrid<int, 11, 10>;
+using Table = alib::FixedGrid<int, 10, 10>;
 
 class Beam : public BeamConfig::BeamBase {
 public:
@@ -30,9 +30,18 @@ public:
 	const Table& table;
 	std::pair<double, std::vector<int>> best{ 0,{} };
 
-	alib::BeamSearch::RefVector<int, 11> sum;
+	alib::BeamSearch::RefVector<int, 10> sum;
 
 	Beam(const Table& table) noexcept : table(table) {}
+
+	void init(const SearchArgument& search) override {
+
+		forange(i, table.height()) {
+			double score = table.at(0, i);
+			nextSearch(score, 0, alib::narrow_cast<int>(i));
+		}
+
+	}
 
 	void search(const SearchArgument& search) override {
 
