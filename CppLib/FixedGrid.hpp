@@ -20,7 +20,7 @@ namespace alib {
 		constexpr FixedGrid(const FixedGrid& other) = default;
 		constexpr FixedGrid(FixedGrid&& other) = default;
 
-		FixedGrid(const value_type& v) { base::fill(v); };
+		FixedGrid(const value_type& v) noexcept { base::fill(v); };
 
 		constexpr FixedGrid& operator=(const FixedGrid& other) = default;
 		constexpr FixedGrid& operator=(FixedGrid&& other) = default;

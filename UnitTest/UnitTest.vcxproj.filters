@@ -5,6 +5,9 @@
     <ClCompile Include="Basic.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="FixedGrid.hpp">
+      <Filter>src\Container</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
