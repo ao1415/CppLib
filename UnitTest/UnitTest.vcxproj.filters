@@ -8,6 +8,9 @@
     <ClCompile Include="FixedGrid.hpp">
       <Filter>src\Container</Filter>
     </ClCompile>
+    <ClCompile Include="BasicPoint.cpp">
+      <Filter>src\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -18,6 +21,9 @@
     </Filter>
     <Filter Include="src\Container">
       <UniqueIdentifier>{dbd5d340-80f3-4df7-93eb-5791590ee618}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Utility">
+      <UniqueIdentifier>{514f1642-73db-44f4-bad8-209f95a0cf54}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

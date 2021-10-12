@@ -66,8 +66,8 @@ namespace alib {
 			this->y = zero;
 		}
 
-		inline constexpr BasicPoint& set(const value_type x, const value_type y) noexcept { this->x = x; this->y = y; }
-		inline constexpr BasicPoint& set(const BasicPoint v) noexcept { this->x = v.x; this->y = v.y; }
+		inline constexpr void set(const value_type x, const value_type y) noexcept { this->x = x; this->y = y; }
+		inline constexpr void set(const BasicPoint v) noexcept { this->x = v.x; this->y = v.y; }
 
 		NODISCARD inline constexpr value_type dot() const noexcept { return (this->x * this->x + this->y * this->y); }
 		NODISCARD inline constexpr value_type dot(const BasicPoint v) const noexcept {
@@ -81,16 +81,16 @@ namespace alib {
 			return (dx * dx + dy * dy);
 		}
 
-		NODISCARD inline constexpr value_type length() const noexcept { return std::sqrt(this->x * this->x + this->y * this->y); }
+		NODISCARD inline constexpr value_type length() const noexcept { return narrow_cast<value_type>(std::sqrt(this->x * this->x + this->y * this->y)); }
 		NODISCARD inline constexpr value_type length(const BasicPoint v) const noexcept {
 			const auto dx = this->x - v.x;
 			const auto dy = this->y - v.y;
-			return std::sqrt(dx * dx + dy * dy);
+			return narrow_cast<value_type>(std::sqrt(dx * dx + dy * dy));
 		}
 		NODISCARD inline static constexpr value_type length(const BasicPoint v1, const BasicPoint v2) noexcept {
 			const auto dx = v1.x - v2.x;
 			const auto dy = v1.y - v2.y;
-			return std::sqrt(dx * dx + dy * dy);
+			return narrow_cast<value_type>(std::sqrt(dx * dx + dy * dy));
 		}
 
 		NODISCARD inline constexpr value_type manhattanLength() const noexcept { return (this->x < 0 ? -this->x : this->x) + (this->y < 0 ? -this->y : this->y); }
@@ -135,34 +135,34 @@ namespace alib {
 	using Vec2L = BasicPoint<long double>;
 
 	template<typename Type>
-	std::istream& operator>>(std::istream& is, BasicPoint<Type>& v) { is >> v.x >> v.y; return is; }
+	inline std::istream& operator>>(std::istream& is, BasicPoint<Type>& v) { is >> v.x >> v.y; return is; }
 	template<typename Type>
-	std::ostream& operator<<(std::ostream& os, const BasicPoint<Type> v) { os << v.x << " " << v.y; return os; }
+	inline std::ostream& operator<<(std::ostream& os, const BasicPoint<Type> v) { os << v.x << " " << v.y; return os; }
 
-	std::istream& operator>>(std::istream& is, BasicPoint<char>& v) {
+	inline std::istream& operator>>(std::istream& is, BasicPoint<char>& v) {
 		int x, y;
 		is >> x >> y;
 		v.x = narrow_cast<char>(x);
 		v.y = narrow_cast<char>(y);
 		return is;
 	}
-	std::ostream& operator<<(std::ostream& os, const BasicPoint<char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
+	inline std::ostream& operator<<(std::ostream& os, const BasicPoint<char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
 
-	std::istream& operator>>(std::istream& is, BasicPoint<unsigned char>& v) {
+	inline std::istream& operator>>(std::istream& is, BasicPoint<unsigned char>& v) {
 		int x, y;
 		is >> x >> y;
 		v.x = narrow_cast<unsigned char>(x);
 		v.y = narrow_cast<unsigned char>(y);
 		return is;
 	}
-	std::ostream& operator<<(std::ostream& os, const BasicPoint<unsigned char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
+	inline std::ostream& operator<<(std::ostream& os, const BasicPoint<unsigned char> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
 
-	std::istream& operator>>(std::istream& is, BasicPoint<std::byte>& v) {
+	inline std::istream& operator>>(std::istream& is, BasicPoint<std::byte>& v) {
 		int x, y;
 		is >> x >> y;
 		v.x = static_cast<std::byte>(x);
 		v.y = static_cast<std::byte>(y);
 		return is;
 	}
-	std::ostream& operator<<(std::ostream& os, const BasicPoint<std::byte> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
+	inline std::ostream& operator<<(std::ostream& os, const BasicPoint<std::byte> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
 }
