@@ -196,13 +196,8 @@ namespace alib {
 					pos += size;
 				}
 
-				NODISCARD inline bool endOfStream() const noexcept {
-					return pos == length;
-				}
-
-				NODISCARD inline bool hasStream() const noexcept {
-					return pos < length;
-				}
+				NODISCARD inline bool endOfStream() const noexcept { return pos == length; }
+				NODISCARD inline bool hasStream() const noexcept { return pos < length; }
 			};
 
 			template<SizeType Length>
@@ -236,9 +231,7 @@ namespace alib {
 
 				/** @brief ïœçXí~êœ */
 				inline void modify(void* data, const VersionSizeType size) noexcept {
-					if (!isEnabled()) {
-						return;
-					}
+					if (!isEnabled()) { return; }
 
 					const SizeType writeSize = size + sizeof(VersionSizeType) + sizeof(void*);
 
@@ -346,11 +339,10 @@ namespace alib {
 			ArgumentType argument{};
 
 			DefaultSearchArgument() = default;
-			DefaultSearchArgument(const ScoreType score, const ArgumentType& argument) : score(score), argument(argument) {}
+			DefaultSearchArgument(const ScoreType score, const ArgumentType& argument) noexcept : score(score), argument(argument) {}
 			DefaultSearchArgument(const ScoreType score) noexcept : score(score) {}
 			template<class... Args>
-			DefaultSearchArgument(const ScoreType score, Args&& ...args) noexcept
-				: score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
+			DefaultSearchArgument(const ScoreType score, Args&& ...args) noexcept : score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
 		};
 
 		template<class Config>
@@ -366,10 +358,10 @@ namespace alib {
 			ArgumentType argument;
 
 			HashSearchArgument() = default;
-			HashSearchArgument(const HashType hash, const ScoreType score, const ArgumentType& argument) : hash(hash), score(score), argument(argument) {}
-			HashSearchArgument(const HashType hash, const ScoreType score) : hash(hash), score(score), argument(ArgumentType()) {}
+			HashSearchArgument(const HashType hash, const ScoreType score, const ArgumentType& argument) noexcept : hash(hash), score(score), argument(argument) {}
+			HashSearchArgument(const HashType hash, const ScoreType score) noexcept : hash(hash), score(score), argument(ArgumentType()) {}
 			template<class... Args>
-			HashSearchArgument(const HashType hash, const ScoreType score, Args&& ...args) : hash(hash), score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
+			HashSearchArgument(const HashType hash, const ScoreType score, Args&& ...args) noexcept : hash(hash), score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
 		};
 
 		/**
@@ -438,25 +430,23 @@ namespace alib {
 			Class* ptr = nullptr;
 
 			inline void modify() noexcept { VersionControl::Modify(*ptr); }
-			inline void modify(const Class& o) noexcept {
-				if (*ptr != o) { modify(); (*ptr) = o; }
-			}
+			inline void modify(const Class& o) noexcept { if (*ptr != o) { modify(); (*ptr) = o; } }
 		public:
 			Ref(Class* ptr) noexcept : ptr(ptr) {}
 
 			inline void operator=(const Class& o) noexcept { modify(o); }
-			inline void operator+=(const Class& o) { Class v = (*ptr) + o; modify(v); }
-			inline void operator-=(const Class& o) { Class v = (*ptr) - o; modify(v); }
-			inline void operator*=(const Class& o) { Class v = (*ptr) * o; modify(v); }
-			inline void operator/=(const Class& o) { Class v = (*ptr) / o; modify(v); }
-			inline void operator&=(const Class& o) { Class v = (*ptr) & o; modify(v); }
-			inline void operator|=(const Class& o) { Class v = (*ptr) | o; modify(v); }
-			inline void operator^=(const Class& o) { Class v = (*ptr) ^ o; modify(v); }
+			inline void operator+=(const Class& o) noexcept { Class v = (*ptr) + o; modify(v); }
+			inline void operator-=(const Class& o) noexcept { Class v = (*ptr) - o; modify(v); }
+			inline void operator*=(const Class& o) noexcept { Class v = (*ptr) * o; modify(v); }
+			inline void operator/=(const Class& o) noexcept { Class v = (*ptr) / o; modify(v); }
+			inline void operator&=(const Class& o) noexcept { Class v = (*ptr) & o; modify(v); }
+			inline void operator|=(const Class& o) noexcept { Class v = (*ptr) | o; modify(v); }
+			inline void operator^=(const Class& o) noexcept { Class v = (*ptr) ^ o; modify(v); }
 
-			inline Ref<Class>& operator++() { modify(); ++(*ptr); return *this; }
-			inline Class operator++(int) { modify(); Class v = *ptr; ++(*ptr); return v; }
-			inline Ref<Class>& operator--() { modify(); --(*ptr); return *this; }
-			inline Class operator--(int) { modify(); Class v = *ptr; --(*ptr); return v; }
+			inline Ref<Class>& operator++() noexcept { modify(); ++(*ptr); return *this; }
+			inline Class operator++(int) noexcept { modify(); Class v = *ptr; ++(*ptr); return v; }
+			inline Ref<Class>& operator--() noexcept { modify(); --(*ptr); return *this; }
+			inline Class operator--(int) noexcept { modify(); Class v = *ptr; --(*ptr); return v; }
 
 			NODISCARD inline Class value() const noexcept { return *ptr; }
 			NODISCARD inline operator Class() const noexcept { return *ptr; }
@@ -488,8 +478,8 @@ namespace alib {
 			NODISCARD inline const Type& operator[](const size_type idx) const noexcept { return base::operator[](idx); }
 			NODISCARD inline Ref<Type> operator[](const size_type idx) noexcept { return Ref<Type>(std::addressof(base::operator[](idx))); }
 
-			NODISCARD inline const Type& at(const size_type idx) const noexcept { return base::at(idx); }
-			NODISCARD inline Ref<Type> at(const size_type idx) noexcept { return Ref<Type>(std::addressof(base::at(idx))); }
+			NODISCARD inline const Type& at(const size_type idx) const { return base::at(idx); }
+			NODISCARD inline Ref<Type> at(const size_type idx) { return Ref<Type>(std::addressof(base::at(idx))); }
 		};
 
 		template<typename Type, SizeType Size>
@@ -543,34 +533,15 @@ namespace alib {
 				++count;
 			}
 
-			inline void pop_back() noexcept {
-				any();
-				VersionControl::Modify(count);
-				--count;
-			}
+			inline void pop_back() noexcept { any(); VersionControl::Modify(count); --count; }
 
-			NODISCARD inline Ref<Type> front() noexcept {
-				any();
-				return RefMemory<Type>(std::addressof(base::front()));
-			}
-			NODISCARD inline const Type& front() const noexcept {
-				any();
-				return base::front();
-			}
+			WARN_PUSH(disable:26434 26446);
+			NODISCARD inline Ref<Type> front() noexcept { any(); return Ref<Type>(std::addressof(base::front())); }
+			NODISCARD inline const Type& front() const noexcept { any(); return base::front(); }
 
-			WARN_PUSH(disable:26434);
-			NODISCARD inline Ref<Type> back() noexcept {
-				any();
-				WARN_PUSH(disable:26446);
-				return Ref<Type>(std::addressof(base::operator[](count - 1)));
-				WARN_POP();
-			}
+			NODISCARD inline Ref<Type> back() noexcept { any(); return Ref<Type>(std::addressof(base::operator[](count - 1))); }
+			NODISCARD inline const Type& back() const noexcept { any(); return base::operator[](count - 1); }
 			WARN_POP();
-
-			NODISCARD inline const Type& back() const noexcept {
-				any();
-				return base::operator[](count - 1);
-			}
 
 			inline void resize(const SizeType n, const Type& value) noexcept {
 				hasCapacity(n);
@@ -588,23 +559,11 @@ namespace alib {
 				count = n;
 			}
 
-			NODISCARD inline const Type& operator[](const size_type idx) const noexcept {
-				inside(idx);
-				return base::operator[](idx);
-			}
-			NODISCARD inline Ref<Type> operator[](const size_type idx) noexcept {
-				inside(idx);
-				return Ref<Type>(std::addressof(base::operator[](idx)));
-			}
+			NODISCARD inline const Type& operator[](const size_type idx) const noexcept { inside(idx); return base::operator[](idx); }
+			NODISCARD inline Ref<Type> operator[](const size_type idx) noexcept { inside(idx); return Ref<Type>(std::addressof(base::operator[](idx))); }
 
-			NODISCARD inline const Type& at(const size_type idx) const noexcept {
-				inside(idx);
-				return base::at(idx);
-			}
-			NODISCARD inline Ref<Type> at(const size_type idx) noexcept {
-				inside(idx);
-				return Ref<Type>(std::addressof(base::at(idx)));
-			}
+			NODISCARD inline const Type& at(const size_type idx) const { inside(idx); return base::at(idx); }
+			NODISCARD inline Ref<Type> at(const size_type idx) { inside(idx); return Ref<Type>(std::addressof(base::at(idx))); }
 		};
 	}
 }

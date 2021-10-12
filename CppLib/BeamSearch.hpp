@@ -16,7 +16,7 @@ namespace alib {
 			double startTime = 0;
 			double depthStartTime = 0;
 
-			void init(const double t) {
+			void init(const double t) noexcept {
 				acceptCount = 0;
 				depthAcceptCount = 0;
 				loopCount = 0;
@@ -29,9 +29,9 @@ namespace alib {
 			void nextDepth(const double t) {
 				if constexpr (IsDebug) {
 					if (1 <= loopCount - depthLoopCount) {
-						std::cerr << "Info[" << depth << "]"
+						std::cerr << "Info[" << depth - 1 << "]"
 							<< depthStartTime << "->" << t << "(" << t - depthStartTime << ")"
-							<< acceptCount - depthAcceptCount << "/" << loopCount - depthLoopCount << "=" << (acceptCount - depthAcceptCount) / (t - depthStartTime)
+							<< acceptCount - depthAcceptCount << "/" << loopCount - depthLoopCount << "..." << (acceptCount - depthAcceptCount) / (t - startTime)
 							<< std::endl;
 					}
 					depthStartTime = t;
@@ -79,11 +79,8 @@ namespace alib {
 			/** @brief èÓïÒä«óù */
 			Info<Config::IsDebug()> info;
 
-			/** @brief íTç∏èIóπèàóù */
-			void destruction(const double t) noexcept {
-				VersionControl::Unlock();
-				info.nextDepth(t);
-			}
+			void destruction(const double t) { VersionControl::Unlock(); info.nextDepth(t); }
+			NODISCARD double getNextLimit(const double interval) const noexcept { return ((Config::GetLimit() - interval) / remainDepth) + interval; }
 
 			/**
 			 * @brief èÛë‘ëJà⁄
@@ -131,27 +128,18 @@ namespace alib {
 				rank.clear();
 			}
 
-			NODISCARD double getNextLimit(const double interval) const noexcept {
-				return ((Config::GetLimit() - interval) / remainDepth) + interval;
-			}
-
 			void release(NodePointer node) {
 				assert(node != nullptr);
 				assert(0 < node->ref);
 
 				if (node->ref == 1) {
-					if (node->parent != nullptr) {
-						release(node->parent);
-					}
-					if (node->patch.address() != nullptr) {
-						version.release(node->patch);
-					}
+					if (node->parent != nullptr) { release(node->parent); }
+					if (node->patch.address() != nullptr) { version.release(node->patch); }
 					nodePool.release(node);
 				}
 				else {
 					node->subRef();
 				}
-
 			}
 		public:
 			BeamSearchProcess() noexcept = default;
@@ -238,11 +226,7 @@ namespace alib {
 				nextScoreRinking.push(argument.score);
 			}
 
-			NODISCARD SearchArgument getArgument() const noexcept {
-				assert(nextNode != nullptr);
-				return nextNode->argument;
-			}
-
+			NODISCARD inline const SearchArgument& getArgument() const noexcept { assert(nextNode != nullptr); return nextNode->argument; }
 			NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
 			NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 2; }
 		};
@@ -348,5 +332,4 @@ namespace alib {
 		NODISCARD static constexpr int GetWidth() { return narrow_cast<int>(Width); }
 		NODISCARD static constexpr int GetLimit() { return narrow_cast<int>(Limit); }
 	};
-
 }
