@@ -79,6 +79,8 @@ namespace alib {
 		public:
 			NODISCARD inline Pointer alloc(const SizeType size) {
 				assert(size < MaxMemorySize);
+				if (size == 0)
+					return nullptr;
 
 				if (memorySize + size >= MaxMemorySize) {
 					if (unusedMemory.empty()) {
@@ -109,8 +111,10 @@ namespace alib {
 						ite->count--;
 
 						if (ite->count <= 0) {
-							unusedMemory.push_back(ite->memory);
-							ite = refMemory.erase(ite);
+							if (ite->memory != memory) {
+								unusedMemory.push_back(ite->memory);
+								ite = refMemory.erase(ite);
+							}
 						}
 						return;
 					}
@@ -353,9 +357,9 @@ namespace alib {
 			using HashType = typename Config::HashType;
 			using ArgumentType = typename Config::ArgumentType;
 
-			HashType hash;
-			ScoreType score;
-			ArgumentType argument;
+			HashType hash{};
+			ScoreType score{};
+			ArgumentType argument{};
 
 			HashSearchArgument() = default;
 			HashSearchArgument(const HashType hash, const ScoreType score, const ArgumentType& argument) noexcept : hash(hash), score(score), argument(argument) {}
@@ -448,17 +452,25 @@ namespace alib {
 			inline Ref<Class>& operator--() noexcept { modify(); --(*ptr); return *this; }
 			inline Class operator--(int) noexcept { modify(); Class v = *ptr; --(*ptr); return v; }
 
+			inline bool operator==(const Class& o) const noexcept { return (*ptr) == o; }
+			inline bool operator!=(const Class& o) const noexcept { return (*ptr) != o; }
+
 			NODISCARD inline Class value() const noexcept { return *ptr; }
 			NODISCARD inline operator Class() const noexcept { return *ptr; }
 		};
 
 		template<typename Type>
-		class Value : public Ref<Type> {
+		class Value {
 		private:
 			Type val{};
 		public:
-			Value() noexcept : Ref<Type>(std::addressof(val)) {}
-			Value(const Type val) noexcept : val(val), Ref<Type>(std::addressof(this->val)) {}
+			Value() noexcept {}
+			Value(const Type val) noexcept : val(val) {}
+
+			NODISCARD inline const Type& operator()() const noexcept { return val; }
+			NODISCARD inline Ref<Type> operator()() noexcept { return Ref<Type>(std::addressof(val)); }
+
+			NODISCARD inline const Type& value() const noexcept { return val; }
 		};
 
 		template<typename Type, SizeType Size>
@@ -472,14 +484,14 @@ namespace alib {
 			Array& operator=(const Array& other) = default;
 			Array& operator=(Array&& other) = default;
 
-			inline void set(const size_type idx, const Type& o) noexcept { VersionControl::Modify(base::operator[](idx)); base::operator[](idx) = o; }
-			NODISCARD inline const Type& get(const size_type idx) const noexcept { return base::operator[](idx); }
+			inline void set(const SizeType idx, const Type& o) noexcept { VersionControl::Modify(base::operator[](idx)); base::operator[](idx) = o; }
+			NODISCARD inline const Type& get(const SizeType idx) const noexcept { return base::operator[](idx); }
 
-			NODISCARD inline const Type& operator[](const size_type idx) const noexcept { return base::operator[](idx); }
-			NODISCARD inline Ref<Type> operator[](const size_type idx) noexcept { return Ref<Type>(std::addressof(base::operator[](idx))); }
+			NODISCARD inline const Type& operator[](const SizeType idx) const noexcept { return base::operator[](idx); }
+			NODISCARD inline Ref<Type> operator[](const SizeType idx) noexcept { return Ref<Type>(std::addressof(base::operator[](idx))); }
 
-			NODISCARD inline const Type& at(const size_type idx) const { return base::at(idx); }
-			NODISCARD inline Ref<Type> at(const size_type idx) { return Ref<Type>(std::addressof(base::at(idx))); }
+			NODISCARD inline const Type& at(const SizeType idx) const { return base::at(idx); }
+			NODISCARD inline Ref<Type> at(const SizeType idx) { return Ref<Type>(std::addressof(base::at(idx))); }
 		};
 
 		template<typename Type, SizeType Size>
@@ -487,11 +499,11 @@ namespace alib {
 		public:
 			using base = std::array<Type, Size>;
 		private:
-			size_type count = 0;
+			SizeType count = 0;
 
-			NODISCARD inline void hasCapacity(const size_type n) noexcept { assert(0 < n && n <= Size); }
-			NODISCARD inline void inside(const size_type idx) noexcept { assert(0 <= idx && idx < count); }
-			NODISCARD inline void any() noexcept { assert(0 < count); }
+			inline void hasCapacity(const SizeType n) noexcept { assert(0 < n && n <= Size); }
+			inline void inside(const SizeType idx) noexcept { assert(0 <= idx && idx < count); }
+			inline void any() noexcept { assert(0 < count); }
 		public:
 			Vector() noexcept : base() {};
 			Vector(const Vector& other) = default;
@@ -499,12 +511,12 @@ namespace alib {
 			Vector& operator=(const Vector& other) = default;
 			Vector& operator=(Vector&& other) = default;
 
-			inline void set(const size_type idx, const Type& o) noexcept {
+			inline void set(const SizeType idx, const Type& o) noexcept {
 				inside(idx);
 				VersionControl::Modify(base::operator[](idx));
 				base::operator[](idx) = o;
 			}
-			NODISCARD inline const Type& get(const size_type idx) const noexcept {
+			NODISCARD inline const Type& get(const SizeType idx) const noexcept {
 				inside(idx);
 				return base::operator[](idx);
 			}
@@ -512,8 +524,8 @@ namespace alib {
 			inline void clear() noexcept { VersionControl::Modify(count); count = 0; }
 			NODISCARD inline bool empty() const noexcept { return count == 0; }
 			NODISCARD inline bool full() const noexcept { return count == base::size(); }
-			NODISCARD inline size_type full_size() const noexcept { return base::size(); }
-			NODISCARD inline size_type size() const noexcept { return count; }
+			NODISCARD inline SizeType full_size() const noexcept { return base::size(); }
+			NODISCARD inline SizeType size() const noexcept { return count; }
 
 			inline void push_back(const Type& value) noexcept {
 				hasCapacity(count + 1);
@@ -529,7 +541,7 @@ namespace alib {
 				hasCapacity(count + 1);
 				VersionControl::Modify(count);
 				VersionControl::Modify(base::operator[](count));
-				new(std::addressof(base::operator[](count))) Type(std::forward<TypeArgs>(args)...);
+				new(std::addressof(base::operator[](count))) Type(std::forward<Args>(args)...);
 				++count;
 			}
 
@@ -549,7 +561,7 @@ namespace alib {
 				if (count < n) {
 					const auto addCount = n - count;
 					VersionControl::Modify(std::addressof(base::operator[](count)), sizeof(Type) * addCount);
-					forstep(idx, count, n) { base::operator[](i) = value; }
+					forstep(idx, count, n) { base::operator[](idx) = value; }
 				}
 				count = n;
 			}
@@ -559,11 +571,11 @@ namespace alib {
 				count = n;
 			}
 
-			NODISCARD inline const Type& operator[](const size_type idx) const noexcept { inside(idx); return base::operator[](idx); }
-			NODISCARD inline Ref<Type> operator[](const size_type idx) noexcept { inside(idx); return Ref<Type>(std::addressof(base::operator[](idx))); }
+			NODISCARD inline const Type& operator[](const SizeType idx) const noexcept { inside(idx); return base::operator[](idx); }
+			NODISCARD inline Ref<Type> operator[](const SizeType idx) noexcept { inside(idx); return Ref<Type>(std::addressof(base::operator[](idx))); }
 
-			NODISCARD inline const Type& at(const size_type idx) const { inside(idx); return base::at(idx); }
-			NODISCARD inline Ref<Type> at(const size_type idx) { inside(idx); return Ref<Type>(std::addressof(base::at(idx))); }
+			NODISCARD inline const Type& at(const SizeType idx) const { inside(idx); return base::at(idx); }
+			NODISCARD inline Ref<Type> at(const SizeType idx) { inside(idx); return Ref<Type>(std::addressof(base::at(idx))); }
 		};
 	}
 }

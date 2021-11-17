@@ -31,7 +31,7 @@ namespace alib {
 					if (1 <= loopCount - depthLoopCount) {
 						std::cerr << "Info[" << depth - 1 << "]"
 							<< depthStartTime << "->" << t << "(" << t - depthStartTime << ")"
-							<< acceptCount - depthAcceptCount << "/" << loopCount - depthLoopCount << "..." << (acceptCount - depthAcceptCount) / (t - startTime)
+							<< acceptCount - depthAcceptCount << "/" << loopCount - depthLoopCount << "..." << (static_cast<double>(acceptCount) - depthAcceptCount) / (t - startTime)
 							<< std::endl;
 					}
 					depthStartTime = t;
@@ -60,8 +60,6 @@ namespace alib {
 			Ranking currentRanking;
 			/** @brief 次のの探査ノードキュー */
 			Ranking nextRanking;
-			/** @brief 現在の探査ノードキューの低スコアキュー */
-			ExPriorityQueue<double, std::greater<double>> nextScoreRinking;
 			int nodeWidthCount = 0;
 
 			/** @brief 残探査深度 */
@@ -79,7 +77,11 @@ namespace alib {
 			/** @brief 情報管理 */
 			Info<Config::IsDebug()> info;
 
-			void destruction(const double t) { VersionControl::Unlock(); info.nextDepth(t); }
+			void destruction(const double t) {
+				release(currentNode);
+				VersionControl::Unlock();
+				info.nextDepth(t);
+			}
 			NODISCARD double getNextLimit(const double interval) const noexcept { return ((Config::GetLimit() - interval) / remainDepth) + interval; }
 
 			/**
@@ -102,16 +104,18 @@ namespace alib {
 					assert(currentRoot != nullptr);
 					assert(nextRoot != nullptr);
 					if (currentRoot->depth < nextRoot->depth) {
-						assert(nextRoot->patch.hasValue());
-						stack--;
-						WARN_PUSH(disable:26446 26482);
-						redos[stack] = nextRoot->patch;
-						WARN_POP();
+						if (nextRoot->patch.hasValue()) {
+							stack--;
+							WARN_PUSH(disable:26446 26482);
+							redos[stack] = nextRoot->patch;
+							WARN_POP();
+						}
 						nextRoot = nextRoot->parent;
 					}
 					else {
-						assert(currentRoot->patch.hasValue());
-						currentRoot->patch.undo();
+						if (currentRoot->patch.hasValue()) {
+							currentRoot->patch.undo();
+						}
 						currentRoot = currentRoot->parent;
 					}
 				}
@@ -134,7 +138,7 @@ namespace alib {
 
 				if (node->ref == 1) {
 					if (node->parent != nullptr) { release(node->parent); }
-					if (node->patch.address() != nullptr) { version.release(node->patch); }
+					if (node->patch.hasValue()) { version.release(node->patch); }
 					nodePool.release(node);
 				}
 				else {
@@ -142,8 +146,6 @@ namespace alib {
 				}
 			}
 		public:
-			BeamSearchProcess() noexcept = default;
-
 			void timerStart() noexcept { timer.start(); }
 
 			void init() {
@@ -156,7 +158,6 @@ namespace alib {
 
 				clearRanking(currentRanking);
 				clearRanking(nextRanking);
-				nextScoreRinking.clear();
 				nodeWidthCount = 0;
 
 				VersionControl::Lock();
@@ -186,7 +187,6 @@ namespace alib {
 					remainDepth--;
 					clearRanking(currentRanking);
 					std::swap(currentRanking, nextRanking);
-					nextScoreRinking.clear();
 					nodeWidthCount = 0;
 				}
 
@@ -197,7 +197,6 @@ namespace alib {
 
 				nextNode = currentRanking.top().second;
 				currentRanking.pop();
-				nodeWidthCount++;
 
 				info.loopCount++;
 				return true;
@@ -206,25 +205,14 @@ namespace alib {
 			void accept() {
 				assert(nextNode != nullptr);
 				info.acceptCount++;
+				nodeWidthCount++;
 				transitin(currentNode, nextNode);
 				release(currentNode);
 				currentNode = nextNode;
 				nextNode = nullptr;
 			}
 
-			void reserve(const SearchArgument& argument) {
-				if (Config::GetWidth() <= nextRanking.size()) {
-					if (argument.score <= nextScoreRinking.top()) {
-						return;
-					}
-					else {
-						nextScoreRinking.pop();
-					}
-				}
-
-				nextRanking.emplace(argument.score, new(nodePool.alloc()) Node(currentNode, argument));
-				nextScoreRinking.push(argument.score);
-			}
+			void reserve(const SearchArgument& argument) { nextRanking.emplace(argument.score, new(nodePool.alloc()) Node(currentNode, argument)); }
 
 			NODISCARD inline const SearchArgument& getArgument() const noexcept { assert(nextNode != nullptr); return nextNode->argument; }
 			NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
@@ -316,17 +304,17 @@ namespace alib {
 	struct SearchArgumentConfig {
 		using ArgumentType = Argument;
 		using ScoreType = double;
-		using HashType = size_t;
+		using HashType = uint64_t;
 	};
 
-	template<Search::Lib::SizeType Depth, Search::Lib::SizeType Width, Search::Lib::SizeType Limit, typename Argument, typename SearchArgument = Search::Lib::DefaultSearchArgument<SearchArgumentConfig<Argument>>>
+	template<Search::Lib::SizeType Depth, Search::Lib::SizeType Width, Search::Lib::SizeType Limit, typename Argument, typename SearchArgument = Search::Lib::DefaultSearchArgument<SearchArgumentConfig<Argument>>, bool Debug = false>
 	struct BeamSearchConfig {
 		using BeamBase = Search::Lib::BeamSearchTemplate<BeamSearchConfig>;
 
 		using ArgumentType = Argument;
 		using SearchArgumentType = SearchArgument;
 
-		NODISCARD static constexpr bool IsDebug() { return false; }
+		NODISCARD static constexpr bool IsDebug() { return Debug; }
 
 		NODISCARD static constexpr int GetDepth() { return narrow_cast<int>(Depth + 1); }
 		NODISCARD static constexpr int GetWidth() { return narrow_cast<int>(Width); }
