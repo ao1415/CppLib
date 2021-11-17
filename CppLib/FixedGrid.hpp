@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-#include "BasicPoint.hpp"
+#include "Basic.hpp"
 
 namespace alib {
 
@@ -13,7 +13,7 @@ namespace alib {
 	public:
 
 		using base = std::array<Type, Width* Height>;
-		using value_type = Type;
+		using value_type = typename Type;
 		using base::at;
 
 		constexpr FixedGrid() noexcept : base() {};
@@ -37,24 +37,20 @@ namespace alib {
 		NODISCARD inline constexpr bool inside(size_t x, size_t y) const noexcept { return (0 <= x && x < Width && 0 <= y && y < Height); }
 		NODISCARD inline constexpr bool outside(size_t x, size_t y) const noexcept { return (0 > x || x >= Width || 0 > y || y >= Height); }
 
-#ifdef DefBasicPoint
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr const value_type& operator()(const T p) const { return operator()(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr value_type& operator()(const T p) { return operator()(p.x, p.y); }
 
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr const value_type& operator()(const BasicPoint<T> p) const { return operator()(p.x, p.y); }
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr value_type& operator()(const BasicPoint<T> p) { return operator()(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr const value_type& at(const T p) const { return at(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr value_type& at(const T p) { return at(p.x, p.y); }
 
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr const value_type& at(const BasicPoint<T> p) const { return at(p.x, p.y); }
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr value_type& at(const BasicPoint<T> p) { return at(p.x, p.y); }
-
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr bool inside(const BasicPoint<T> p) const noexcept { return inside(p.x, p.y); }
-		template<typename T, std::enable_if_t<std::is_integral_v<T>, std::nullptr_t> = nullptr>
-		NODISCARD inline constexpr bool outside(const BasicPoint<T> p) const noexcept { return outside(p.x, p.y); }
-
-#endif // DefBasicPoint
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr bool inside(const T p) const noexcept { return inside(p.x, p.y); }
+		template<typename T, std::enable_if_t<std::is_integral_v<typename T::value_type>, std::nullptr_t> = nullptr>
+		NODISCARD inline constexpr bool outside(const T p) const noexcept { return outside(p.x, p.y); }
 
 	};
 

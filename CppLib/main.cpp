@@ -47,7 +47,7 @@ public:
 	void search(const SearchArgument& search) override {
 
 		arr.push_back(table[search.argument.num]);
-		sum += arr.back();
+		sum() += arr.back();
 
 		if (best.first < search.score) {
 			best.first = search.score;

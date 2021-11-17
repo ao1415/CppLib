@@ -13,7 +13,6 @@ namespace alib {
 	*/
 	template<typename Type>
 	struct BasicPoint {
-#define DefBasicPoint
 
 		/** @brief ã•ûŒü */
 		inline static constexpr BasicPoint Up() { return BasicPoint(0, -1); }
