@@ -72,7 +72,7 @@ namespace alib {
 			std::list<Ref> refMemory;
 
 			NODISCARD inline uintptr_t toInteger(const PointerConst p) const noexcept {
-				WARN_PUSH(disable:26490);
+				WARN_PUSH_DISABLE(26490);
 				return reinterpret_cast<uintptr_t>(p);
 				WARN_POP();
 			}
@@ -84,7 +84,7 @@ namespace alib {
 
 				if (memorySize + size >= MaxMemorySize) {
 					if (unusedMemory.empty()) {
-						WARN_PUSH(disable:26409);
+						WARN_PUSH_DISABLE(26409);
 						memory = SharedPtr(new ValueType[MaxMemorySize]);
 						WARN_POP();
 					}
@@ -96,7 +96,7 @@ namespace alib {
 					memorySize = 0;
 				}
 
-				WARN_PUSH(disable:26446);
+				WARN_PUSH_DISABLE(26446);
 				Pointer ret = std::addressof(memory[memorySize]);
 				WARN_POP();
 				memorySize += size;
@@ -141,14 +141,14 @@ namespace alib {
 					: data(data), pos(pos), length(length) {}
 
 				NODISCARD inline Pointer address() const noexcept {
-					WARN_PUSH(disable:26481);
+					WARN_PUSH_DISABLE(26481);
 					return std::addressof(data[pos]);
 					WARN_POP();
 				}
 
 				template<typename Ptr>
 				NODISCARD inline Ptr reinterpret() const noexcept {
-					WARN_PUSH(disable:26490);
+					WARN_PUSH_DISABLE(26490);
 					return reinterpret_cast<Ptr>(address());
 					WARN_POP();
 				};
@@ -216,7 +216,7 @@ namespace alib {
 				ValueType buffer[Length]{};
 
 				Buffer() noexcept {
-					WARN_PUSH(disable:26485);
+					WARN_PUSH_DISABLE(26485);
 					stream = Stream(buffer, 0, Length);
 					WARN_POP();
 				}
@@ -304,7 +304,7 @@ namespace alib {
 			template<class Class>
 			inline static void Modify(Class& mem) noexcept {
 				static_assert(sizeof(Class) <= std::numeric_limits<VersionSizeType>::max());
-				WARN_PUSH(disable:26474);
+				WARN_PUSH_DISABLE(26474);
 				buffer.modify(reinterpret_cast<void*>(std::addressof(mem)), narrow_cast<VersionSizeType>(sizeof(Class)));
 				WARN_POP();
 			}
@@ -530,7 +530,7 @@ namespace alib {
 			inline void push_back(const Type& value) noexcept {
 				hasCapacity(count + 1);
 				VersionControl::Modify(count);
-				WARN_PUSH(disable:26446);
+				WARN_PUSH_DISABLE(26446);
 				VersionControl::Modify(base::operator[](count));
 				base::operator[](count) = value;
 				WARN_POP();
@@ -547,7 +547,7 @@ namespace alib {
 
 			inline void pop_back() noexcept { any(); VersionControl::Modify(count); --count; }
 
-			WARN_PUSH(disable:26434 26446);
+			WARN_PUSH_DISABLE(26434 26446);
 			NODISCARD inline Ref<Type> front() noexcept { any(); return Ref<Type>(std::addressof(base::front())); }
 			NODISCARD inline const Type& front() const noexcept { any(); return base::front(); }
 

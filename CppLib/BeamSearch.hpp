@@ -106,7 +106,7 @@ namespace alib {
 					if (currentRoot->depth < nextRoot->depth) {
 						if (nextRoot->patch.hasValue()) {
 							stack--;
-							WARN_PUSH(disable:26446 26482);
+							WARN_PUSH_DISABLE(26446 26482);
 							redos[stack] = nextRoot->patch;
 							WARN_POP();
 						}
@@ -120,7 +120,7 @@ namespace alib {
 					}
 				}
 				forstep(idx, stack, Config::GetDepth()) {
-					WARN_PUSH(disable:26446 26482);
+					WARN_PUSH_DISABLE(26446 26482);
 					redos[idx].redo();
 					WARN_POP();
 				}

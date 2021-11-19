@@ -1,19 +1,20 @@
 #pragma once
 
 #include <utility>
+#include <type_traits>
 
 #ifndef _MSC_VER
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 
-#define WARN_PUSH(x)
+#define WARN_PUSH_DISABLE(x)
 #define WARN_POP()
 #else
 #define LIKELY(x) x
 #define UNLIKELY(x) x
 
-#define WARN_PUSH(x) __pragma(warning(push))\
-__pragma(warning(x))
+#define WARN_PUSH_DISABLE(x) __pragma(warning(push))\
+__pragma(warning(disable:x))
 #define WARN_POP() __pragma(warning(pop))
 #endif
 
@@ -25,7 +26,7 @@ __pragma(warning(x))
 #define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
 // [BEGIN, END)Ç≈éwíËÇ≥ÇÍÇΩå^ÇÃCOUNTERÇëùâ¡Ç≥ÇπÇÈ
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) \
-WARN_PUSH(disable:26496 26498)\
+WARN_PUSH_DISABLE(26496 26498)\
 for (COUNTER_TYPE COUNTER = static_cast<COUNTER_TYPE>(BEGIN), _loop_end_##COUNTER = static_cast<COUNTER_TYPE>(END); COUNTER < _loop_end_##COUNTER; COUNTER++)\
 WARN_POP()
 
@@ -35,7 +36,7 @@ namespace alib {
 
 	template <class T, class U>
 	inline constexpr T narrow_cast(U&& u) noexcept {
-		WARN_PUSH(disable:26472);
+		WARN_PUSH_DISABLE(26472);
 		return static_cast<T>(std::forward<U>(u));
 		WARN_POP();
 	}
