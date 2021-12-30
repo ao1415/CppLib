@@ -5,7 +5,7 @@
     <ClCompile Include="Basic.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="FixedGrid.hpp">
+    <ClCompile Include="FixedGrid.cpp">
       <Filter>src\Container</Filter>
     </ClCompile>
     <ClCompile Include="BasicPoint.cpp">

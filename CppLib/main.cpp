@@ -6,6 +6,7 @@
 #include "BasicPoint.hpp"
 #include "FixedGrid.hpp"
 
+#include "SearchLib.hpp"
 #include "BeamSearch.hpp"
 
 using namespace std;
@@ -68,20 +69,20 @@ int main() {
 
 	using namespace alib;
 
-	Table table{};
+	//Table table{};
 
-	forange(i, table.size()) {
-		table[i] = alib::narrow_cast<int>(i);
-	}
+	//forange(i, table.size()) {
+	//	table[i] = alib::narrow_cast<int>(i);
+	//}
 
-	Beam beam(table);
-	beam.start(BeamConfig::BeamBase::SearchArgument(0));
+	//Beam beam(table);
+	//beam.start(BeamConfig::BeamBase::SearchArgument(0));
 
-	std::cout << beam.best.first << std::endl;
-	for (const auto& v : beam.best.second) {
-		std::cout << v << ",";
-	}
-	std::cout << std::endl;
+	//std::cout << beam.best.first << std::endl;
+	//for (const auto& v : beam.best.second) {
+	//	std::cout << v << ",";
+	//}
+	//std::cout << std::endl;
 
 	return 0;
 }

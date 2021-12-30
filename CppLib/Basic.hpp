@@ -10,6 +10,8 @@
 #define WARN_PUSH_DISABLE(x)
 #define WARN_POP()
 #else
+#include <iso646.h>
+
 #define LIKELY(x) x
 #define UNLIKELY(x) x
 

@@ -14,3 +14,6 @@
 #define WARN_POP()
 #define WARN_PUSH(x)
 #define WARN_PUSH(x) __pragma(warning(push))__pragma(warning(x))
+#define WARN_PUSH_DISABLE(x)
+#define WARN_PUSH_DISABLE(x) __pragma(warning(push))__pragma(warning(disable:x))
+#define not
