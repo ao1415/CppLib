@@ -11,7 +11,7 @@
 #include <memory>
 #include <chrono>
 
-namespace alib {
+namespace alib_del {
 
 	namespace Search::Lib {
 		using SizeType = size_t;
@@ -374,11 +374,11 @@ namespace alib {
 		*/
 		template<class Config>
 		struct SearchNode {
-			using SearchArgument = typename Config::SearchArgumentType;
+			using ArgumentType = typename Config::SearchArgumentType;
 			using Pointer = SearchNode*;
 
 			SearchNode() noexcept = default;
-			SearchNode(Pointer parent, const SearchArgument& argument) noexcept : argument(argument) {
+			SearchNode(Pointer parent, const ArgumentType& argument) noexcept : argument(argument) {
 				assert(parent != nullptr);
 				this->parent = parent;
 				parent->addRef();
@@ -388,7 +388,7 @@ namespace alib {
 			/** @brief 親ノードのポインタ */
 			Pointer parent = nullptr;
 			/** @brief 探査引数 */
-			SearchArgument argument{};
+			ArgumentType argument{};
 			/** @brief ノード遷移パッチ */
 			VersionControl::Patch patch{};
 			/** @brief ノード深度 */
@@ -620,7 +620,7 @@ namespace alib {
 		template<class Config>
 		class BeamSearchProcess {
 		private:
-			using SearchArgument = typename Config::SearchArgumentType;
+			using ArgumentType = typename Config::SearchArgumentType;
 			using Node = SearchNode<Config>;
 			using NodePointer = Node*;
 			using RankingItem = std::pair<double, NodePointer>;
@@ -787,9 +787,9 @@ namespace alib {
 				nextNode = nullptr;
 			}
 
-			void reserve(const SearchArgument& argument) { nextRanking.emplace(argument.score, new(nodePool.alloc()) Node(currentNode, argument)); }
+			void reserve(const ArgumentType& argument) { nextRanking.emplace(argument.score, new(nodePool.alloc()) Node(currentNode, argument)); }
 
-			NODISCARD inline const SearchArgument& getArgument() const noexcept { assert(nextNode != nullptr); return nextNode->argument; }
+			NODISCARD inline const ArgumentType& getArgument() const noexcept { assert(nextNode != nullptr); return nextNode->argument; }
 			NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
 			NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 2; }
 		};
@@ -801,7 +801,7 @@ namespace alib {
 		template<class Config>
 		class BeamSearchTemplate {
 		public:
-			using SearchArgument = typename Config::SearchArgumentType;
+			using ArgumentType = typename Config::SearchArgumentType;
 
 			BeamSearchTemplate() = default;
 			virtual ~BeamSearchTemplate() = default;
@@ -819,7 +819,7 @@ namespace alib {
 			void loop() {
 				if (process.onloop()) {
 					const auto& argument = process.getArgument();
-					if constexpr (SearchArgument::HasHash) {
+					if constexpr (ArgumentType::HasHash) {
 						visited.insert(argument.hash);
 					}
 					process.accept();
@@ -827,7 +827,7 @@ namespace alib {
 				}
 				while (process.onloop()) {
 					const auto& argument = process.getArgument();
-					if constexpr (SearchArgument::HasHash) {
+					if constexpr (ArgumentType::HasHash) {
 						if (visited.find(argument.hash) != visited.end()) {
 							continue;
 						}
@@ -843,18 +843,18 @@ namespace alib {
 			 * @param args 次の状態処理の引数
 			*/
 			template<class... Args>
-			inline void nextSearch(Args&& ...args) { nextSearch(SearchArgument(std::forward<Args>(args)...)); }
+			inline void nextSearch(Args&& ...args) { nextSearch(ArgumentType(std::forward<Args>(args)...)); }
 
 			/**
 			 * @brief 次の状態処理
 			 * @param arg 次の状態処理の引数
 			*/
-			inline void nextSearch(SearchArgument argument) { process.reserve(argument); }
+			inline void nextSearch(ArgumentType argument) { process.reserve(argument); }
 
 			NODISCARD inline bool endOfSearch() const noexcept { return process.endOfSearch(); }
 			NODISCARD inline int getDepth() const noexcept { return process.getDepth(); }
 		public:
-			void start(const SearchArgument& argument) {
+			void start(const ArgumentType& argument) {
 				visited.clear();
 				process.timerStart();
 				process.init();
@@ -866,12 +866,12 @@ namespace alib {
 			 * @brief 初回のパターンを生成する
 			 * @param 引数
 			*/
-			virtual void init(const SearchArgument&) = 0;
+			virtual void init(const ArgumentType&) = 0;
 			/**
 			 * @brief 探査処理
 			 * @param 引数
 			*/
-			virtual void search(const SearchArgument&) = 0;
+			virtual void search(const ArgumentType&) = 0;
 		};
 	}
 
@@ -882,12 +882,12 @@ namespace alib {
 		using HashType = uint64_t;
 	};
 
-	template<Search::Lib::SizeType Depth, Search::Lib::SizeType Width, Search::Lib::SizeType Limit, typename Argument, typename SearchArgument = Search::Lib::DefaultSearchArgument<SearchArgumentConfig<Argument>>, bool Debug = false>
+	template<Search::Lib::SizeType Depth, Search::Lib::SizeType Width, Search::Lib::SizeType Limit, typename Argument, typename ArgumentType = Search::Lib::DefaultSearchArgument<SearchArgumentConfig<Argument>>, bool Debug = false>
 	struct BeamSearchConfig {
 		using BeamBase = Search::Lib::BeamSearchTemplate<BeamSearchConfig>;
 
 		using ArgumentType = Argument;
-		using SearchArgumentType = SearchArgument;
+		using SearchArgumentType = ArgumentType;
 
 		NODISCARD static constexpr bool IsDebug() { return Debug; }
 

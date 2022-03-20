@@ -1,0 +1,59 @@
+#pragma once
+
+#include "Memo.hpp"
+
+namespace alib::Search::Lib {
+
+	template<class Config>
+	struct SearchNode {
+		using ArgumentType = typename Config::ArgumentType;
+		using pointer = SearchNode*;
+
+		SearchNode() noexcept = default;
+		SearchNode(pointer parent, const ArgumentType& argument) noexcept : argument(argument) {
+			assert(parent != nullptr);
+			this->parent = parent;
+			parent->addRef();
+			depth = parent->depth + 1;
+		}
+
+		/** @brief 参照カウント */
+		int ref = 1;
+		/** @brief ノード深度 */
+		int depth = 0;
+		/** @brief 親ノードのポインタ */
+		pointer parent = nullptr;
+		/** @brief 探査引数 */
+		ArgumentType argument{};
+		/** @brief ノード遷移パッチ */
+		Memo::Patch patch{};
+
+		inline void addRef() noexcept { ref++; }
+		inline void subRef() noexcept { ref--; }
+	};
+
+	template<class Config>
+	class SearchNodePool {
+	public:
+		using pointer = typename SearchNode<Config>::pointer;
+	private:
+		PagingMemory<SearchNode<Config>, 16_K> pool{};
+		pointer top = nullptr;
+	public:
+		NODISCARD inline pointer alloc() {
+			if (top != nullptr) {
+				pointer ptr = top;
+				top = ptr->parent;
+				return ptr;
+			}
+			else {
+				return pool.allocate(1);
+			}
+		}
+		inline void release(pointer ptr) noexcept {
+			ptr->parent = top;
+			top = ptr;
+		}
+	};
+
+}

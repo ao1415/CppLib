@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -154,6 +154,8 @@
   <ItemGroup>
     <ClInclude Include="Basic.hpp" />
     <ClInclude Include="BeamSearch.hpp" />
+    <ClInclude Include="SearcComponent\BeamSearchProcess.hpp" />
+    <ClInclude Include="SearcComponent\Buffer.hpp" />
     <ClInclude Include="FixedDeque.hpp" />
     <ClInclude Include="FixedGrid.hpp" />
     <ClInclude Include="FiexdPriorityQueue.hpp" />
@@ -163,6 +165,16 @@
     <ClInclude Include="MemoryPool.hpp" />
     <ClInclude Include="BasicPoint.hpp" />
     <ClInclude Include="Random.hpp" />
+    <ClInclude Include="SearcComponent\ExPriorityQueue.hpp" />
+    <ClInclude Include="SearcComponent\Memo.hpp" />
+    <ClInclude Include="SearcComponent\PagingMemory.hpp" />
+    <ClInclude Include="SearcComponent\Patch.hpp" />
+    <ClInclude Include="SearcComponent\Reference.hpp" />
+    <ClInclude Include="SearcComponent\SearchComponentLib.hpp" />
+    <ClInclude Include="SearcComponent\SearchConfig.hpp" />
+    <ClInclude Include="SearcComponent\SearchNode.hpp" />
+    <ClInclude Include="SearcComponent\Stream.hpp" />
+    <ClInclude Include="SearcComponent\Timer.hpp" />
     <ClInclude Include="SearchLib.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />

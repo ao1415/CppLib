@@ -28,6 +28,9 @@
     <Filter Include="ヘッダー ファイル\Search">
       <UniqueIdentifier>{c212838d-38dd-45c9-a0be-bd8d0ff840f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Search\Component">
+      <UniqueIdentifier>{ed5e9df9-d073-4ba0-a6e6-8922de619269}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -76,6 +79,42 @@
     </ClInclude>
     <ClInclude Include="SearchLib.hpp">
       <Filter>ヘッダー ファイル\Search</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\SearchComponentLib.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\SearchConfig.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Timer.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\ExPriorityQueue.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\PagingMemory.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Stream.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Patch.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Buffer.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Memo.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Reference.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\SearchNode.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\BeamSearchProcess.hpp">
+      <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
