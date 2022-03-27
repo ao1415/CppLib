@@ -11,6 +11,10 @@
     <ClCompile Include="BasicPoint.cpp">
       <Filter>src\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="SearcComponent\Buffer.cpp">
+      <Filter>Search\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="SearcComponent\ExPriorityQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -25,9 +29,15 @@
     <Filter Include="src\Utility">
       <UniqueIdentifier>{514f1642-73db-44f4-bad8-209f95a0cf54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Search">
+      <UniqueIdentifier>{1dbc085f-1f63-48ac-b0a8-737f2fbc0e6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Search\Component">
+      <UniqueIdentifier>{589d76f0-06c0-416e-a9a7-9c238c4d4fd3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="cpp.hint" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

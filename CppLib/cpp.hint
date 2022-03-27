@@ -17,3 +17,4 @@
 #define WARN_PUSH_DISABLE(x)
 #define WARN_PUSH_DISABLE(x) __pragma(warning(push))__pragma(warning(disable:x))
 #define not
+#define narrow_cast

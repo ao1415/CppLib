@@ -36,12 +36,22 @@ WARN_POP()
 
 namespace alib {
 
+#ifdef _DEBUG
+	/**
+	 * @brief 警告なしで縮小キャストを行う
+	 * @tparam U キャスト元型
+	 * @param u キャストする値
+	 * @return キャストされた値
+	*/
 	template <class T, class U>
-	inline constexpr T narrow_cast(U&& u) noexcept {
+	NODISCARD constexpr T narrow_cast(U&& u) noexcept {
 		WARN_PUSH_DISABLE(26472);
 		return static_cast<T>(std::forward<U>(u));
 		WARN_POP();
 	}
+#else
+#define narrow_cast static_cast
+#endif
 
 	/**
 	 * @brief 指定されたサイズから、確保するサイズを算出する
@@ -51,10 +61,30 @@ namespace alib {
 	template <size_t Size>
 	NODISCARD constexpr auto ContainerAllocator() noexcept {
 		size_t n = Size;
-		if (n != 0) { n -= 1; }
-		forange(lShift, 5) { n |= (n >> (1 << lShift)); }
-		if (n != std::numeric_limits<decltype(n)>::max()) { n += 1; }
+
+		if (n != 0) {
+			n -= 1;
+		}
+		forange(lShift, 5) {
+			n |= (n >> (1 << lShift));
+		}
+
+		if (n != std::numeric_limits<decltype(n)>::max()) {
+			n += 1;
+		}
 		return n;
+	}
+
+	/**
+	 * @brief 標準入力ストリームから読み取る
+	 * @tparam Type 読み取る型
+	 * @return 読み取った値
+	*/
+	template <class Type>
+	NODISCARD Type GetCin() {
+		Type value{};
+		std::cin >> value;
+		return value;
 	}
 
 }

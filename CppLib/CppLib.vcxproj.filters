@@ -80,41 +80,41 @@
     <ClInclude Include="SearchLib.hpp">
       <Filter>ヘッダー ファイル\Search</Filter>
     </ClInclude>
-    <ClInclude Include="SearcComponent\SearchComponentLib.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\SearchConfig.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\Timer.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\ExPriorityQueue.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\PagingMemory.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\Stream.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="SearcComponent\Patch.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="SearcComponent\BeamSearchProcess.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
     <ClInclude Include="SearcComponent\Buffer.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\ExPriorityQueue.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
     <ClInclude Include="SearcComponent\Memo.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\PagingMemory.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Patch.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
     <ClInclude Include="SearcComponent\Reference.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\SearchComponentLib.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\SearchConfig.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
     <ClInclude Include="SearcComponent\SearchNode.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
-    <ClInclude Include="SearcComponent\BeamSearchProcess.hpp">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="SearcComponent\Stream.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SearcComponent\Timer.hpp">
+      <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

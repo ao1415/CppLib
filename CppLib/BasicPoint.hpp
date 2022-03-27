@@ -42,35 +42,40 @@ namespace alib {
 
 		constexpr BasicPoint& operator=(const BasicPoint&) = default;
 
-		NODISCARD inline constexpr BasicPoint operator+(const BasicPoint v) const noexcept { return BasicPoint(this->x + v.x, this->y + v.y); }
-		NODISCARD inline constexpr BasicPoint operator-(const BasicPoint v) const noexcept { return BasicPoint(this->x - v.x, this->y - v.y); }
+		NODISCARD constexpr BasicPoint operator+(const BasicPoint v) const noexcept { return BasicPoint(this->x + v.x, this->y + v.y); }
+		NODISCARD constexpr BasicPoint operator-(const BasicPoint v) const noexcept { return BasicPoint(this->x - v.x, this->y - v.y); }
 
-		inline constexpr void operator+=(const BasicPoint v) noexcept { this->x += v.x; this->y += v.y; }
-		inline constexpr void operator-=(const BasicPoint v) noexcept { this->x -= v.x; this->y -= v.y; }
+		constexpr void operator+=(const BasicPoint v) noexcept { this->x += v.x; this->y += v.y; }
+		constexpr void operator-=(const BasicPoint v) noexcept { this->x -= v.x; this->y -= v.y; }
 
-		NODISCARD inline constexpr bool operator<(const BasicPoint v) const noexcept { if (this->y != v.y) return this->y < v.y; else return this->x < v.x; }
+		NODISCARD constexpr bool operator<(const BasicPoint v) const noexcept { if (this->y != v.y) return this->y < v.y; else return this->x < v.x; }
 
-		NODISCARD inline constexpr bool operator==(const BasicPoint v) const noexcept { return this->x == v.x && this->y == v.y; }
-		NODISCARD inline constexpr bool operator!=(const BasicPoint v) const noexcept { return this->x != v.x || this->y != v.y; }
+		NODISCARD constexpr bool operator==(const BasicPoint v) const noexcept { return this->x == v.x && this->y == v.y; }
+		NODISCARD constexpr bool operator!=(const BasicPoint v) const noexcept { return this->x != v.x || this->y != v.y; }
 
-		NODISCARD inline constexpr bool equals(const BasicPoint v) const noexcept { return *this == v; }
-		NODISCARD inline constexpr bool equals(const value_type x, const value_type y) const noexcept { return (this->x == x && this->y == y); }
+		NODISCARD constexpr bool equals(const BasicPoint v) const noexcept { return *this == v; }
+		NODISCARD constexpr bool equals(const value_type x, const value_type y) const noexcept { return (this->x == x && this->y == y); }
 
-		NODISCARD inline constexpr bool isZero() const noexcept {
+		NODISCARD constexpr bool isZero() const noexcept {
 			const auto zero = value_type();
 			return (this->x == zero && this->y == zero);
 		}
-		inline constexpr void clear() noexcept {
+		constexpr void clear() noexcept {
 			const auto zero = value_type();
 			this->x = zero;
 			this->y = zero;
 		}
 
-		inline constexpr void set(const value_type x, const value_type y) noexcept { this->x = x; this->y = y; }
-		inline constexpr void set(const BasicPoint v) noexcept { this->x = v.x; this->y = v.y; }
+		constexpr void set(const value_type x, const value_type y) noexcept { this->x = x; this->y = y; }
+		constexpr void set(const BasicPoint v) noexcept { this->x = v.x; this->y = v.y; }
 
-		NODISCARD inline constexpr value_type dot() const noexcept { return (this->x * this->x + this->y * this->y); }
-		NODISCARD inline constexpr value_type dot(const BasicPoint v) const noexcept {
+		constexpr BasicPoint toLeft() const noexcept { return *this + Left(); }
+		constexpr BasicPoint toRight() const noexcept { return *this + Right(); }
+		constexpr BasicPoint toUp() const noexcept { return *this + Up(); }
+		constexpr BasicPoint toDown() const noexcept { return *this + Down(); }
+
+		NODISCARD constexpr value_type dot() const noexcept { return (this->x * this->x + this->y * this->y); }
+		NODISCARD constexpr value_type dot(const BasicPoint v) const noexcept {
 			const auto dx = this->x - v.x;
 			const auto dy = this->y - v.y;
 			return (dx * dx + dy * dy);
@@ -81,8 +86,8 @@ namespace alib {
 			return (dx * dx + dy * dy);
 		}
 
-		NODISCARD inline constexpr value_type length() const noexcept { return narrow_cast<value_type>(std::sqrt(this->x * this->x + this->y * this->y)); }
-		NODISCARD inline constexpr value_type length(const BasicPoint v) const noexcept {
+		NODISCARD constexpr value_type length() const noexcept { return narrow_cast<value_type>(std::sqrt(this->x * this->x + this->y * this->y)); }
+		NODISCARD constexpr value_type length(const BasicPoint v) const noexcept {
 			const auto dx = this->x - v.x;
 			const auto dy = this->y - v.y;
 			return narrow_cast<value_type>(std::sqrt(dx * dx + dy * dy));
@@ -93,8 +98,8 @@ namespace alib {
 			return narrow_cast<value_type>(std::sqrt(dx * dx + dy * dy));
 		}
 
-		NODISCARD inline constexpr value_type manhattanLength() const noexcept { return (this->x < 0 ? -this->x : this->x) + (this->y < 0 ? -this->y : this->y); }
-		NODISCARD inline constexpr value_type manhattanLength(const BasicPoint v) const noexcept {
+		NODISCARD constexpr value_type manhattanLength() const noexcept { return (this->x < 0 ? -this->x : this->x) + (this->y < 0 ? -this->y : this->y); }
+		NODISCARD constexpr value_type manhattanLength(const BasicPoint v) const noexcept {
 			const auto dx = this->x - v.x;
 			const auto dy = this->y - v.y;
 			return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
@@ -105,7 +110,7 @@ namespace alib {
 			return (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
 		}
 
-		NODISCARD inline constexpr size_t hash() const noexcept {
+		NODISCARD constexpr size_t hash() const noexcept {
 			constexpr size_t offset_basis = 14695981039346656037ULL;
 			constexpr size_t FNV_prime = 1099511628211ULL;
 
@@ -121,7 +126,7 @@ namespace alib {
 			return result;
 		}
 
-		NODISCARD inline std::string toString() const { return "(" + std::to_string(x) + "," + std::to_string(y) + ")"; }
+		NODISCARD  std::string toString() const { return "(" + std::to_string(x) + "," + std::to_string(y) + ")"; }
 
 	};
 
@@ -165,4 +170,5 @@ namespace alib {
 		return is;
 	}
 	inline std::ostream& operator<<(std::ostream& os, const BasicPoint<std::byte> v) { os << static_cast<int>(v.x) << " " << static_cast<int>(v.y); return os; }
+
 }

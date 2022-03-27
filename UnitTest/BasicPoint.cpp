@@ -66,10 +66,12 @@ namespace BasicPoint {
 		ASSERT_TRUE(pos2.isZero());
 
 		pos1.set(1, 10);
-		ASSERT_EQ(1, pos1.x); ASSERT_EQ(10, pos1.y);
+		ASSERT_EQ(1, pos1.x);
+		ASSERT_EQ(10, pos1.y);
 
 		pos2.set(pos1);
-		ASSERT_EQ(1, pos2.x); ASSERT_EQ(10, pos2.y);
+		ASSERT_EQ(1, pos2.x);
+		ASSERT_EQ(10, pos2.y);
 
 		pos1.set(3, 4);
 		pos2.set(6, 8);
@@ -99,5 +101,18 @@ namespace BasicPoint {
 		alib::Point pos2(1, 0);
 
 		ASSERT_NE(pos1.hash(), pos2.hash());
+	}
+
+	/**
+	 * @brief ユーティリティ
+	*/
+	TEST(Basic, BasicPoint_UtilityTest03) {
+
+		alib::Point pos(0, 0);
+
+		ASSERT_EQ(pos.toLeft(), alib::Point::Left());
+		ASSERT_EQ(pos.toRight(), alib::Point::Right());
+		ASSERT_EQ(pos.toUp(), alib::Point::Up());
+		ASSERT_EQ(pos.toDown(), alib::Point::Down());
 	}
 }

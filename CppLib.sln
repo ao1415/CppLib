@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppLib", "CppLib\CppLib.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{699CAD91-5071-422A-B1E2-E0D81FB4BA82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeCompressor", "CodeCompressor\CodeCompressor.csproj", "{D92A85AB-640D-4EB4-BE9F-AEDC6337E855}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCompressor", "CodeCompressor\CodeCompressor.csproj", "{D92A85AB-640D-4EB4-BE9F-AEDC6337E855}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

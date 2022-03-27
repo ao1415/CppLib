@@ -358,3 +358,16 @@ namespace ContainerAllocator {
 		EXPECT_EQ(size, max);
 	}
 }
+
+namespace NarrowCast {
+	/**
+	 * @brief 単純機能テスト
+	*/
+	TEST(Basic, NarrowCast_Test01) {
+		EXPECT_EQ(alib::narrow_cast<int>(size_t(0)), 0);
+		EXPECT_EQ(alib::narrow_cast<int>(size_t(1)), 1);
+		EXPECT_EQ(alib::narrow_cast<int>(size_t(std::numeric_limits<int>::max())), std::numeric_limits<int>::max());
+		EXPECT_EQ(alib::narrow_cast<int>(size_t(std::numeric_limits<int>::max()) + 1), -2147483648);
+	}
+
+}
