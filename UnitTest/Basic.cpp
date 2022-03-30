@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "../CppLib/Basic.hpp"
 
-namespace forange {
+namespace forangeTest {
 	/**
 	 * @brief 単純ループテスト
 	 * int(正)
@@ -69,7 +69,7 @@ namespace forange {
 	}
 }
 
-namespace forange_type {
+namespace forange_typeTest {
 	/**
 	 * @brief 単純ループテスト
 	 * int(正)
@@ -137,7 +137,7 @@ namespace forange_type {
 	}
 }
 
-namespace forstep {
+namespace forstepTest {
 	/**
 	 * @brief 単純ループテスト
 	 * int(正)
@@ -222,7 +222,7 @@ namespace forstep {
 	}
 }
 
-namespace forstep_type {
+namespace forstep_typeTest {
 	/**
 	 * @brief 単純ループテスト
 	 * int(正)
@@ -307,7 +307,7 @@ namespace forstep_type {
 	}
 }
 
-namespace ContainerAllocator {
+namespace ContainerAllocatorTest {
 	/**
 	 * @brief サイズ0指定
 	*/
@@ -359,7 +359,7 @@ namespace ContainerAllocator {
 	}
 }
 
-namespace NarrowCast {
+namespace NarrowCastTest {
 	/**
 	 * @brief 単純機能テスト
 	*/

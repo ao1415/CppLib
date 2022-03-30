@@ -6,7 +6,7 @@
 
 #include "../../CppLib/SearcComponent/Buffer.hpp"
 
-namespace SearcComponent::buffer {
+namespace SearcComponent::BufferTest {
 
 	template<class T, class M = unsigned short>
 	size_t calcSize() {

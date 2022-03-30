@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "../CppLib/FixedGrid.hpp"
 
-namespace FixedGrid {
+namespace FixedGridTest {
 	/**
 	 * @brief 基本コンストラクタ
 	*/
@@ -69,7 +69,7 @@ namespace FixedGrid {
 	TEST(Basic, FixedGrid_ConstructTest06) {
 
 		constexpr alib::FixedGrid<int, 10, 10> copy1;
-		constexpr alib::FixedGrid<int, 10, 10> grid1(std::move(copy1));
+		constexpr alib::FixedGrid<int, 10, 10> grid1{ alib::FixedGrid<int, 10, 10>() };
 
 		ASSERT_EQ(copy1, grid1);
 		forange(i, copy1.size()) ASSERT_EQ(copy1[i], grid1[i]);

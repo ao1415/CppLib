@@ -6,7 +6,7 @@
 
 #include "../../CppLib/SearcComponent/ExPriorityQueue.hpp"
 
-namespace SearcComponent::exPriorityQueue {
+namespace SearcComponent::ExPriorityQueueTest {
 
 	/**
 	 * @brief 単純機能テスト

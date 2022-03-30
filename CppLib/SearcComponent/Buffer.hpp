@@ -90,7 +90,7 @@ namespace alib::Search::Lib {
 			assert(buf.endOfStream());
 			modiftSize = 0;
 
-			auto [first, last] = stream.data();
+			auto [first, last] = buf.data();
 			return Patch<MemoSizeType>(first, last);
 		}
 	};

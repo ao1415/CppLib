@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "../CppLib/BasicPoint.hpp"
 
-namespace BasicPoint {
+namespace BasicPointTest {
 
 	/**
 	 * @brief コンストラクタ

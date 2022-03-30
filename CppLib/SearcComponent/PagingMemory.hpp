@@ -19,43 +19,56 @@ namespace alib::Search::Lib {
 		using pointer = typename traits::pointer;
 		using const_pointer = typename traits::const_pointer;
 
+		using MemoryData = std::pair<uintptr_t, size_type>;
+
 		static_assert(std::is_same_v<value_type, traits::value_type>);
 		static_assert(std::is_trivially_copyable_v<value_type>);
 	private:
 
-		NODISCARD inline static constexpr size_type GetPagingCount() noexcept { return Count; }
+		NODISCARD inline static constexpr size_type GetPagingCount() noexcept {
+			return Count;
+		}
 
 		std::stack<pointer> unusedMemory;
-		std::vector<std::pair<uintptr_t, size_type>> memory;
+		std::vector<MemoryData> memory;
 
 		pointer first = nullptr;
 		pointer last = nullptr;
 		pointer reserved = nullptr;
 
+		std::vector<MemoryData>::iterator used;
+
 		allocator_type alloc;
 
-		NODISCARD inline uintptr_t toInteger(const const_pointer ptr) const noexcept {
+		NODISCARD uintptr_t toInteger(const_pointer ptr) const noexcept {
 			WARN_PUSH_DISABLE(26490);
 			return reinterpret_cast<uintptr_t>(ptr);
 			WARN_POP();
 		}
-		NODISCARD inline pointer toPointer(const uintptr_t ptr) const noexcept {
+		NODISCARD pointer toPointer(const uintptr_t ptr) const noexcept {
 			WARN_PUSH_DISABLE(26490);
 			return reinterpret_cast<pointer>(ptr);
 			WARN_POP();
 		}
-		NODISCARD inline pointer addPointer(const pointer ptr, const size_type size) const noexcept {
+		NODISCARD pointer addPointer(const pointer ptr, const size_type size) const noexcept {
 			WARN_PUSH_DISABLE(26481);
 			return ptr + size;
 			WARN_POP();
 		}
 
-		inline void deploy(pointer p) noexcept {
+		NODISCARD std::vector<MemoryData>::iterator findMemory(const_pointer ptr) {
+			uintptr_t p = toInteger(ptr) - (GetPagingCount() * sizeof(value_type));
+			return std::upper_bound(memory.begin(), memory.end(), MemoryData(p, 0));;
+		}
+
+		void deploy(pointer p) noexcept {
 			first = p;
 			last = p;
 			reserved = addPointer(first, GetPagingCount());
+
+			used = findMemory(p);
 		}
-		inline void recall() noexcept {
+		void recall() noexcept {
 			first = nullptr;
 			last = nullptr;
 			reserved = nullptr;
@@ -63,20 +76,30 @@ namespace alib::Search::Lib {
 
 	public:
 
-		PagingMemory() noexcept = default;
+		PagingMemory() = default;
 		~PagingMemory() {
-			for (auto rIt = memory.rbegin(), rend = memory.rbegin(); rIt != rend; ++rIt) {
-				traits::deallocate(alloc, toPointer(rIt->first), GetPagingCount());
+			for (auto rit = memory.rbegin(), rend = memory.rbegin(); rit != rend; ++rit) {
+				traits::deallocate(alloc, toPointer(rit->first), GetPagingCount());
 			}
 		}
 
+		/**
+		 * @brief 指定されたサイズを確保する
+		 * @param size 確保サイズ
+		 * @return 確保したポインタ
+		*/
 		NODISCARD pointer allocate(const size_type size) {
 			assert(size <= GetPagingCount());
 
 			if (first != nullptr) {
 				const size_type capacity = std::distance(last, reserved);
 				if (capacity < size) {
-					recall();
+					if (0 < used->second) {
+						recall();
+					}
+					else {
+						deploy(first);
+					}
 				}
 			}
 
@@ -95,19 +118,27 @@ namespace alib::Search::Lib {
 
 			pointer ret = last;
 			last = addPointer(last, size);
+			used->second++;
 
 			return ret;
 		}
 
+		/**
+		 * @brief 指定されたインスタンスを作成する
+		 * @param val コンストラクタ引数
+		*/
 		template <class... Args>
 		NODISCARD pointer create(Args&&... val) {
-			return traits::construct(alloc, allocate(1), std::forward<Args>(val)...);
+			return new(allocate(1)) value_type(std::forward<Args>(val)...);
+			//return traits::construct(alloc, allocate(1), std::forward<Args>(val)...);
 		}
 
-		void release(const const_pointer data) {
-			using pair = decltype(memory)::value_type;
-			const uintptr_t ptr = toInteger(data) - GetPagingCount();
-			const auto it = std::upper_bound(memory.begin(), memory.end(), pair(ptr, 0));
+		/**
+		 * @brief 確保したポインタを解放する
+		 * @param data
+		*/
+		void release(const_pointer data) {
+			const auto it = findMemory(data);
 
 			assert(0 < it->second);
 			it->second--;

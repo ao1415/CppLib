@@ -23,15 +23,23 @@ namespace alib::Search::Lib {
 		PagingMemory<std::byte, 1_M> pool;
 
 	public:
-		inline void lock() noexcept { buffer.lock(); }
-		inline void unlock() noexcept { buffer.unlock(); }
+
+		Memo() = default;
+		Memo(const Memo&) = delete;
+		Memo(Memo&&) = default;
+
+		Memo& operator=(const Memo&) = delete;
+		Memo& operator=(Memo&&) = default;
+
+		void lock() noexcept { buffer.lock(); }
+		void unlock() noexcept { buffer.unlock(); }
 
 		/**
 		 * @brief 指定されたデータを記録する
 		 * @param data データポインタ
 		 * @param size データサイズ
 		*/
-		inline void modify(void* data, const size_type size) noexcept {
+		void modify(void* data, const size_type size) noexcept {
 			buffer.modify(data, size);
 		}
 
@@ -40,10 +48,10 @@ namespace alib::Search::Lib {
 		 * @tparam Class データ型
 		 * @param data 変更前データ
 		*/
-		template<class Class>
-		inline void modify(Class& data) noexcept {
+		template<class Type>
+		void modify(Type& data) noexcept {
 			WARN_PUSH_DISABLE(26474);
-			buffer.modify(reinterpret_cast<void*>(std::addressof(data)), sizeof(Class));
+			buffer.modify(reinterpret_cast<void*>(std::addressof(data)), sizeof(Type));
 			WARN_POP();
 		}
 
@@ -51,7 +59,7 @@ namespace alib::Search::Lib {
 		 * @brief 差分パッチ作成
 		 * @return 差分パッチ
 		*/
-		NODISCARD inline Patch commit() {
+		NODISCARD Patch commit() {
 			const size_type wholeSize = buffer.wholeSize();
 			pointer first = pool.allocate(wholeSize);
 			const Stream buf(first, wholeSize);
@@ -61,17 +69,20 @@ namespace alib::Search::Lib {
 		 * @brief パッチデータを解放する
 		 * @param patch パッチ
 		*/
-		inline void release(const Patch& patch) {
+		void release(const Patch& patch) {
 			pool.release(patch.address());
 		}
 	};
 
 	template<class Space>
-	struct MemoSingleton {
-		inline static Memo memo;
+	class MemoSingleton final {
+	private:
+		inline static Memo instance{};
+	public:
 
-		inline static void Lock() noexcept { memo.lock(); }
-		inline static void Unlock() noexcept { memo.unlock(); }
+		inline static Memo& Get() {
+			return instance;
+		}
 
 		/**
 		 * @brief 指定されたポインタを記録する
@@ -79,8 +90,8 @@ namespace alib::Search::Lib {
 		 * @param ptr データポインタ
 		*/
 		template<typename Type>
-		inline static void Modify(Type* ptr) noexcept {
-			memo.modify(*ptr);
+		inline static void Modify(Type& ptr) noexcept {
+			instance.modify(ptr);
 		}
 
 		/**
@@ -90,10 +101,10 @@ namespace alib::Search::Lib {
 		 * @param o 変更値
 		*/
 		template<typename Type>
-		inline static void Modify(Type* ptr, const Type& o) noexcept {
-			if (*ptr != o) {
-				Modify(ptr);
-				(*ptr) = o;
+		inline static void Modify(Type& ptr, const Type& o) noexcept {
+			if (ptr != o) {
+				instance.modify(ptr);
+				ptr = o;
 			}
 		}
 	};

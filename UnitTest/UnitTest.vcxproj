@@ -47,6 +47,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SearcComponent\ExPriorityQueue.cpp" />
+    <ClCompile Include="SearcComponent\Memo.cpp" />
+    <ClCompile Include="SearcComponent\PagingMemory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CppLib\CppLib.vcxproj">

@@ -51,7 +51,7 @@ namespace alib::Search::Lib {
 
 		void destruction(const double t) {
 			release(currentNode);
-			IMemo::Unlock();
+			IMemo::Get().unlock();
 		}
 		NODISCARD double getNextLimit(const double interval) const noexcept {
 			return ((Config::GetLimit() - interval) / remainDepth) + interval;
