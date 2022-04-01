@@ -61,7 +61,7 @@ namespace alib::Search::Lib {
 			return std::upper_bound(memory.begin(), memory.end(), MemoryData(p, 0));;
 		}
 
-		void deploy(pointer p) noexcept {
+		void deploy(pointer p) {
 			first = p;
 			last = p;
 			reserved = addPointer(first, GetPagingCount());
@@ -129,8 +129,9 @@ namespace alib::Search::Lib {
 		*/
 		template <class... Args>
 		NODISCARD pointer create(Args&&... val) {
-			return new(allocate(1)) value_type(std::forward<Args>(val)...);
-			//return traits::construct(alloc, allocate(1), std::forward<Args>(val)...);
+			pointer ptr = allocate(1);
+			traits::construct(alloc, ptr, std::forward<Args>(val)...);
+			return ptr;
 		}
 
 		/**

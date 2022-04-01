@@ -17,6 +17,8 @@
     <ClCompile Include="SearcComponent\ExPriorityQueue.cpp" />
     <ClCompile Include="SearcComponent\Memo.cpp" />
     <ClCompile Include="SearcComponent\PagingMemory.cpp" />
+    <ClCompile Include="SearcComponent\Patch.cpp" />
+    <ClCompile Include="SearcComponent\Reference.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
