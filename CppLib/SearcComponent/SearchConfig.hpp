@@ -40,7 +40,7 @@ namespace alib::Search {
 		DefaultSearchMethod(const ScoreType score, Args&& ...args) noexcept : score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
 	};
 
-	template <size_type Depth, size_type Width, size_type Limit, class Method>
+	template <size_type Depth, size_type Width, size_type Limit, class Method, bool Debug = false>
 	struct ConfigTemplate {
 		using SearchMethod = Method;
 
@@ -48,9 +48,9 @@ namespace alib::Search {
 		using ScoreType = typename Method::ScoreType;
 		using HashType = typename Method::HashType;
 
-		NODISCARD inline static constexpr bool HasHash() noexcept { return std::is_void_v<HashType>; }
+		NODISCARD inline static constexpr bool HasHash() noexcept { return !std::is_void_v<HashType>; }
 
-		NODISCARD inline static constexpr bool GetDebug() noexcept { return true; }
+		NODISCARD inline static constexpr bool GetDebug() noexcept { return Debug; }
 
 		NODISCARD inline static constexpr size_type GetDepth() noexcept { return Depth; }
 		NODISCARD inline static constexpr size_type GetWidth() noexcept { return Width; }

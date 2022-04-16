@@ -29,7 +29,10 @@ namespace alib::Search {
 
 			Reference(const Reference&) = delete;
 			Reference(Reference&&) = default;
-			Reference& operator=(const Reference&) = delete;
+			Reference& operator=(const Reference& o) {
+				store(o.load());
+				return *this;
+			}
 			Reference& operator=(Reference&&) = delete;
 
 			value_type operator=(const value_type value) {
@@ -38,288 +41,264 @@ namespace alib::Search {
 			}
 			NODISCARD operator value_type() const noexcept { return *ptr; }
 
-			void store(const value_type value) { IMemo::Modify(*ptr, value); }
+			void store(const value_type value) noexcept { IMemo::Modify(*ptr, value); }
 			NODISCARD value_type load() const noexcept { return *ptr; }
 		};
 
 
 		template<typename Type, class Space>
-		class Value : public Reference<Type, Space> {
+		class Value {
 		public:
-			using base_type = Reference<Type, Space>;
-			using value_type = typename base_type::value_type;
+			using value_type = Type;
 		private:
 			using IMemo = MemoSingleton<Space>;
 			value_type val{};
 		public:
-			using Reference<Type, Space>::operator=;
+			Value(const Value& o) {
+				store(o.load());
+			}
+			Value(Value&&) = default;
+			Value& operator=(const Value& o) {
+				store(o.load());
+				return *this;
+			}
+			Value& operator=(Value&&) = delete;
 
-			Value() noexcept : Reference<Type, Space>(&val), val(value_type()) {}
-			Value(const value_type v) noexcept : Reference<Type, Space>(std::addressof(val)), val(v) {}
+			Value() noexcept : val(value_type()) {}
+			explicit Value(const value_type v) noexcept : val(v) {}
+
+			value_type operator=(const value_type value) {
+				IMemo::Modify(val, value);
+				return value;
+			}
+			NODISCARD operator value_type() const noexcept { return val; }
+
+			void store(const value_type value) noexcept { IMemo::Modify(val, value); }
+			NODISCARD value_type load() const noexcept { return val; }
+		};
+
+		template <class T>
+		class has_iterator {
+			template <class U>
+			static constexpr std::true_type check(typename U::iterator*) {
+				return std::true_type{};
+			};
+
+			template <class U>
+			static constexpr std::false_type check(...) {
+				return std::false_type{};
+			}
+		public:
+			static constexpr bool value = decltype(check<T>(nullptr))::value;
 		};
 
 		template<typename Type, size_type Size, class Space>
-		class ArrayIterator {
-		public:
-			using Ref = Reference<Type, Space>;
-
-			using iterator_category = std::random_access_iterator_tag;
-			using value_type = Type;
-			using difference_type = ptrdiff_t;
-			using pointer = Type*;
-			using reference = Ref;
-		private:
-			pointer ptr;
-		public:
-
-			ArrayIterator() = default;
-			explicit ArrayIterator(pointer p, size_type offset = 0) noexcept : ptr(p + offset) {}
-
-			NODISCARD reference operator*() const noexcept {
-				return Ref::Ref(*ptr);
-			}
-
-			ArrayIterator& operator++() noexcept {
-				++ptr;
-				return *this;
-			}
-
-			ArrayIterator operator++(int) noexcept {
-				ArrayIterator tmp = *this;
-				++ptr;
-				return tmp;
-			}
-
-			ArrayIterator& operator--() noexcept {
-				--ptr;
-				return *this;
-			}
-
-			ArrayIterator operator--(int) noexcept {
-				ArrayIterator tmp = *this;
-				--ptr;
-				return tmp;
-			}
-
-			ArrayIterator& operator+=(const ptrdiff_t diff) noexcept {
-				ptr += diff;
-				return *this;
-			}
-
-			NODISCARD ArrayIterator operator+(const ptrdiff_t diff) const noexcept {
-				ArrayIterator tmp = *this;
-				tmp += diff;
-				return tmp;
-			}
-
-			ArrayIterator& operator-=(const ptrdiff_t diff) noexcept {
-				ptr -= diff;
-				return *this;
-			}
-
-			NODISCARD ptrdiff_t operator-(const ArrayIterator& right) const noexcept {
-				return ptr - right.ptr;
-			}
-
-			NODISCARD ArrayIterator operator-(const ptrdiff_t diff) const noexcept {
-				ArrayIterator tmp = *this;
-				tmp -= diff;
-				return tmp;
-			}
-
-			NODISCARD Ref operator[](const ptrdiff_t idx) const noexcept {
-				return Ref::Ref(ptr[idx]);
-			}
-
-			NODISCARD bool operator==(const ArrayIterator& right) const noexcept {
-				return ptr == right.ptr;
-			}
-			NODISCARD bool operator!=(const ArrayIterator& right) const noexcept {
-				return !(*this == right);
-			}
-			NODISCARD bool operator<(const ArrayIterator& right) const noexcept {
-				return ptr < right.ptr;
-			}
-			NODISCARD bool operator>(const ArrayIterator& right) const noexcept {
-				return right < *this;
-			}
-			NODISCARD bool operator<=(const ArrayIterator& right) const noexcept {
-				return !(right < *this);
-			}
-			NODISCARD bool operator>=(const ArrayIterator& right) const noexcept {
-				return !(*this < right);
-			}
-		};
-
-		template <class Type, size_type Size, class Space>
-		NODISCARD ArrayIterator<Type, Size, Space> operator+(const ptrdiff_t diff, ArrayIterator<Type, Size, Space> next) noexcept {
-			next += diff;
-			return next;
-		}
-
-		template<typename Type, size_type Size, class Space>
-		class Array {
+		class Vector {
 		public:
 			using value_type = Type;
-
-			using Ref = Reference<value_type, Space>;
-
 			using container_type = std::array<value_type, Size>;
-			using iterator = ArrayIterator<value_type, Size, Space>;
+
+			using iterator = typename container_type::iterator;
 			using const_iterator = typename container_type::const_iterator;
-			using reverse_iterator = std::reverse_iterator<iterator>;
+			using reverse_iterator = typename container_type::reverse_iterator;
 			using const_reverse_iterator = typename container_type::const_reverse_iterator;
+
 		private:
 			using IMemo = MemoSingleton<Space>;
-			container_type elems;
+			Value<size_type, Space> count{};
+			container_type c{};
+
+			bool hasCapacity(const size_type n) const noexcept {
+				return (0 < n && n <= Size);
+			}
+			bool inside(const size_type index) const noexcept {
+				return (0 <= index && index < count);
+			}
+
+			void assertCapacity(const size_type n) const noexcept {
+				assert(hasCapacity(n));
+			}
+			void assertInside(const size_type index) const noexcept {
+				assert(inside(index));
+			}
+			void assertAny() const noexcept {
+				assert(0 < count);
+			}
+
+			template <class Iter>
+			void setIter(Iter first, Iter last) noexcept {
+				int i = 0;
+				for (auto it = first; it != last; ++it) {
+					c[i] = *it;
+					++i;
+				}
+			}
 		public:
-			Array() noexcept {};
-			Array(const Array&) = delete;
-			Array(Array&&) = default;
-			Array& operator=(const Array&) = delete;
-			Array& operator=(Array&&) = delete;
+			Vector() = default;
+			Vector(const Vector&) = default;
+			Vector(Vector&&) = default;
+			Vector& operator=(const Vector&) = default;
+			Vector& operator=(Vector&&) = delete;
 
-			Array(std::initializer_list<value_type> ilist) {
-				assert(ilist.size() == Size);
-				auto it = ilist.begin();
-				for (auto& v : elems) {
-					v = *it;
-					++it;
+			explicit Vector(const size_type n) noexcept {
+				assertCapacity(n);
+				count.store(n);
+			}
+			Vector(const size_type n, const value_type v) noexcept {
+				assertCapacity(n);
+				count.store(n);
+				forange(i, count.load()) {
+					c[i] = v;
 				}
 			}
-
-			NODISCARD const value_type& load(const size_type idx) const noexcept { return elems[idx]; }
-			void store(const size_type idx, const value_type& o) noexcept { IMemo::Modify(elems[idx], o); }
-
-			NODISCARD const value_type& operator[](const size_type idx) const noexcept { return elems[idx]; }
-			NODISCARD Ref operator[](const size_type idx) noexcept { return Ref::Ref(elems[idx]); }
-
-			NODISCARD const value_type& at(const size_type idx) const { return elems.at(idx); }
-			NODISCARD Ref at(const size_type idx) { return Ref::Ref(elems.at(idx)); }
-
-			NODISCARD size_type size() const noexcept { return elems.size(); }
-			void fill(const value_type& value) {
-				for (auto& v : elems) {
-					IMemo::Modify(v, value);
-				}
+			template <class Iter>
+			Vector(Iter first, Iter last) noexcept {
+				const size_type n = last - first;
+				assertCapacity(n);
+				count.store(n);
+				setIter(first, last);
 			}
 
-			NODISCARD const value_type& front() const noexcept { return elems.front(); }
-			NODISCARD Ref front() noexcept { return Ref::Ref(elems.front()); }
-			NODISCARD const value_type& back() const noexcept { return elems.back(); }
-			NODISCARD Ref back() noexcept { return Ref::Ref(elems.back()); }
+			Vector(std::initializer_list<value_type> il) noexcept {
+				const size_type n = il.size();
+				assertCapacity(n);
+				count.store(n);
+				setIter(il.begin(), il.end());
+			}
 
-			NODISCARD const size_type* data() const noexcept { return elems.data(); }
-			NODISCARD const Array& as_const() const noexcept { return *this; }
-
-			NODISCARD iterator begin() noexcept { return iterator(elems.data(), 0); }
-			NODISCARD iterator end() noexcept { return iterator(elems.data(), Size); }
-			NODISCARD const_iterator begin() const noexcept { return elems.begin(); }
-			NODISCARD const_iterator end() const noexcept { return elems.end(); }
-			NODISCARD const_iterator cbegin() const noexcept { return elems.cbegin(); }
-			NODISCARD const_iterator cend() const noexcept { return elems.cend(); }
-
+			NODISCARD iterator begin() noexcept { return c.begin(); }
+			NODISCARD iterator end() noexcept { return c.begin() += count.load(); }
+			NODISCARD const_iterator begin() const noexcept { return c.begin(); }
+			NODISCARD const_iterator end() const noexcept { return c.begin() += count.load(); }
+			NODISCARD const_iterator cbegin() const noexcept { return c.cbegin(); }
+			NODISCARD const_iterator cend() const noexcept { return c.cbegin() += count.load(); }
 			NODISCARD reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
 			NODISCARD reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
-			NODISCARD const_reverse_iterator rbegin() const noexcept { return elems.rbegin(); }
-			NODISCARD const_reverse_iterator rend() const noexcept { return elems.rend(); }
-			NODISCARD const_reverse_iterator crbegin() const noexcept { return elems.crbegin(); }
-			NODISCARD const_reverse_iterator crend() const noexcept { return elems.crend(); }
-		};
+			NODISCARD const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
+			NODISCARD const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
+			NODISCARD const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(cend()); }
+			NODISCARD const_reverse_iterator crend() const noexcept { return const_reverse_iterator(cbegin()); }
 
-		template<typename Type, size_type Size, class Space>
-		class Vector : public Array<Type, Size, Space> {
-		public:
-			using Ref = Reference<Type, Space>;
-			using base = Array<Type, Size, Space>;
-			using container_type = typename base::container_type;
-		private:
-			using IMemo = MemoSingleton<Space>;
-			size_type count = 0;
+			NODISCARD size_type size() const noexcept { return count; }
+			NODISCARD size_type max_size() const noexcept { return Size; }
 
-			void hasCapacity(const size_type n) noexcept { assert(0 < n && n <= Size); }
-			void inside(const size_type idx) noexcept { assert(0 <= idx && idx < count); }
-			void any() noexcept { assert(0 < count); }
-		public:
-			Vector() noexcept : base() {};
-			Vector(const Vector& other) = default;
-			Vector(Vector&& other) = default;
-			Vector& operator=(const Vector& other) = default;
-			Vector& operator=(Vector&& other) = default;
-
-			void set(const size_type idx, const Type& o) noexcept {
-				inside(idx);
-				IMemo::Modify(base::operator[](idx));
-				base::operator[](idx) = o;
-			}
-			NODISCARD const Type& get(const size_type idx) const noexcept {
-				inside(idx);
-				return base::operator[](idx);
-			}
-
-			void clear() noexcept { IMemo::Modify(count); count = 0; }
-			NODISCARD inline bool empty() const noexcept { return count == 0; }
-			NODISCARD inline bool full() const noexcept { return count == base::size(); }
-			NODISCARD inline size_type full_size() const noexcept { return base::size(); }
-			NODISCARD inline size_type size() const noexcept { return count; }
-
-			void push_back(const Type& value) noexcept {
-				hasCapacity(count + 1);
-				IMemo::Modify(count);
-				WARN_PUSH_DISABLE(26446);
-				IMemo::Modify(base::operator[](count));
-				base::operator[](count) = value;
-				WARN_POP();
-				++count;
-			}
-			template<class ...Args>
-			void emplace_back(Args&& ...args) noexcept {
-				hasCapacity(count + 1);
-				IMemo::Modify(count);
-				IMemo::Modify(base::operator[](count));
-				new(std::addressof(base::operator[](count))) Type(std::forward<Args>(args)...);
-				++count;
-			}
-
-			void pop_back() noexcept { any(); IMemo::Modify(count); --count; }
-
-			WARN_PUSH_DISABLE(26434 26446);
-			NODISCARD Ref front() noexcept { any(); return Ref::Ref(base::front()); }
-			NODISCARD const Type& front() const noexcept { any(); return base::front(); }
-
-			NODISCARD Ref back() noexcept { any(); return Ref::Ref(base::operator[](count - 1)); }
-			NODISCARD const Type& back() const noexcept { any(); return base::operator[](count - 1); }
-			WARN_POP();
-
-			void resize(const size_type n, const Type& value) noexcept {
-				hasCapacity(n);
-				IMemo::Modify(count);
-				if (count < n) {
-					const auto addCount = n - count;
-					IMemo::Modify(std::addressof(base::operator[](count)), sizeof(Type) * addCount);
-					forstep(idx, count, n) { base::operator[](idx) = value; }
+			void resize(const size_type n, const Type& v) noexcept {
+				assertCapacity(n);
+				if (count.load() < n) {
+					const auto addCount = n - count.load();
+					forstep(i, count.load(), n) {
+						c[i] = v;
+					}
 				}
-				count = n;
+				count.store(n);
 			}
 			void resize(int n) noexcept {
-				hasCapacity(n);
-				IMemo::Modify(count);
-				count = n;
+				assertCapacity(n);
+				count.store(n);
 			}
 
-			NODISCARD const Type& operator[](const size_type idx) const noexcept { inside(idx); return base::operator[](idx); }
-			NODISCARD Ref operator[](const size_type idx) noexcept { inside(idx); return Ref::Ref(base::operator[](idx)); }
+			NODISCARD size_type capacity() const noexcept { return Size; }
+			NODISCARD bool empty() const noexcept { return count.load() == 0; }
 
-			NODISCARD const Type& at(const size_type idx) const { inside(idx); return base::at(idx); }
-			NODISCARD Ref at(const size_type idx) { inside(idx); return Ref::Ref(base::at(idx)); }
+			NODISCARD value_type& operator[](const size_type index) noexcept {
+				assertInside(index);
+				return c[index];
+			}
+			NODISCARD const value_type& operator[](const size_type index) const noexcept {
+				assertInside(index);
+				return c[index];
+			}
+			NODISCARD value_type& at(const size_type index) {
+				if (not inside(index)) {
+					throw std::out_of_range("invalid vector subscript");
+				}
+				return c[index];
+			}
+			NODISCARD const value_type& at(const size_type index) const {
+				if (not inside(index)) {
+					throw std::out_of_range("invalid vector subscript");
+				}
+				return c[index];
+			}
+
+			NODISCARD value_type& front() noexcept {
+				assertAny();
+				return c[0];
+			}
+			NODISCARD const value_type& front() const noexcept {
+				assertAny();
+				return c[0];
+			}
+
+			NODISCARD value_type& back() noexcept {
+				assertAny();
+				return c[count - 1];
+			}
+			NODISCARD const value_type& back() const noexcept {
+				assertAny();
+				return c[count - 1];
+			}
+
+			void assign(const size_type n, const value_type& v) noexcept {
+				assertCapacity(n);
+				if (count.load() < n) {
+					count.store(n);
+				}
+				forange(i, n) {
+					c[i] = v;
+				}
+			}
+			template <class Iter>
+			void assign(Iter first, Iter last) noexcept {
+				const size_type n = last - first;
+				assertCapacity(n);
+				if (count.load() < n) {
+					count.store(n);
+				}
+				setIter(first, last);
+			}
+			void assign(std::initializer_list<value_type> il) noexcept {
+				const size_type n = il.size();
+				assertCapacity(n);
+				if (count.load() < n) {
+					count.store(n);
+				}
+				setIter(il.begin(), il.end());
+			}
+
+			void push_back(const Type& v) noexcept {
+				const size_type n = count.load() + 1;
+				assertCapacity(n);
+				count.store(n);
+				c[n] = v;
+			}
+
+			template<class ...Args>
+			value_type& emplace_back(Args&& ...args) noexcept {
+				const size_type n = count.load() + 1;
+				assertCapacity(n);
+				count.store(n);
+				c[n] = Type(std::forward<Args>(args)...);
+				return c[n];
+			}
+
+			void pop_back() noexcept {
+				assertAny();
+				count.store(count.load() - 1);
+			}
+
+			void clear() noexcept {
+				count.store(0);
+			}
 		};
+
 	}
 	template<class Class>
 	struct MemoType {
 		template<typename Type>
 		using Value = Lib::Value<Type, Class>;
 		template<typename Type, size_type Size>
-		using Array = Lib::Array<Type, Size, Class>;
+		using Array = std::array<Type, Size>;
 		template<typename Type, size_type Size>
 		using Vector = Lib::Vector<Type, Size, Class>;
 	};

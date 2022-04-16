@@ -20,7 +20,7 @@ namespace alib::Search::Lib {
 		void start() noexcept { startPoint = Clock::now(); }
 
 		/** @brief åoâﬂéûä‘ÅimsÅj */
-		NODISCARD inline double interval() const noexcept {
+		NODISCARD double interval() const noexcept {
 			constexpr auto basicDuration = std::chrono::milliseconds(1);
 			constexpr auto duration = std::chrono::duration_cast<Rep>(basicDuration).count();
 			return std::chrono::duration_cast<Rep>(Clock::now() - startPoint).count() / static_cast<double>(duration);

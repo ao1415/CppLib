@@ -185,12 +185,16 @@ namespace alib::Search::Lib {
 			nextRanking.emplace(argument.score, ptr);
 		}
 
-		NODISCARD inline const ArgumentType& getArgument() const noexcept {
+		NODISCARD const ArgumentType& getArgument() const noexcept {
 			assert(nextNode != nullptr);
 			return nextNode->argument;
 		}
-		NODISCARD inline bool endOfSearch() const noexcept { return remainDepth == 0; }
-		NODISCARD inline int getDepth() const noexcept { return Config::GetDepth() - remainDepth - 2; }
+		NODISCARD bool endOfSearch() const noexcept {
+			return remainDepth == 0;
+		}
+		NODISCARD int getDepth() const noexcept {
+			return Config::GetDepth() - remainDepth - 2;
+		}
 
 	};
 }

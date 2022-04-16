@@ -9,7 +9,7 @@ namespace alib::Search::Lib {
 		using ArgumentType = typename Config::ArgumentType;
 		using pointer = SearchNode*;
 
-		SearchNode() noexcept = default;
+		SearchNode() = default;
 		SearchNode(pointer parent, const ArgumentType& argument) noexcept : argument(argument) {
 			assert(parent != nullptr);
 			this->parent = parent;
@@ -28,8 +28,8 @@ namespace alib::Search::Lib {
 		/** @brief ノード遷移パッチ */
 		Memo::Patch patch{};
 
-		inline void addRef() noexcept { ref++; }
-		inline void subRef() noexcept { ref--; }
+		void addRef() noexcept { ref++; }
+		void subRef() noexcept { ref--; }
 	};
 
 	template<class Config>
@@ -40,7 +40,7 @@ namespace alib::Search::Lib {
 		PagingMemory<SearchNode<Config>, 16_K> pool{};
 		pointer top = nullptr;
 	public:
-		NODISCARD inline pointer alloc() {
+		NODISCARD pointer alloc() {
 			if (top != nullptr) {
 				pointer ptr = top;
 				top = ptr->parent;
@@ -50,7 +50,7 @@ namespace alib::Search::Lib {
 				return pool.allocate(1);
 			}
 		}
-		inline void release(pointer ptr) noexcept {
+		void release(pointer ptr) noexcept {
 			ptr->parent = top;
 			top = ptr;
 		}

@@ -42,21 +42,21 @@ namespace alib::Search::Lib {
 			std::make_heap(c.begin(), c.end(), comp);
 		}
 
-		template <class Ite>
-		ExPriorityQueue(Ite first, Ite last) : c(first, last), comp() {
+		template <class Iter>
+		ExPriorityQueue(Iter first, Iter last) : c(first, last), comp() {
 			std::make_heap(c.begin(), c.end(), comp);
 		}
-		template <class Ite>
-		ExPriorityQueue(Ite first, Ite last, const value_compare& pred) : c(first, last), comp(pred) {
+		template <class Iter>
+		ExPriorityQueue(Iter first, Iter last, const value_compare& pred) : c(first, last), comp(pred) {
 			std::make_heap(c.begin(), c.end(), comp);
 		}
-		template <class Ite>
-		ExPriorityQueue(Ite first, Ite last, const value_compare& pred, const container_type& cont) : c(cont), comp(pred) {
+		template <class Iter>
+		ExPriorityQueue(Iter first, Iter last, const value_compare& pred, const container_type& cont) : c(cont), comp(pred) {
 			c.insert(c.end(), first, last);
 			std::make_heap(c.begin(), c.end(), comp);
 		}
-		template <class Ite>
-		ExPriorityQueue(Ite first, Ite last, const value_compare& pred, container_type&& cont) : c(std::move(cont)), comp(pred) {
+		template <class Iter>
+		ExPriorityQueue(Iter first, Iter last, const value_compare& pred, container_type&& cont) : c(std::move(cont)), comp(pred) {
 			c.insert(c.end(), first, last);
 			std::make_heap(c.begin(), c.end(), comp);
 		}
@@ -128,7 +128,7 @@ namespace alib::Search::Lib {
 	template <class Compare, class Container>
 	ExPriorityQueue(Compare, Container)->ExPriorityQueue<typename Container::value_type, Compare>;
 
-	template <class Ite, class Compare = std::less<typename std::iterator_traits<Ite>::value_type>>
-	ExPriorityQueue(Ite, Ite, Compare = Compare())->ExPriorityQueue<typename std::iterator_traits<Ite>::value_type, Compare>;
+	template <class Iter, class Compare = std::less<typename std::iterator_traits<Iter>::value_type>>
+	ExPriorityQueue(Iter, Iter, Compare = Compare())->ExPriorityQueue<typename std::iterator_traits<Iter>::value_type, Compare>;
 
 }

@@ -3,6 +3,8 @@
 #include <queue>
 
 #include "BeamSearch.hpp"
+#include "Stopwatch.hpp"
+#include "SearcComponent/Reference.hpp"
 
 class Beam : public alib::Search::SearchTemplate<alib::Search::DebugProcess> {
 private:
@@ -24,8 +26,8 @@ int main() {
 
 	using namespace alib;
 
-	Beam beam;
-	beam.start({});
-
+	//Beam beam;
+	//beam.start({});
+	
 	return 0;
 }

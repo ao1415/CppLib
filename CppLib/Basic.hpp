@@ -20,12 +20,25 @@ __pragma(warning(disable:x))
 #define WARN_POP() __pragma(warning(pop))
 #endif
 
+#if 1
+namespace std {
+	template <class T>
+	struct remove_cvref {
+		using type = remove_cv_t<remove_reference_t<T>>;
+	};
+
+	template <class T>
+	using remove_cvref_t = typename remove_cvref<T>::type;
+}
+#endif // 1
+
+
 // [0, END)でCOUNTERを増加させる
-#define forange(COUNTER, END) forstep_type(std::decay_t<decltype(END)>, COUNTER, std::decay_t<decltype(END)>(), END)
+#define forange(COUNTER, END) forstep_type(std::remove_cvref_t<decltype(END)>, COUNTER, std::remove_cvref_t<decltype(END)>(), END)
 // [0, END)で指定された型のCOUNTERを増加させる
-#define forange_type(COUNTER_TYPE, COUNTER, END) forstep_type(COUNTER_TYPE, COUNTER, std::decay_t<COUNTER_TYPE>(), END)
+#define forange_type(COUNTER_TYPE, COUNTER, END) forstep_type(COUNTER_TYPE, COUNTER, std::remove_cvref_t<COUNTER_TYPE>(), END)
 // [BEGIN, END)でCOUNTERを増加させる
-#define forstep(COUNTER, BEGIN, END) forstep_type(std::decay_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
+#define forstep(COUNTER, BEGIN, END) forstep_type(std::remove_cvref_t<decltype(BEGIN)>, COUNTER, BEGIN, END)
 // [BEGIN, END)で指定された型のCOUNTERを増加させる
 #define forstep_type(COUNTER_TYPE, COUNTER, BEGIN, END) \
 WARN_PUSH_DISABLE(26496 26498)\
@@ -35,8 +48,6 @@ WARN_POP()
 #define NODISCARD [[nodiscard]]
 
 namespace alib {
-
-#ifdef _DEBUG
 	/**
 	 * @brief 警告なしで縮小キャストを行う
 	 * @tparam U キャスト元型
@@ -49,9 +60,6 @@ namespace alib {
 		return static_cast<T>(std::forward<U>(u));
 		WARN_POP();
 	}
-#else
-#define narrow_cast static_cast
-#endif
 
 	/**
 	 * @brief 指定されたサイズから、確保するサイズを算出する

@@ -20,12 +20,12 @@ namespace alib::Search::Lib {
 		pointer last = nullptr;
 		pointer reserved = nullptr;
 
-		inline void add(const size_type n) noexcept {
+		void add(const size_type n) noexcept {
 			WARN_PUSH_DISABLE(26481);
 			last += n;
 			WARN_POP();
 		}
-		inline void sub(const size_type n) noexcept {
+		void sub(const size_type n) noexcept {
 			WARN_PUSH_DISABLE(26481);
 			last -= n;
 			WARN_POP();
@@ -33,19 +33,21 @@ namespace alib::Search::Lib {
 	public:
 		Stream() = default;
 		WARN_PUSH_DISABLE(26481);
-		Stream(pointer data, size_type size) noexcept : first(data), last(data), reserved(data + size) {}
+		Stream(pointer data, size_type size) noexcept
+			: first(data), last(data), reserved(data + size) {}
 		WARN_POP();
-		Stream(pointer data, pointer reserved) noexcept : first(data), last(data), reserved(reserved) {}
+		Stream(pointer data, pointer reserved) noexcept
+			: first(data), last(data), reserved(reserved) {}
 
 		template<typename Ptr>
-		NODISCARD inline Ptr reinterpret() const noexcept {
+		NODISCARD Ptr reinterpret() const noexcept {
 			WARN_PUSH_DISABLE(26490);
 			return reinterpret_cast<Ptr>(last);
 			WARN_POP();
 		};
 
 		template<typename Type>
-		NODISCARD inline Type get() noexcept {
+		NODISCARD Type get() noexcept {
 			assert(sizeof(Type) <= capacity());
 			Type ret = *(reinterpret<Type*>());
 			add(sizeof(Type));
@@ -53,13 +55,13 @@ namespace alib::Search::Lib {
 		}
 
 		template<typename Type>
-		NODISCARD inline Type pop() noexcept {
+		NODISCARD Type pop() noexcept {
 			assert(sizeof(Type) <= size());
 			sub(sizeof(Type));
 			return *(reinterpret<Type*>());
 		}
 
-		inline void pop(Stream& stream, const size_type length) noexcept {
+		void pop(Stream& stream, const size_type length) noexcept {
 			assert(length <= size());
 			assert(length <= stream.capacity());
 			sub(length);
@@ -68,36 +70,46 @@ namespace alib::Search::Lib {
 		}
 
 		template<typename Type>
-		inline void set(const Type value) noexcept {
+		void set(const Type value) noexcept {
 			assert(sizeof(Type) <= capacity());
 			*(reinterpret<Type*>()) = value;
 			add(sizeof(Type));
 		}
 
-		inline void copy(void* ptr, const size_type length) noexcept {
+		void copy(void* ptr, const size_type length) noexcept {
 			assert(length <= capacity());
 			std::memcpy(last, ptr, length);
 			add(length);
 		}
 
-		inline void seek(const size_type length) noexcept {
+		void seek(const size_type length) noexcept {
 			assert(length <= capacity());
 			add(length);
 		}
 
-		inline void write(void* ptr, const size_type length) noexcept {
+		void write(void* ptr, const size_type length) noexcept {
 			assert(length <= capacity());
 			std::memcpy(ptr, last, length);
 			add(length);
 		}
 
-		NODISCARD inline size_type size() const noexcept { return std::distance(first, last); }
-		NODISCARD inline size_type capacity() const noexcept { return std::distance(last, reserved); }
+		NODISCARD size_type size() const noexcept {
+			return std::distance(first, last);
+		}
+		NODISCARD size_type capacity() const noexcept {
+			return std::distance(last, reserved);
+		}
 
-		NODISCARD inline bool endOfStream() const noexcept { return 0 == capacity(); }
-		NODISCARD inline bool hasStream() const noexcept { return 0 < capacity(); }
+		NODISCARD bool endOfStream() const noexcept {
+			return 0 == capacity();
+		}
+		NODISCARD bool hasStream() const noexcept {
+			return 0 < capacity();
+		}
 
-		NODISCARD inline std::pair<pointer, pointer> data() const noexcept { return { first,last }; }
+		NODISCARD std::pair<pointer, pointer> data() const noexcept {
+			return { first,last };
+		}
 	};
 
 }

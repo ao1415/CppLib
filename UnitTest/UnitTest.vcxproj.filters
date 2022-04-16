@@ -19,6 +19,9 @@
     <ClCompile Include="SearcComponent\PagingMemory.cpp" />
     <ClCompile Include="SearcComponent\Patch.cpp" />
     <ClCompile Include="SearcComponent\Reference.cpp" />
+    <ClCompile Include="SearcComponent\SearchComponentLib.cpp" />
+    <ClCompile Include="SearcComponent\SearchConfig.cpp" />
+    <ClCompile Include="SearcComponent\SearchNode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
