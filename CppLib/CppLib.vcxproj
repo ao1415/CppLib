@@ -175,7 +175,6 @@
     <ClInclude Include="SearcComponent\SearchNode.hpp" />
     <ClInclude Include="SearcComponent\Stream.hpp" />
     <ClInclude Include="SearcComponent\Timer.hpp" />
-    <ClInclude Include="SearchLib.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />
   </ItemGroup>

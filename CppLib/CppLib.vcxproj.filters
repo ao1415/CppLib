@@ -77,9 +77,6 @@
     <ClInclude Include="BeamSearch.hpp">
       <Filter>ヘッダー ファイル\Search</Filter>
     </ClInclude>
-    <ClInclude Include="SearchLib.hpp">
-      <Filter>ヘッダー ファイル\Search</Filter>
-    </ClInclude>
     <ClInclude Include="SearcComponent\BeamSearchProcess.hpp">
       <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
