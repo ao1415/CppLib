@@ -8,7 +8,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Reference_FuncTest01) {
+	TEST(SearcComponent_Memo, Reference_FuncTest01) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();
@@ -62,7 +62,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Value_FuncTest01) {
+	TEST(SearcComponent_Memo, Value_FuncTest01) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();
@@ -114,7 +114,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Value_FuncTest02) {
+	TEST(SearcComponent_Memo, Value_FuncTest02) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();
@@ -165,7 +165,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Vector_FuncTest01) {
+	TEST(SearcComponent_Memo, Vector_FuncTest01) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();
@@ -229,7 +229,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Vector_FuncTest02) {
+	TEST(SearcComponent_Memo, Vector_FuncTest02) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();
@@ -246,7 +246,7 @@ namespace SearcComponent::ReferenceTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearcComponent_Memo, SearcComponent_Vector_FuncTest03) {
+	TEST(SearcComponent_Memo, Vector_FuncTest03) {
 		using namespace alib::Search::Lib;
 		struct Space {};
 		auto& memo = MemoSingleton<Space>::Get();

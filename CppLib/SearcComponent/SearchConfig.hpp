@@ -21,7 +21,7 @@ namespace alib::Search {
 		DefaultSearchMethod(const ScoreType score, const HashType hash) noexcept : score(score), hash(hash) {}
 		DefaultSearchMethod(const ScoreType score) noexcept : score(score) {}
 		template<class... Args>
-		DefaultSearchMethod(const ScoreType score, const HashType hash, Args&& ...args) noexcept : score(score), argument(ArgumentType(std::forward<Args>(args)...)) {}
+		DefaultSearchMethod(const ScoreType score, const HashType hash, Args&& ...args) noexcept : score(score), hash(hash), argument(ArgumentType(std::forward<Args>(args)...)) {}
 	};
 
 	template<class Argument, typename Score>

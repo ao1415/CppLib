@@ -8,7 +8,7 @@ namespace SearcComponent::SearchConfigTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearchConfig_DefaultSearchMethod, DefaultSearchMethod_FuncTest01) {
+	TEST(SearcComponent_DefaultSearchMethod, DefaultSearchMethod_FuncTest01) {
 		using namespace alib::Search;
 
 		struct Arg {
@@ -25,20 +25,23 @@ namespace SearcComponent::SearchConfigTest {
 		testing::StaticAssertTypeEq<void, Method::HashType>();
 
 		Method method1;
+		ASSERT_EQ(0.0, method1.score);
 		ASSERT_EQ(0, method1.argument.a);
 		ASSERT_EQ(0.0, method1.argument.b);
-		ASSERT_EQ(0.0, method1.score);
 
 		Method method2(0);
 		Method method3(0, Arg{ 1,2.0 });
 		Method method4(0, 1, 2.0);
 
+		ASSERT_EQ(0.0, method2.score);
 		ASSERT_EQ(0, method2.argument.a);
 		ASSERT_EQ(0.0, method2.argument.b);
 
+		ASSERT_EQ(0.0, method3.score);
 		ASSERT_EQ(1, method3.argument.a);
 		ASSERT_EQ(2.0, method3.argument.b);
 
+		ASSERT_EQ(0.0, method4.score);
 		ASSERT_EQ(1, method4.argument.a);
 		ASSERT_EQ(2.0, method4.argument.b);
 	}
@@ -46,7 +49,7 @@ namespace SearcComponent::SearchConfigTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearchConfig_DefaultSearchMethod, DefaultSearchMethod_FuncTest02) {
+	TEST(SearcComponent_DefaultSearchMethod, DefaultSearchMethod_FuncTest02) {
 		using namespace alib::Search;
 
 		struct Arg {
@@ -63,25 +66,33 @@ namespace SearcComponent::SearchConfigTest {
 		testing::StaticAssertTypeEq<size_t, Method::HashType>();
 
 		Method method;
-		ASSERT_EQ(0, method.argument.a);
-		ASSERT_EQ(0.0, method.argument.b);
 		ASSERT_EQ(0.0, method.score);
 		ASSERT_EQ(0, method.hash);
+		ASSERT_EQ(0, method.argument.a);
+		ASSERT_EQ(0.0, method.argument.b);
 
-		Method method2(0);
-		Method method3(0, 1);
-		Method method4(0, 1, Arg{ 2, 3.0 });
-		Method method5(0, 1, 2, 3.0);
+		Method method2(4);
+		Method method3(4, 1);
+		Method method4(4, 1, Arg{ 2, 3.0 });
+		Method method5(4, 1, 2, 3.0);
 
+		ASSERT_EQ(4.0, method2.score);
+		ASSERT_EQ(0, method2.hash);
 		ASSERT_EQ(0, method2.argument.a);
 		ASSERT_EQ(0.0, method2.argument.b);
 
+		ASSERT_EQ(4.0, method3.score);
+		ASSERT_EQ(1, method3.hash);
 		ASSERT_EQ(0, method3.argument.a);
 		ASSERT_EQ(0.0, method3.argument.b);
 
+		ASSERT_EQ(4.0, method4.score);
+		ASSERT_EQ(1, method4.hash);
 		ASSERT_EQ(2, method4.argument.a);
 		ASSERT_EQ(3.0, method4.argument.b);
 
+		ASSERT_EQ(4.0, method5.score);
+		ASSERT_EQ(1, method5.hash);
 		ASSERT_EQ(2, method5.argument.a);
 		ASSERT_EQ(3.0, method5.argument.b);
 	}
@@ -89,7 +100,7 @@ namespace SearcComponent::SearchConfigTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearchConfig_ConfigTemplate, ConfigTemplate_FuncTest01) {
+	TEST(SearcComponent_ConfigTemplate, ConfigTemplate_FuncTest01) {
 		using namespace alib::Search;
 
 		struct Arg {

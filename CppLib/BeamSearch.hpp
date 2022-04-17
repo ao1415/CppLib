@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include "Basic.hpp"
+#include "SearcComponent/Reference.hpp"
 #include "SearcComponent/BeamSearchProcess.hpp"
 
 namespace alib::Search {
@@ -25,11 +26,12 @@ namespace alib::Search {
 	 * @brief SearchTemplate
 	 * @tparam Config
 	*/
-	template<class Process>
+	template<class ProcessType>
 	class SearchTemplate {
 	public:
+		using Process = ProcessType;
 		using Config = typename Process::Config;
-		using ArgumentType = typename Config::SearchMethod;
+		using SearchMethod = typename Config::SearchMethod;
 
 		SearchTemplate() = default;
 		virtual ~SearchTemplate() = default;
@@ -70,20 +72,26 @@ namespace alib::Search {
 		 * @param args Ÿ‚Ìó‘Ôˆ—‚Ìˆø”
 		*/
 		template<class... Args>
-		inline void nextSearch(Args&& ...args) {
-			nextSearch(ArgumentType(std::forward<Args>(args)...));
+		void nextSearch(Args&& ...args) {
+			nextSearch(SearchMethod(std::forward<Args>(args)...));
 		}
 
 		/**
 		 * @brief Ÿ‚Ìó‘Ôˆ—
 		 * @param arg Ÿ‚Ìó‘Ôˆ—‚Ìˆø”
 		*/
-		inline void nextSearch(ArgumentType argument) { process.reserve(argument); }
+		void nextSearch(SearchMethod argument) {
+			process.reserve(argument);
+		}
 
-		NODISCARD inline bool endOfSearch() const noexcept { return process.endOfSearch(); }
-		NODISCARD inline int getDepth() const noexcept { return process.getDepth(); }
+		NODISCARD bool endOfSearch() const noexcept {
+			return process.endOfSearch();
+		}
+		NODISCARD int getDepth() const noexcept {
+			return process.getDepth();
+		}
 	public:
-		void start(const ArgumentType& argument) {
+		void start(const SearchMethod& argument) {
 			visited.clear();
 			process.timerStart();
 			process.init();
@@ -91,15 +99,22 @@ namespace alib::Search {
 			loop();
 		}
 
+		NODISCARD auto getResultList() const {
+			return process.getResultList();
+		}
+
 		/**
 		 * @brief ‰‰ñ‚Ìƒpƒ^[ƒ“‚ğ¶¬‚·‚é
 		 * @param ˆø”
 		*/
-		virtual void init(const ArgumentType&) = 0;
+		virtual void init(const SearchMethod&) = 0;
 		/**
 		 * @brief ’T¸ˆ—
 		 * @param ˆø”
 		*/
-		virtual void search(const ArgumentType&) = 0;
+		virtual void search(const SearchMethod&) = 0;
 	};
+
+	template<class Config, class Space>
+	using BeamSearchTemplate = SearchTemplate<Lib::BeamSearchProcess<Config, Space>>;
 }

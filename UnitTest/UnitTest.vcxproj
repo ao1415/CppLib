@@ -38,6 +38,7 @@
   <ItemGroup>
     <ClCompile Include="Basic.cpp" />
     <ClCompile Include="BasicPoint.cpp" />
+    <ClCompile Include="SearcComponent\BeamSearch.cpp" />
     <ClCompile Include="SearcComponent\Buffer.cpp" />
     <ClCompile Include="FixedGrid.cpp" />
     <ClCompile Include="pch.cpp">

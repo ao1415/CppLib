@@ -22,6 +22,7 @@
     <ClCompile Include="SearcComponent\SearchComponentLib.cpp" />
     <ClCompile Include="SearcComponent\SearchConfig.cpp" />
     <ClCompile Include="SearcComponent\SearchNode.cpp" />
+    <ClCompile Include="SearcComponent\BeamSearch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />

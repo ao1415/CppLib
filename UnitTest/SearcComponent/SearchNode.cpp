@@ -9,7 +9,7 @@ namespace SearcComponent::SearchNodeTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearchNode_SearchNode, SearchNode_FuncTest01) {
+	TEST(SearcComponent_SearchNode, SearchNode_FuncTest01) {
 		using namespace alib::Search;
 		using namespace alib::Search::Lib;
 
@@ -24,15 +24,15 @@ namespace SearcComponent::SearchNodeTest {
 		using Config = ConfigTemplate<10, 100, 2000, Method>;
 
 		SearchNode<Config> node1;
-		SearchNode<Config> node2(std::addressof(node1), Arg{ 1,2.0 });
+		SearchNode<Config> node2(std::addressof(node1), Method{ 0,0,Arg{ 1,2.0 } });
 
 		ASSERT_EQ(2, node1.ref);
-		
+
 		ASSERT_EQ(1, node2.ref);
 		ASSERT_EQ(1, node2.depth);
 		ASSERT_EQ(std::addressof(node1), node2.parent);
-		ASSERT_EQ(1, node2.argument.a);
-		ASSERT_EQ(2.0, node2.argument.b);
+		ASSERT_EQ(1, node2.searchArgument.argument.a);
+		ASSERT_EQ(2.0, node2.searchArgument.argument.b);
 
 		node2.subRef();
 		ASSERT_EQ(0, node2.ref);
@@ -41,7 +41,7 @@ namespace SearcComponent::SearchNodeTest {
 	/**
 	 * @brief 単純機能テスト
 	*/
-	TEST(SearchNode_SearchNodePool, SearchNodePool_FuncTest01) {
+	TEST(SearcComponent_SearchNodePool, SearchNodePool_FuncTest01) {
 		using namespace alib::Search;
 		using namespace alib::Search::Lib;
 

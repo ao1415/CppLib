@@ -6,11 +6,11 @@ namespace alib::Search::Lib {
 
 	template<class Config>
 	struct SearchNode {
-		using ArgumentType = typename Config::ArgumentType;
+		using SearchMethod = typename Config::SearchMethod;
 		using pointer = SearchNode*;
 
 		SearchNode() = default;
-		SearchNode(pointer parent, const ArgumentType& argument) noexcept : argument(argument) {
+		SearchNode(pointer parent, const SearchMethod& arg) noexcept : searchArgument(arg) {
 			assert(parent != nullptr);
 			this->parent = parent;
 			parent->addRef();
@@ -24,7 +24,7 @@ namespace alib::Search::Lib {
 		/** @brief 親ノードのポインタ */
 		pointer parent = nullptr;
 		/** @brief 探査引数 */
-		ArgumentType argument{};
+		SearchMethod searchArgument{};
 		/** @brief ノード遷移パッチ */
 		Memo::Patch patch{};
 

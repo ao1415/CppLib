@@ -44,8 +44,6 @@ namespace alib::Search::Lib {
 
 		/** @brief 探査タイマー */
 		Timer timer;
-		/** @brief 変更管理 */
-		Memo version;
 		/** @brief ノード管理 */
 		SearchNodePool<Config> nodePool;
 
@@ -112,7 +110,7 @@ namespace alib::Search::Lib {
 
 			if (node->ref == 1) {
 				if (node->parent != nullptr) { release(node->parent); }
-				if (node->patch.hasValue()) { version.release(node->patch); }
+				if (node->patch.hasValue()) { IMemo::Get().release(node->patch); }
 				nodePool.release(node);
 			}
 			else {
@@ -120,7 +118,9 @@ namespace alib::Search::Lib {
 			}
 		}
 	public:
-		void timerStart() noexcept { timer.start(); }
+		void timerStart() noexcept {
+			timer.start();
+		}
 
 		void init() {
 			remainDepth = narrow_cast<decltype(remainDepth)>(Config::GetDepth());
@@ -133,7 +133,7 @@ namespace alib::Search::Lib {
 			clearRanking(nextRanking);
 			nodeWidthCount = 0;
 
-			version.lock();
+			IMemo::Get().lock();
 		}
 
 		NODISCARD bool onloop() {
@@ -143,7 +143,7 @@ namespace alib::Search::Lib {
 				nextNode = nullptr;
 			}
 			else {
-				currentNode->patch = version.commit();
+				currentNode->patch = IMemo::Get().commit();
 			}
 
 			const double interval = timer.interval();
@@ -181,20 +181,40 @@ namespace alib::Search::Lib {
 		}
 
 		void reserve(const SearchMethod& argument) {
-			NodePointer ptr = new(nodePool.alloc()) Node(currentNode, argument.argument);
+			NodePointer ptr = new(nodePool.alloc()) Node(currentNode, argument);
 			nextRanking.emplace(argument.score, ptr);
 		}
 
-		NODISCARD const ArgumentType& getArgument() const noexcept {
+		NODISCARD const SearchMethod& getArgument() const noexcept {
 			assert(nextNode != nullptr);
-			return nextNode->argument;
+			return nextNode->searchArgument;
 		}
 		NODISCARD bool endOfSearch() const noexcept {
 			return remainDepth == 0;
 		}
 		NODISCARD int getDepth() const noexcept {
-			return Config::GetDepth() - remainDepth - 2;
+			return narrow_cast<int>(Config::GetDepth()) - remainDepth - 2;
 		}
+
+		NODISCARD std::vector<ArgumentType> getResultList() const {
+			if (nextRanking.empty()) {
+				return std::vector<ArgumentType>();
+			}
+			else {
+				std::vector<ArgumentType> args(Config::GetDepth());
+				const auto& top = nextRanking.top();
+				NodePointer node = top.second;
+				forange(depth, Config::GetDepth()) {
+					args[Config::GetDepth() - 1 - depth] = node->searchArgument.argument;
+					if (node->parent == nullptr) {
+						break;
+					}
+					node = node->parent;
+				}
+				return args;
+			}
+		}
+
 
 	};
 }
