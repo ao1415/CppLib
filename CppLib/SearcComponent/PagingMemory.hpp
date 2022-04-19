@@ -21,7 +21,7 @@ namespace alib::Search::Lib {
 
 		using MemoryData = std::pair<uintptr_t, size_type>;
 
-		static_assert(std::is_same_v<value_type, traits::value_type>);
+		static_assert(std::is_same_v<value_type, typename traits::value_type>);
 		static_assert(std::is_trivially_copyable_v<value_type>);
 	private:
 
@@ -76,7 +76,13 @@ namespace alib::Search::Lib {
 
 	public:
 
-		PagingMemory() = default;
+		PagingMemory() {
+			forange(t, 64) {
+				pointer p = traits::allocate(alloc, GetPagingCount());
+				memory.emplace_back(toInteger(p), 0);
+			}
+			std::sort(memory.begin(), memory.end());
+		}
 		~PagingMemory() {
 			for (auto rit = memory.rbegin(), rend = memory.rbegin(); rit != rend; ++rit) {
 				traits::deallocate(alloc, toPointer(rit->first), GetPagingCount());

@@ -184,54 +184,55 @@ namespace CodeCompressor
                 return value;
             };
 
-            string exceptCode = code.Replace("\t", " ");
+            string exceptCode = code;
+            //exceptCode = replace(exceptCode, new Regex(@"\t"), " ");
             exceptCode = replace(exceptCode, new Regex(@"\r"), "\n");
 
             exceptCode = replace(exceptCode, new Regex(@"  "), " ");
             exceptCode = replace(exceptCode, new Regex(@"(\n | \n)"), "\n");
-            exceptCode = replace(exceptCode, new Regex(@"//.*\n"), "\n");
-            exceptCode = replace(exceptCode, new Regex(@"\n{2}"), "\n");
+            //exceptCode = replace(exceptCode, new Regex(@"//.*\n"), "\n");
+            //exceptCode = replace(exceptCode, new Regex(@"\n{2}"), "\n");
 
-            exceptCode = replace(exceptCode, new Regex(@"( {|{ )"), "{");
-            exceptCode = replace(exceptCode, new Regex(@"( }|} )"), "}");
-            exceptCode = replace(exceptCode, new Regex(@"( <|< )"), "<");
-            exceptCode = replace(exceptCode, new Regex(@"( >|> )"), ">");
-            exceptCode = replace(exceptCode, new Regex(@"( \(|\( )"), "(");
-            exceptCode = replace(exceptCode, new Regex(@"( \)|\) )"), ")");
-            exceptCode = replace(exceptCode, new Regex(@"( \[|\[ )"), "[");
-            exceptCode = replace(exceptCode, new Regex(@"( \]|\] )"), "]");
+            //exceptCode = replace(exceptCode, new Regex(@"( {|{ )"), "{");
+            //exceptCode = replace(exceptCode, new Regex(@"( }|} )"), "}");
+            //exceptCode = replace(exceptCode, new Regex(@"( <|< )"), "<");
+            //exceptCode = replace(exceptCode, new Regex(@"( >|> )"), ">");
+            //exceptCode = replace(exceptCode, new Regex(@"( \(|\( )"), "(");
+            //exceptCode = replace(exceptCode, new Regex(@"( \)|\) )"), ")");
+            //exceptCode = replace(exceptCode, new Regex(@"( \[|\[ )"), "[");
+            //exceptCode = replace(exceptCode, new Regex(@"( \]|\] )"), "]");
 
-            exceptCode = replace(exceptCode, new Regex(@"( \+|\+ )"), "+");
-            exceptCode = replace(exceptCode, new Regex(@"( -|- )"), "-");
-            exceptCode = replace(exceptCode, new Regex(@"( /|/ )"), "/");
-            exceptCode = replace(exceptCode, new Regex(@"( \*|\* )"), "*");
-            exceptCode = replace(exceptCode, new Regex(@"( =|= )"), "=");
-            exceptCode = replace(exceptCode, new Regex(@"( ,|, )"), ",");
-            exceptCode = replace(exceptCode, new Regex(@"( :|: )"), ":");
-            exceptCode = replace(exceptCode, new Regex(@"( \||\| )"), "|");
-            exceptCode = replace(exceptCode, new Regex(@"( ~|~ )"), "~");
-            exceptCode = replace(exceptCode, new Regex(@"( %|% )"), "%");
-            exceptCode = replace(exceptCode, new Regex(@"( !|! )"), "!");
-            exceptCode = replace(exceptCode, new Regex(@"( \?|\? )"), "?");
-            exceptCode = replace(exceptCode, new Regex(@"( \^|\^ )"), "^");
-            exceptCode = replace(exceptCode, new Regex(@"( ;|; )"), ";");
-            exceptCode = replace(exceptCode, new Regex(@"( &|& )"), "&");
-            exceptCode = replace(exceptCode, new Regex(@"( &=|&= )"), "&=");
-            exceptCode = replace(exceptCode, new Regex(@"( #|# )"), "#");
+            //exceptCode = replace(exceptCode, new Regex(@"( \+|\+ )"), "+");
+            //exceptCode = replace(exceptCode, new Regex(@"( -|- )"), "-");
+            //exceptCode = replace(exceptCode, new Regex(@"( /|/ )"), "/");
+            //exceptCode = replace(exceptCode, new Regex(@"( \*|\* )"), "*");
+            //exceptCode = replace(exceptCode, new Regex(@"( =|= )"), "=");
+            //exceptCode = replace(exceptCode, new Regex(@"( ,|, )"), ",");
+            //exceptCode = replace(exceptCode, new Regex(@"( :|: )"), ":");
+            //exceptCode = replace(exceptCode, new Regex(@"( \||\| )"), "|");
+            //exceptCode = replace(exceptCode, new Regex(@"( ~|~ )"), "~");
+            //exceptCode = replace(exceptCode, new Regex(@"( %|% )"), "%");
+            //exceptCode = replace(exceptCode, new Regex(@"( !|! )"), "!");
+            //exceptCode = replace(exceptCode, new Regex(@"( \?|\? )"), "?");
+            //exceptCode = replace(exceptCode, new Regex(@"( \^|\^ )"), "^");
+            //exceptCode = replace(exceptCode, new Regex(@"( ;|; )"), ";");
+            //exceptCode = replace(exceptCode, new Regex(@"( &|& )"), "&");
+            //exceptCode = replace(exceptCode, new Regex(@"( &=|&= )"), "&=");
+            //exceptCode = replace(exceptCode, new Regex(@"( #|# )"), "#");
 
-            exceptCode = replace(exceptCode, new Regex(@"/\*\*\n\*"), "/** ");
-            exceptCode = replace(exceptCode, new Regex(@"\n\*@"), " @");
-            exceptCode = replace(exceptCode, new Regex(@"\n\*/"), "*/");
-            exceptCode = replace(exceptCode, new Regex(@"\*\*@"), "** @");
-            exceptCode = replace(exceptCode, new Regex(@" \*@"), " @");
-            exceptCode = replace(exceptCode, new Regex(@"(/\*\*.*?\*/)(?!\n)"), "$1\n");
+            //exceptCode = replace(exceptCode, new Regex(@"/\*\*\n\*"), "/** ");
+            //exceptCode = replace(exceptCode, new Regex(@"\n\*@"), " @");
+            //exceptCode = replace(exceptCode, new Regex(@"\n\*/"), "*/");
+            //exceptCode = replace(exceptCode, new Regex(@"\*\*@"), "** @");
+            //exceptCode = replace(exceptCode, new Regex(@" \*@"), " @");
+            //exceptCode = replace(exceptCode, new Regex(@"(/\*\*.*?\*/)(?!\n)"), "$1\n");
 
-            exceptCode = replace(exceptCode, new Regex(@"({|}|<|>|\(|\)|;|:)(?!\\)\n(?!(#|/\*\*))"), "$1");
-            exceptCode = replace(exceptCode, new Regex(@"(#include.*>)(?!\n)"), "$1\n");
+            //exceptCode = replace(exceptCode, new Regex(@"({|}|<|>|\(|\)|;|:)(?!\\)\n(?!(#|/\*\*))"), "$1");
+            //exceptCode = replace(exceptCode, new Regex(@"(#include.*>)(?!\n)"), "$1\n");
 
-            exceptCode = replace(exceptCode, new Regex(@"\n(?!(#|/\*\*))(.*)\n(?!(#|/\*\*))"), "\n$2");
+            //exceptCode = replace(exceptCode, new Regex(@"\n(?!(#|/\*\*))(.*)\n(?!(#|/\*\*))"), "\n$2");
 
-            exceptCode = replace(exceptCode, new Regex(@"\n\*\n(?!(#|/\*\*))"), "\n");
+            //exceptCode = replace(exceptCode, new Regex(@"\n\*\n(?!(#|/\*\*))"), "\n");
 
             exceptCode = replace(exceptCode, new Regex(@"\n{2}"), "\n");
 

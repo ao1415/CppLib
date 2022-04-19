@@ -68,7 +68,7 @@ namespace alib::Search::Lib {
 			NodePointer currentRoot = current;
 			NodePointer nextRoot = next->parent;
 
-			std::array<Memo::Patch, Config::GetDepth()> redos{};
+			std::array<Memo::PatchType, Config::GetDepth()> redos{};
 			int stack = narrow_cast<decltype(stack)>(Config::GetDepth());
 
 			while (currentRoot != nextRoot) {

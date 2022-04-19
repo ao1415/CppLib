@@ -113,6 +113,9 @@
     <ClInclude Include="SearcComponent\Timer.hpp">
       <Filter>ヘッダー ファイル\Search\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Zobrist.hpp">
+      <Filter>ヘッダー ファイル\Search</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

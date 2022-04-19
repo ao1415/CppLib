@@ -177,6 +177,7 @@
     <ClInclude Include="SearcComponent\Timer.hpp" />
     <ClInclude Include="Stopwatch.hpp" />
     <ClInclude Include="Timer.hpp" />
+    <ClInclude Include="Zobrist.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -17,7 +17,7 @@ namespace alib::Search::Lib {
 		using pointer = Stream::pointer;
 
 		using MemoSizeType = unsigned short;
-		using Patch = Patch<MemoSizeType>;
+		using PatchType = Patch<MemoSizeType>;
 	private:
 		Buffer<16_K, MemoSizeType> buffer{};
 		PagingMemory<std::byte, 1_M> pool;
@@ -59,7 +59,7 @@ namespace alib::Search::Lib {
 		 * @brief 差分パッチ作成
 		 * @return 差分パッチ
 		*/
-		NODISCARD Patch commit() {
+		NODISCARD PatchType commit() {
 			const size_type wholeSize = buffer.wholeSize();
 			pointer first = pool.allocate(wholeSize);
 			const Stream buf(first, wholeSize);
@@ -69,7 +69,7 @@ namespace alib::Search::Lib {
 		 * @brief パッチデータを解放する
 		 * @param patch パッチ
 		*/
-		void release(const Patch& patch) {
+		void release(const PatchType& patch) {
 			pool.release(patch.address());
 		}
 	};

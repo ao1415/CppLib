@@ -26,7 +26,7 @@ namespace alib::Search::Lib {
 		/** @brief 探査引数 */
 		SearchMethod searchArgument{};
 		/** @brief ノード遷移パッチ */
-		Memo::Patch patch{};
+		Memo::PatchType patch{};
 
 		void addRef() noexcept { ref++; }
 		void subRef() noexcept { ref--; }

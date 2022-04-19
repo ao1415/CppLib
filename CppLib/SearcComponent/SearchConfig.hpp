@@ -8,9 +8,9 @@ namespace alib::Search {
 
 	template<class Argument, typename Score = double, typename Hash = void>
 	struct DefaultSearchMethod {
-		using ArgumentType = typename Argument;
-		using ScoreType = typename Score;
-		using HashType = typename Hash;
+		using ArgumentType = Argument;
+		using ScoreType = Score;
+		using HashType = Hash;
 
 		ArgumentType argument{};
 		ScoreType score{};
@@ -26,8 +26,8 @@ namespace alib::Search {
 
 	template<class Argument, typename Score>
 	struct DefaultSearchMethod<Argument, Score, void> {
-		using ArgumentType = typename Argument;
-		using ScoreType = typename Score;
+		using ArgumentType = Argument;
+		using ScoreType = Score;
 		using HashType = void;
 
 		ArgumentType argument{};
